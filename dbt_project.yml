@@ -1,0 +1,16 @@
+name: 'source_example'
+version: '0.0.1'
+config-version: 2
+
+profile: 'amos_snowflake'
+
+model-paths: ["models"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  source_example:
+    +materialized: view
+    staging:
+      +enabled: "{{ var('active_source') == 'example' }}"
+      +schema: stg_example

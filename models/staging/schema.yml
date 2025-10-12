@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: stg_fund
+    columns:
+      - name: fund_id
+        tests: [not_null]
+      - name: fund_code
+        tests: [not_null, unique]
+
+  - name: stg_investor
+    columns:
+      - name: investor_id
+        tests: [not_null]
+      - name: investor_code
+        tests: [not_null, unique]
+
+  - name: stg_company
+    columns:
+      - name: company_id
+        tests: [not_null]
+      - name: company_name
+        tests: [not_null, unique]
+
+  - name: stg_transactions
+    columns:
+      - name: natural_key
+        tests: [not_null]
+      - name: date
+        tests: [not_null]
+      - name: transaction_type
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["DRAWDOWN","DISTRIBUTION","DIVIDEND","EXPENSE","MANAGEMENT_FEE"]

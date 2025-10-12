@@ -1,0 +1,37 @@
+version: 2
+sources:
+  - name: raw_example_admin
+    database: "{{ var('raw_db', 'RAW') }}"
+    schema:   "{{ var('raw_admin_schema', 'EXAMPLE_ADMIN') }}"
+    tables:
+      - name: example_fund_admin_capital_calls
+      - name: example_fund_admin_distributions
+      - name: example_fund_admin_management_fees
+      - name: example_fund_admin_expenses
+      - name: example_fund_admin_investment_nav
+      - name: example_fund_admin_fund_nav
+      - name: example_fund_admin_investor_commitments
+
+  - name: raw_example_crm
+    database: "{{ var('raw_db', 'RAW') }}"
+    schema:   "{{ var('raw_crm_schema', 'EXAMPLE_CRM') }}"
+    tables:
+      - name: example_crm_opportunities
+
+  - name: raw_example_pm
+    database: "{{ var('raw_db', 'RAW') }}"
+    schema:   "{{ var('raw_pm_schema', 'EXAMPLE_PM') }}"
+    tables:
+      - name: example_pm_company_performance
+      - name: example_pm_company_valuations
+
+  - name: raw_ref
+    database: "{{ var('raw_db', 'RAW') }}"
+    schema:   "{{ var('raw_ref_schema', 'REF') }}"
+    tables:
+      - name: example_ref_currency
+      - name: example_ref_country
+      - name: example_ref_fx_rates
+      - name: example_xref_fund
+      - name: example_xref_investor
+      - name: example_xref_company
