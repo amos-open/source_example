@@ -8,6 +8,109 @@ model-paths: ["models"]
 target-path: "target"
 clean-targets: ["target", "dbt_packages"]
 
+seed-paths: ["seeds"]
+
+seeds:
+  +quote_columns: false
+  +database: RAW 
+
+  # --------------------------
+  # Reference / Cross-refs
+  # --------------------------
+  source_example:
+    reference:
+      +schema: REF
+      ref_currency:
+        +alias: example_ref_currency
+      ref_fx_rates:
+        +alias: example_ref_fx_rates
+        +column_types:
+          fx_rate_as_of: date
+          base_currency: varchar(3)
+          currency_code: varchar(3)
+          fx_rate: number(18,8)
+          fx_rate_source: varchar
+      xref_fund:
+        +alias: example_xref_fund
+      xref_investor:
+        +alias: example_xref_investor
+      xref_company:
+        +alias: example_xref_company
+
+    # --------------------------
+    # CRM
+    # --------------------------
+    crm:
+      +schema: EXAMPLE_CRM
+      crm_opportunities:
+        +alias: example_crm_opportunities
+        +column_types:
+          expected_amount: number(20,2)
+          close_date: date
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+
+    # --------------------------
+    # Fund Admin
+    # --------------------------
+    admin:
+      +schema: EXAMPLE_ADMIN
+      fund_admin_capital_calls:
+        +alias: example_fund_admin_capital_calls
+        +column_types:
+          call_date: date
+          call_amount: number(20,2)
+      fund_admin_distributions:
+        +alias: example_fund_admin_distributions
+        +column_types:
+          distribution_date: date
+          distribution_amount: number(20,2)
+      fund_admin_management_fees:
+        +alias: example_fund_admin_management_fees
+        +column_types:
+          fee_date: date
+          fee_amount: number(20,2)
+      fund_admin_expenses:
+        +alias: example_fund_admin_expenses
+        +column_types:
+          expense_date: date
+          expense_amount: number(20,2)
+      fund_admin_investment_nav:
+        +alias: example_fund_admin_investment_nav
+        +column_types:
+          as_of_date: date
+          current_nav: number(24,2)
+      fund_admin_fund_nav:
+        +alias: example_fund_admin_fund_nav
+        +column_types:
+          as_of_date: date
+          nav_amount: number(24,2)
+      fund_admin_investor_commitments:
+        +alias: example_fund_admin_investor_commitments
+        +column_types:
+          commitment_amount: number(20,2)
+          commitment_date: date
+
+    # --------------------------
+    # Portfolio Mgmt
+    # --------------------------
+    pm:
+      +schema: EXAMPLE_PM
+      pm_company_performance:
+        +alias: example_pm_company_performance
+        +column_types:
+          date_as_of: date
+          revenue_ltm: number(24,2)
+          ebitda_ltm: number(24,2)
+          net_income_ltm: number(24,2)
+          cash: number(24,2)
+          debt: number(24,2)
+      pm_company_valuations:
+        +alias: example_pm_company_valuations
+        +column_types:
+          date_from: date
+          amount: number(20,2)
+
 models:
   source_example:
     +materialized: view
