@@ -116,4 +116,3 @@ models:
     +materialized: view
     staging:
       +enabled: "{{ var('active_source', 'example') == 'example' }}"
-      +schema: stg_example
