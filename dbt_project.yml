@@ -116,3 +116,5 @@ models:
     +materialized: view
     staging:
       +enabled: "{{ var('active_source', 'example') == 'example' }}"
+      # prepend profile schema to schema name
+      +schema: "{{ target.schema }}_stg_example"
