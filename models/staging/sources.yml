@@ -1,0 +1,277 @@
+version: 2
+
+sources:
+  - name: crm_vendor
+    description: "CRM system data from generic CRM vendor"
+    database: "{{ var('raw_database', 'RAW') }}"
+    schema: AMOS_CRM_VENDOR
+    tables:
+      - name: amos_crm_opportunities
+        description: "Deal pipeline and opportunity data from CRM system"
+        columns:
+          - name: opportunity_id
+            description: "Unique identifier for the opportunity"
+            tests:
+              - not_null
+              - unique
+          - name: opportunity_name
+            description: "Name of the investment opportunity"
+          - name: company_name
+            description: "Name of the target company"
+          - name: company_id
+            description: "Reference to company master data"
+          - name: stage
+            description: "Current stage in the investment process"
+          - name: expected_close_date
+            description: "Expected closing date for the transaction"
+          - name: amount
+            description: "Expected investment amount"
+          - name: currency_code
+            description: "Currency code for the investment amount"
+          - name: probability
+            description: "Probability of closing (0-100%)"
+          - name: source
+            description: "Source of the opportunity"
+          - name: owner_name
+            description: "Deal team member responsible"
+          - name: created_date
+            description: "Date when opportunity was created"
+          - name: last_modified_date
+            description: "Date when opportunity was last modified"
+
+      - name: amos_crm_companies
+        description: "Company master data from CRM system"
+        columns:
+          - name: company_id
+            description: "Unique identifier for the company"
+            tests:
+              - not_null
+              - unique
+          - name: company_name
+            description: "Primary company name"
+          - name: legal_name
+            description: "Legal entity name"
+          - name: industry_primary
+            description: "Primary industry classification"
+          - name: industry_secondary
+            description: "Secondary industry classification"
+          - name: country_code
+            description: "Country code where company is headquartered"
+          - name: founded_year
+            description: "Year the company was founded"
+          - name: employee_count
+            description: "Number of employees"
+          - name: revenue_range
+            description: "Annual revenue range"
+          - name: website
+            description: "Company website URL"
+
+      - name: amos_crm_contacts
+        description: "Contact information from CRM system"
+        columns:
+          - name: contact_id
+            description: "Unique identifier for the contact"
+            tests:
+              - not_null
+              - unique
+          - name: company_id
+            description: "Reference to company"
+          - name: first_name
+            description: "Contact first name"
+          - name: last_name
+            description: "Contact last name"
+          - name: title
+            description: "Job title"
+          - name: email
+            description: "Email address"
+          - name: phone
+            description: "Phone number"
+          - name: role_type
+            description: "Type of role (Executive, Finance, etc.)"
+          - name: decision_maker
+            description: "Whether contact is a decision maker"
+          - name: relationship_strength
+            description: "Strength of relationship (Strong, Medium, Weak)"
+
+  - name: fund_admin_vendor
+    description: "Fund administration system data"
+    database: "{{ var('raw_database', 'RAW') }}"
+    schema: AMOS_FUND_ADMIN_VENDOR
+    tables:
+      - name: amos_admin_funds
+        description: "Fund master data from fund administration system"
+        columns:
+          - name: fund_code
+            description: "Unique fund identifier"
+            tests:
+              - not_null
+              - unique
+
+      - name: amos_admin_investors
+        description: "Investor master data from fund administration system"
+        columns:
+          - name: investor_code
+            description: "Unique investor identifier"
+            tests:
+              - not_null
+              - unique
+
+      - name: amos_admin_capital_calls
+        description: "Capital call transactions"
+        columns:
+          - name: capital_call_id
+            description: "Unique capital call identifier"
+            tests:
+              - not_null
+              - unique
+
+      - name: amos_admin_distributions
+        description: "Distribution transactions"
+        columns:
+          - name: distribution_id
+            description: "Unique distribution identifier"
+            tests:
+              - not_null
+              - unique
+
+      - name: amos_admin_nav_fund
+        description: "Fund-level NAV calculations"
+        columns:
+          - name: nav_id
+            description: "Unique NAV record identifier"
+            tests:
+              - not_null
+              - unique
+
+      - name: amos_admin_nav_investment
+        description: "Investment-level NAV calculations"
+        columns:
+          - name: nav_id
+            description: "Unique NAV record identifier"
+            tests:
+              - not_null
+              - unique
+
+  - name: portfolio_management_vendor
+    description: "Portfolio management system data"
+    database: "{{ var('raw_database', 'RAW') }}"
+    schema: AMOS_PM_VENDOR
+    tables:
+      - name: amos_pm_investments
+        description: "Investment master data from portfolio management system"
+        columns:
+          - name: investment_code
+            description: "Unique investment identifier"
+            tests:
+              - not_null
+              - unique
+
+      - name: amos_pm_company_financials
+        description: "Company financial data"
+        columns:
+          - name: financial_id
+            description: "Unique financial record identifier"
+            tests:
+              - not_null
+              - unique
+
+      - name: amos_pm_valuations
+        description: "Investment valuation data"
+        columns:
+          - name: valuation_id
+            description: "Unique valuation record identifier"
+            tests:
+              - not_null
+              - unique
+
+  - name: accounting_vendor
+    description: "Accounting system data"
+    database: "{{ var('raw_database', 'RAW') }}"
+    schema: AMOS_ACCOUNTING_VENDOR
+    tables:
+      - name: amos_acc_journal_entries
+        description: "Journal entries from accounting system"
+        columns:
+          - name: journal_entry_id
+            description: "Unique journal entry identifier"
+            tests:
+              - not_null
+              - unique
+
+      - name: amos_acc_bank_transactions
+        description: "Bank transactions from accounting system"
+        columns:
+          - name: transaction_id
+            description: "Unique transaction identifier"
+            tests:
+              - not_null
+              - unique
+
+  - name: reference
+    description: "Reference and cross-reference data"
+    database: "{{ var('raw_database', 'RAW') }}"
+    schema: AMOS_REF
+    tables:
+      - name: amos_ref_currencies
+        description: "Currency reference data"
+        columns:
+          - name: currency_code
+            description: "ISO currency code"
+            tests:
+              - not_null
+              - unique
+
+      - name: amos_ref_countries
+        description: "Country reference data"
+        columns:
+          - name: country_code
+            description: "ISO country code"
+            tests:
+              - not_null
+              - unique
+
+      - name: amos_ref_industries
+        description: "Industry classification reference data"
+        columns:
+          - name: industry_code
+            description: "Industry classification code"
+            tests:
+              - not_null
+              - unique
+
+      - name: amos_ref_fx_rates
+        description: "Foreign exchange rates"
+        columns:
+          - name: fx_rate_date
+            description: "Date of the exchange rate"
+          - name: base_currency_code
+            description: "Base currency code"
+          - name: currency_code
+            description: "Target currency code"
+
+      - name: amos_xref_funds
+        description: "Cross-reference mapping for funds across systems"
+        columns:
+          - name: canonical_fund_id
+            description: "Canonical fund identifier"
+            tests:
+              - not_null
+              - unique
+
+      - name: amos_xref_companies
+        description: "Cross-reference mapping for companies across systems"
+        columns:
+          - name: canonical_company_id
+            description: "Canonical company identifier"
+            tests:
+              - not_null
+              - unique
+
+      - name: amos_xref_investors
+        description: "Cross-reference mapping for investors across systems"
+        columns:
+          - name: canonical_investor_id
+            description: "Canonical investor identifier"
+            tests:
+              - not_null
+              - unique

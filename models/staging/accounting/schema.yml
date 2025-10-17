@@ -1,0 +1,130 @@
+version: 2
+
+models:
+  - name: stg_acc_journal_entries
+    description: "Cleaned and standardized journal entry data from accounting system"
+    columns:
+      - name: journal_entry_id
+        description: "Unique journal entry identifier"
+        tests:
+          - not_null
+      - name: fund_code
+        description: "Reference to fund"
+        tests:
+          - not_null
+      - name: entry_date
+        description: "Journal entry date"
+        tests:
+          - not_null
+      - name: account_code
+        description: "Chart of accounts code"
+        tests:
+          - not_null
+      - name: debit_amount
+        description: "Debit amount (positive)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+      - name: credit_amount
+        description: "Credit amount (positive)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+      - name: entry_side
+        description: "Whether this is a debit or credit entry"
+        tests:
+          - accepted_values:
+              values: ['DEBIT', 'CREDIT', 'UNKNOWN']
+      - name: standardized_entry_type
+        description: "Standardized entry type classification"
+        tests:
+          - accepted_values:
+              values: ['CAPITAL_CALL', 'INVESTMENT', 'DISTRIBUTION', 'MANAGEMENT_FEE', 'EXPENSE', 'INTEREST', 'VALUATION_ADJUSTMENT', 'REALIZED_GAIN_LOSS', 'UNREALIZED_GAIN_LOSS', 'OTHER']
+      - name: account_classification
+        description: "Account classification based on chart of accounts"
+        tests:
+          - accepted_values:
+              values: ['CASH_AND_EQUIVALENTS', 'INVESTMENTS', 'OTHER_ASSETS', 'LIABILITIES', 'PARTNER_CAPITAL', 'RETAINED_EARNINGS', 'INCOME', 'EXPENSES', 'GAINS_LOSSES', 'OTHER']
+      - name: financial_statement_category
+        description: "Financial statement category"
+        tests:
+          - accepted_values:
+              values: ['BALANCE_SHEET', 'INCOME_STATEMENT', 'OTHER']
+      - name: business_process_category
+        description: "Business process categorization"
+        tests:
+          - accepted_values:
+              values: ['INVESTOR_TRANSACTIONS', 'INVESTMENT_TRANSACTIONS', 'OPERATIONAL_TRANSACTIONS', 'FINANCING_TRANSACTIONS', 'OTHER_TRANSACTIONS']
+      - name: amount_validation_status
+        description: "Validation status for debit/credit amounts"
+        tests:
+          - accepted_values:
+              values: ['VALID', 'BOTH_DEBIT_CREDIT', 'NO_AMOUNT']
+      - name: entry_quality_rating
+        description: "Overall entry quality assessment"
+        tests:
+          - accepted_values:
+              values: ['HIGH_QUALITY', 'MEDIUM_QUALITY', 'LOW_QUALITY', 'POOR_QUALITY']
+
+  - name: stg_acc_bank_transactions
+    description: "Cleaned and standardized bank transaction data from accounting system"
+    columns:
+      - name: transaction_id
+        description: "Unique bank transaction identifier"
+        tests:
+          - not_null
+          - unique
+      - name: fund_code
+        description: "Reference to fund"
+        tests:
+          - not_null
+      - name: transaction_date
+        description: "Bank transaction date"
+        tests:
+          - not_null
+      - name: transaction_amount
+        description: "Transaction amount"
+        tests:
+          - not_null
+      - name: cash_flow_direction
+        description: "Direction of cash flow"
+        tests:
+          - accepted_values:
+              values: ['INFLOW', 'OUTFLOW', 'UNKNOWN']
+      - name: standardized_transaction_type
+        description: "Standardized transaction type"
+        tests:
+          - accepted_values:
+              values: ['WIRE_TRANSFER', 'ACH_TRANSFER', 'CHECK', 'DEPOSIT', 'BANK_FEE', 'INTEREST', 'OTHER']
+      - name: standardized_reconciliation_status
+        description: "Standardized reconciliation status"
+        tests:
+          - accepted_values:
+              values: ['RECONCILED', 'PENDING', 'EXCEPTION', 'UNKNOWN']
+      - name: business_purpose_category
+        description: "Business purpose of the transaction"
+        tests:
+          - accepted_values:
+              values: ['CAPITAL_CALL', 'DISTRIBUTION', 'INVESTMENT', 'MANAGEMENT_FEE', 'OPERATING_EXPENSE', 'BANK_FEE', 'INTEREST', 'OTHER']
+      - name: counterparty_type
+        description: "Type of counterparty"
+        tests:
+          - accepted_values:
+              values: ['PENSION_FUND', 'ENDOWMENT', 'FOUNDATION', 'INSURANCE_COMPANY', 'FUND_MANAGER', 'FINANCIAL_INSTITUTION', 'PORTFOLIO_COMPANY', 'LEGAL_SERVICES', 'ACCOUNTING_SERVICES', 'OTHER']
+      - name: transaction_size_category
+        description: "Transaction size categorization"
+        tests:
+          - accepted_values:
+              values: ['VERY_LARGE', 'LARGE', 'MEDIUM', 'SMALL', 'VERY_SMALL', 'ZERO']
+      - name: cash_flow_impact_type
+        description: "Type of cash flow impact"
+        tests:
+          - accepted_values:
+              values: ['POSITIVE_FUNDING', 'INVESTMENT_DEPLOYMENT', 'INVESTOR_RETURN', 'OPERATIONAL_COST', 'INCOME_GENERATION', 'OTHER_IMPACT']
+      - name: transaction_quality_rating
+        description: "Overall transaction quality assessment"
+        tests:
+          - accepted_values:
+              values: ['HIGH_QUALITY', 'MEDIUM_QUALITY', 'LOW_QUALITY', 'POOR_QUALITY']

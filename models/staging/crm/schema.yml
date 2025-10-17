@@ -1,0 +1,186 @@
+version: 2
+
+models:
+  - name: stg_crm_opportunities
+    description: "Cleaned and standardized opportunity data from CRM system"
+    columns:
+      - name: opportunity_id
+        description: "Unique identifier for the opportunity"
+        tests:
+          - not_null
+          - unique
+      - name: company_id
+        description: "Reference to company master data"
+        tests:
+          - not_null
+      - name: opportunity_name
+        description: "Standardized opportunity name"
+        tests:
+          - not_null
+      - name: company_name
+        description: "Company name from opportunity record"
+      - name: stage
+        description: "Standardized investment process stage"
+        tests:
+          - accepted_values:
+              values: ['PROSPECTING', 'INITIAL REVIEW', 'DUE DILIGENCE', 'TERM SHEET', 'NEGOTIATION', 'LOI SIGNED', 'COMMITTED', 'DECLINED', 'ON HOLD']
+      - name: deal_type
+        description: "Type of investment deal"
+      - name: opportunity_source
+        description: "Source of the opportunity"
+      - name: expected_amount
+        description: "Expected investment amount (cleaned and validated)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+      - name: currency_code
+        description: "Standardized currency code"
+      - name: probability_decimal
+        description: "Probability of closing as decimal (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+      - name: expected_close_date
+        description: "Expected closing date"
+      - name: deal_owner_name
+        description: "Deal team member responsible"
+      - name: data_quality_status
+        description: "Assessment of record completeness"
+        tests:
+          - accepted_values:
+              values: ['COMPLETE', 'PARTIAL', 'INCOMPLETE']
+      - name: opportunity_status
+        description: "Derived opportunity status"
+        tests:
+          - accepted_values:
+              values: ['ACTIVE', 'INACTIVE', 'PIPELINE']
+      - name: validated_currency_code
+        description: "Currency code with validation and defaults applied"
+        tests:
+          - not_null
+
+  - name: stg_crm_companies
+    description: "Cleaned and standardized company data from CRM system"
+    columns:
+      - name: company_id
+        description: "Unique identifier for the company"
+        tests:
+          - not_null
+          - unique
+      - name: company_name
+        description: "Primary company name"
+        tests:
+          - not_null
+      - name: legal_name
+        description: "Legal entity name"
+      - name: industry_primary
+        description: "Primary industry classification"
+      - name: industry_secondary
+        description: "Secondary industry classification"
+      - name: standardized_country_code
+        description: "ISO 3166-1 alpha-2 country code"
+      - name: founded_year
+        description: "Year company was founded"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1800
+              max_value: 2024
+              inclusive: true
+      - name: employee_count
+        description: "Number of employees"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+      - name: revenue_midpoint_millions
+        description: "Revenue range midpoint in millions USD"
+      - name: company_size_category
+        description: "Company size categorization based on employee count"
+        tests:
+          - accepted_values:
+              values: ['UNKNOWN', 'SMALL', 'MEDIUM', 'LARGE', 'ENTERPRISE']
+      - name: industry_sector
+        description: "High-level industry sector mapping"
+        tests:
+          - accepted_values:
+              values: ['TECHNOLOGY', 'HEALTHCARE', 'FINANCIAL_SERVICES', 'ENERGY', 'CONSUMER', 'INDUSTRIALS', 'REAL_ESTATE', 'EDUCATION', 'AGRICULTURE', 'TRANSPORTATION', 'OTHER']
+      - name: esg_score
+        description: "ESG score (0-100)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+              inclusive: true
+      - name: completeness_score
+        description: "Data completeness score (0-100)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+              inclusive: true
+      - name: overall_data_quality
+        description: "Overall data quality assessment"
+        tests:
+          - accepted_values:
+              values: ['HIGH', 'MEDIUM', 'LOW']
+
+  - name: stg_crm_contacts
+    description: "Cleaned and standardized contact data from CRM system"
+    columns:
+      - name: contact_id
+        description: "Unique identifier for the contact"
+        tests:
+          - not_null
+          - unique
+      - name: company_id
+        description: "Reference to company"
+        tests:
+          - not_null
+      - name: full_name
+        description: "Constructed full name"
+      - name: job_title
+        description: "Job title"
+      - name: email_address
+        description: "Cleaned and validated email address"
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.7
+      - name: standardized_role_category
+        description: "Standardized role category"
+        tests:
+          - accepted_values:
+              values: ['EXECUTIVE', 'FINANCE', 'OPERATIONS', 'TECHNOLOGY', 'OTHER']
+      - name: seniority_level
+        description: "Assessed seniority level"
+        tests:
+          - accepted_values:
+              values: ['C_LEVEL', 'VP_LEVEL', 'DIRECTOR_LEVEL', 'MANAGER_LEVEL', 'OTHER']
+      - name: is_decision_maker
+        description: "Whether contact is a decision maker"
+      - name: relationship_strength
+        description: "Strength of relationship"
+        tests:
+          - accepted_values:
+              values: ['STRONG', 'MEDIUM', 'WEAK']
+      - name: contact_value_score
+        description: "Overall contact value score"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 5
+              inclusive: true
+      - name: contact_status
+        description: "Contact engagement status"
+        tests:
+          - accepted_values:
+              values: ['ACTIVE', 'WARM', 'COLD', 'UNCONTACTED']
+      - name: contact_completeness_score
+        description: "Contact data completeness score (0-100)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+              inclusive: true

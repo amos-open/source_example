@@ -1,0 +1,196 @@
+version: 2
+
+models:
+  - name: stg_pm_investments
+    description: "Cleaned and standardized investment data from portfolio management system"
+    columns:
+      - name: investment_id
+        description: "Unique investment identifier"
+        tests:
+          - not_null
+          - unique
+      - name: company_id
+        description: "Reference to company"
+        tests:
+          - not_null
+      - name: fund_id
+        description: "Reference to fund"
+        tests:
+          - not_null
+      - name: investment_date
+        description: "Date of initial investment"
+        tests:
+          - not_null
+      - name: total_invested_amount
+        description: "Total amount invested"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+      - name: ownership_percentage
+        description: "Ownership percentage"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+              inclusive: true
+      - name: standardized_investment_stage
+        description: "Standardized investment stage"
+        tests:
+          - accepted_values:
+              values: ['SEED', 'EARLY_STAGE', 'GROWTH', 'LATE_STAGE', 'BUYOUT', 'MEZZANINE', 'DISTRESSED', 'OTHER']
+      - name: standardized_sector
+        description: "Standardized sector classification"
+        tests:
+          - accepted_values:
+              values: ['TECHNOLOGY', 'HEALTHCARE', 'FINANCIAL_SERVICES', 'CONSUMER', 'INDUSTRIALS', 'ENERGY', 'REAL_ESTATE', 'OTHER']
+      - name: ownership_category
+        description: "Ownership category based on percentage"
+        tests:
+          - accepted_values:
+              values: ['MAJORITY', 'SIGNIFICANT_MINORITY', 'MINORITY', 'SMALL_STAKE', 'UNKNOWN']
+      - name: investment_profile
+        description: "Overall investment profile assessment"
+        tests:
+          - accepted_values:
+              values: ['CONTROL_ORIENTED', 'GROWTH_ORIENTED', 'SPECIAL_SITUATIONS', 'OTHER']
+      - name: risk_assessment
+        description: "Risk assessment based on stage and sector"
+        tests:
+          - accepted_values:
+              values: ['HIGH_RISK', 'MEDIUM_HIGH_RISK', 'MEDIUM_RISK', 'MEDIUM_LOW_RISK', 'UNKNOWN']
+
+  - name: stg_pm_company_financials
+    description: "Cleaned and standardized company financial data from portfolio management system"
+    columns:
+      - name: financial_id
+        description: "Unique financial record identifier"
+        tests:
+          - not_null
+          - unique
+      - name: company_id
+        description: "Reference to company"
+        tests:
+          - not_null
+      - name: reporting_year
+        description: "Financial reporting year"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 2000
+              max_value: 2025
+              inclusive: true
+      - name: reporting_quarter
+        description: "Financial reporting quarter"
+        tests:
+          - accepted_values:
+              values: [1, 2, 3, 4]
+      - name: revenue
+        description: "Company revenue"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: gross_margin_percent
+        description: "Gross margin percentage"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: -100
+              max_value: 100
+              inclusive: true
+      - name: ebitda_margin_percent
+        description: "EBITDA margin percentage"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: -100
+              max_value: 100
+              inclusive: true
+      - name: profitability_stage
+        description: "Company profitability stage"
+        tests:
+          - accepted_values:
+              values: ['PROFITABLE_EBITDA', 'POSITIVE_GROSS_PROFIT', 'REVENUE_GENERATING', 'PRE_REVENUE']
+      - name: liquidity_assessment
+        description: "Liquidity assessment"
+        tests:
+          - accepted_values:
+              values: ['STRONG_LIQUIDITY', 'ADEQUATE_LIQUIDITY', 'TIGHT_LIQUIDITY', 'LIQUIDITY_CONCERN', 'UNKNOWN_LIQUIDITY']
+      - name: leverage_assessment
+        description: "Leverage assessment"
+        tests:
+          - accepted_values:
+              values: ['NO_DEBT_DATA', 'DEBT_FREE', 'LOW_LEVERAGE', 'MODERATE_LEVERAGE', 'HIGH_LEVERAGE', 'EXCESSIVE_LEVERAGE']
+      - name: company_size_category
+        description: "Company size based on revenue"
+        tests:
+          - accepted_values:
+              values: ['LARGE_CAP', 'MID_CAP', 'SMALL_CAP', 'MICRO_CAP', 'PRE_REVENUE']
+      - name: financial_health_score
+        description: "Overall financial health score (0-100)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+              inclusive: true
+
+  - name: stg_pm_valuations
+    description: "Cleaned and standardized valuation data from portfolio management system"
+    columns:
+      - name: valuation_id
+        description: "Unique valuation record identifier"
+        tests:
+          - not_null
+          - unique
+      - name: company_id
+        description: "Reference to company"
+        tests:
+          - not_null
+      - name: investment_id
+        description: "Reference to investment"
+        tests:
+          - not_null
+      - name: valuation_date
+        description: "Valuation date"
+        tests:
+          - not_null
+      - name: enterprise_value
+        description: "Enterprise value"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+      - name: equity_value
+        description: "Equity value"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+      - name: standardized_valuation_method
+        description: "Standardized valuation methodology"
+        tests:
+          - accepted_values:
+              values: ['MARKET_MULTIPLE', 'DCF', 'PRECEDENT_TRANSACTION', 'ASSET_BASED', 'COST_APPROACH', 'LIQUIDATION_VALUE', 'OTHER']
+      - name: standardized_confidence_level
+        description: "Standardized confidence level"
+        tests:
+          - accepted_values:
+              values: ['HIGH', 'MEDIUM', 'LOW', 'UNKNOWN']
+      - name: standardized_valuation_source
+        description: "Standardized valuation source"
+        tests:
+          - accepted_values:
+              values: ['EXTERNAL', 'INTERNAL', 'BOARD_APPROVED', 'UNKNOWN']
+      - name: revenue_multiple_category
+        description: "Revenue multiple categorization"
+        tests:
+          - accepted_values:
+              values: ['VERY_HIGH_REVENUE_MULTIPLE', 'HIGH_REVENUE_MULTIPLE', 'MODERATE_REVENUE_MULTIPLE', 'LOW_REVENUE_MULTIPLE', 'VERY_LOW_REVENUE_MULTIPLE', 'NO_REVENUE_MULTIPLE']
+      - name: valuation_quality_rating
+        description: "Overall valuation quality assessment"
+        tests:
+          - accepted_values:
+              values: ['HIGH_QUALITY', 'MEDIUM_QUALITY', 'LOW_QUALITY', 'POOR_QUALITY']
+      - name: valuation_vintage
+        description: "Valuation age assessment"
+        tests:
+          - accepted_values:
+              values: ['CURRENT', 'RECENT', 'STALE', 'VERY_STALE']

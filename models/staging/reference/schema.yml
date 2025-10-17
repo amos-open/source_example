@@ -1,0 +1,193 @@
+version: 2
+
+models:
+  - name: stg_ref_currencies
+    description: "Cleaned and standardized currency reference data"
+    columns:
+      - name: currency_code
+        description: "ISO 4217 currency code"
+        tests:
+          - not_null
+          - unique
+      - name: currency_name
+        description: "Currency name"
+        tests:
+          - not_null
+      - name: is_iso_standard_currency
+        description: "Whether currency follows ISO 4217 standard"
+      - name: currency_tier
+        description: "Currency classification tier"
+        tests:
+          - accepted_values:
+              values: ['MAJOR', 'MINOR', 'EMERGING', 'OTHER']
+      - name: private_markets_usage
+        description: "Usage level in private markets"
+        tests:
+          - accepted_values:
+              values: ['PRIMARY', 'SECONDARY', 'EMERGING_MARKETS', 'SPECIALTY']
+      - name: recommended_for_private_markets
+        description: "Whether recommended for private markets use"
+
+  - name: stg_ref_countries
+    description: "Cleaned and standardized country reference data"
+    columns:
+      - name: country_code
+        description: "ISO 3166-1 alpha-2 country code"
+        tests:
+          - not_null
+          - unique
+      - name: country_name
+        description: "Country name"
+        tests:
+          - not_null
+      - name: is_valid_iso_alpha_2
+        description: "Whether country code is valid ISO alpha-2"
+      - name: economic_development_status
+        description: "Economic development classification"
+        tests:
+          - accepted_values:
+              values: ['DEVELOPED', 'EMERGING', 'FRONTIER']
+      - name: private_markets_activity_level
+        description: "Level of private markets activity"
+        tests:
+          - accepted_values:
+              values: ['HIGH_ACTIVITY', 'MEDIUM_ACTIVITY', 'LOW_ACTIVITY', 'MINIMAL_ACTIVITY']
+      - name: regulatory_environment
+        description: "Regulatory environment assessment"
+        tests:
+          - accepted_values:
+              values: ['FAVORABLE', 'MODERATE', 'RESTRICTIVE', 'UNKNOWN']
+
+  - name: stg_ref_industries
+    description: "Cleaned and standardized industry reference data"
+    columns:
+      - name: industry_code
+        description: "Industry classification code"
+        tests:
+          - not_null
+          - unique
+      - name: industry_name
+        description: "Industry name"
+        tests:
+          - not_null
+      - name: hierarchy_validation_status
+        description: "Validation status of industry hierarchy"
+        tests:
+          - accepted_values:
+              values: ['VALID_ROOT', 'VALID_CHILD', 'INVALID_ROOT_WITH_PARENT', 'INVALID_CHILD_WITHOUT_PARENT', 'UNKNOWN_HIERARCHY']
+      - name: private_markets_sector
+        description: "Private markets sector mapping"
+        tests:
+          - accepted_values:
+              values: ['TECHNOLOGY', 'HEALTHCARE', 'FINANCIAL_SERVICES', 'CONSUMER', 'INDUSTRIALS', 'ENERGY', 'REAL_ESTATE', 'MEDIA_TELECOM', 'EDUCATION', 'AGRICULTURE', 'OTHER']
+      - name: pe_investment_attractiveness
+        description: "Private equity investment attractiveness"
+        tests:
+          - accepted_values:
+              values: ['HIGH_INTEREST', 'MEDIUM_INTEREST', 'SELECTIVE_INTEREST', 'LOW_INTEREST']
+
+  - name: stg_ref_fx_rates
+    description: "Cleaned and standardized foreign exchange rates"
+    columns:
+      - name: rate_date
+        description: "Exchange rate date"
+        tests:
+          - not_null
+      - name: base_currency_code
+        description: "Base currency code"
+        tests:
+          - not_null
+      - name: quote_currency_code
+        description: "Quote currency code"
+        tests:
+          - not_null
+      - name: exchange_rate
+        description: "Exchange rate"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+      - name: currency_pair_type
+        description: "Type of currency pair"
+        tests:
+          - accepted_values:
+              values: ['MAJOR_PAIR', 'CROSS_PAIR', 'EXOTIC_PAIR']
+      - name: rate_reasonableness_check
+        description: "Reasonableness check result"
+        tests:
+          - accepted_values:
+              values: ['REASONABLE', 'UNREASONABLE', 'INVALID']
+      - name: recommended_for_calculations
+        description: "Whether recommended for financial calculations"
+
+  - name: stg_ref_xref_funds
+    description: "Cleaned fund cross-reference mappings"
+    columns:
+      - name: canonical_fund_id
+        description: "Canonical fund identifier"
+        tests:
+          - not_null
+          - unique
+      - name: canonical_fund_name
+        description: "Canonical fund name"
+        tests:
+          - not_null
+      - name: standardized_confidence
+        description: "Standardized resolution confidence"
+        tests:
+          - accepted_values:
+              values: ['HIGH', 'MEDIUM', 'LOW', 'UNKNOWN']
+      - name: source_systems_count
+        description: "Number of source systems mapped"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 4
+              inclusive: true
+      - name: resolution_quality
+        description: "Overall resolution quality assessment"
+        tests:
+          - accepted_values:
+              values: ['EXCELLENT', 'GOOD', 'FAIR', 'POOR', 'VERY_POOR']
+
+  - name: stg_ref_xref_companies
+    description: "Cleaned company cross-reference mappings"
+    columns:
+      - name: canonical_company_id
+        description: "Canonical company identifier"
+        tests:
+          - not_null
+          - unique
+      - name: canonical_company_name
+        description: "Canonical company name"
+      - name: standardized_confidence
+        description: "Standardized resolution confidence"
+        tests:
+          - accepted_values:
+              values: ['HIGH', 'MEDIUM', 'LOW', 'UNKNOWN']
+      - name: source_systems_count
+        description: "Number of source systems mapped"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 3
+              inclusive: true
+
+  - name: stg_ref_xref_investors
+    description: "Cleaned investor cross-reference mappings"
+    columns:
+      - name: canonical_investor_id
+        description: "Canonical investor identifier"
+        tests:
+          - not_null
+          - unique
+      - name: canonical_investor_name
+        description: "Canonical investor name"
+      - name: source_systems_count
+        description: "Number of source systems mapped"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 2
+              inclusive: true

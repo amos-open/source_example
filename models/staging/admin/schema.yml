@@ -1,0 +1,259 @@
+version: 2
+
+models:
+  - name: stg_admin_funds
+    description: "Cleaned and standardized fund master data from fund administration system"
+    columns:
+      - name: fund_code
+        description: "Unique fund identifier"
+        tests:
+          - not_null
+          - unique
+      - name: fund_name
+        description: "Fund name"
+        tests:
+          - not_null
+      - name: vintage_year
+        description: "Fund vintage year"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1990
+              max_value: 2026
+              inclusive: true
+      - name: validated_base_currency
+        description: "Validated base currency code"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'SGD']
+      - name: management_fee_rate
+        description: "Management fee rate as decimal"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 0.05
+              inclusive: true
+      - name: carried_interest_rate
+        description: "Carried interest rate as decimal"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 0.50
+              inclusive: true
+      - name: lifecycle_stage
+        description: "Current fund lifecycle stage"
+        tests:
+          - accepted_values:
+              values: ['FUNDRAISING', 'INVESTMENT_PERIOD', 'HARVEST_PERIOD', 'LIQUIDATED', 'UNKNOWN']
+      - name: data_quality_rating
+        description: "Overall data quality assessment"
+        tests:
+          - accepted_values:
+              values: ['HIGH', 'MEDIUM', 'LOW']
+
+  - name: stg_admin_investors
+    description: "Cleaned and standardized investor master data from fund administration system"
+    columns:
+      - name: investor_code
+        description: "Unique investor identifier"
+        tests:
+          - not_null
+          - unique
+      - name: investor_name
+        description: "Investor name"
+        tests:
+          - not_null
+      - name: standardized_investor_type
+        description: "Standardized investor type classification"
+        tests:
+          - accepted_values:
+              values: ['PENSION_FUND', 'ENDOWMENT', 'FOUNDATION', 'INSURANCE_COMPANY', 'SOVEREIGN_WEALTH_FUND', 'FAMILY_OFFICE', 'FUND_OF_FUNDS', 'BANK', 'CORPORATE', 'HIGH_NET_WORTH', 'OTHER']
+      - name: compliance_status
+        description: "Overall compliance status"
+        tests:
+          - accepted_values:
+              values: ['FULLY_COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT']
+      - name: fundraising_status
+        description: "Status for fundraising purposes"
+        tests:
+          - accepted_values:
+              values: ['TARGET', 'QUALIFIED', 'POTENTIAL', 'EXCLUDED']
+      - name: geographic_region
+        description: "Standardized geographic region"
+        tests:
+          - accepted_values:
+              values: ['NORTH_AMERICA', 'EUROPE', 'ASIA_PACIFIC', 'MIDDLE_EAST', 'OTHER']
+
+  - name: stg_admin_capital_calls
+    description: "Cleaned and standardized capital call transaction data"
+    columns:
+      - name: capital_call_id
+        description: "Unique capital call identifier"
+        tests:
+          - not_null
+          - unique
+      - name: fund_code
+        description: "Reference to fund"
+        tests:
+          - not_null
+      - name: investor_code
+        description: "Reference to investor"
+        tests:
+          - not_null
+      - name: call_amount
+        description: "Capital call amount"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+      - name: validated_call_currency
+        description: "Validated currency code"
+        tests:
+          - not_null
+      - name: standardized_payment_status
+        description: "Standardized payment status"
+        tests:
+          - accepted_values:
+              values: ['PAID', 'OUTSTANDING', 'OVERDUE', 'PARTIAL', 'CANCELLED', 'UNKNOWN']
+      - name: payment_timeliness
+        description: "Payment timeliness assessment"
+        tests:
+          - accepted_values:
+              values: ['ON_TIME_OR_EARLY', 'SLIGHTLY_LATE', 'MODERATELY_LATE', 'SIGNIFICANTLY_LATE', 'OVERDUE', 'PENDING', 'N/A']
+      - name: call_quality_rating
+        description: "Overall call quality rating"
+        tests:
+          - accepted_values:
+              values: ['EXCELLENT', 'GOOD', 'FAIR', 'POOR']
+
+  - name: stg_admin_distributions
+    description: "Cleaned and standardized distribution transaction data"
+    columns:
+      - name: distribution_id
+        description: "Unique distribution identifier"
+        tests:
+          - not_null
+          - unique
+      - name: fund_code
+        description: "Reference to fund"
+        tests:
+          - not_null
+      - name: investor_code
+        description: "Reference to investor"
+        tests:
+          - not_null
+      - name: distribution_amount
+        description: "Distribution amount"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+      - name: standardized_distribution_type
+        description: "Standardized distribution type"
+        tests:
+          - accepted_values:
+              values: ['RETURN_OF_CAPITAL', 'CAPITAL_GAIN', 'DIVIDEND_INCOME', 'INTEREST_INCOME', 'CARRIED_INTEREST', 'OTHER']
+      - name: standardized_payment_status
+        description: "Standardized payment status"
+        tests:
+          - accepted_values:
+              values: ['PAID', 'PENDING', 'CANCELLED', 'FAILED', 'UNKNOWN']
+      - name: tax_efficiency_category
+        description: "Tax efficiency categorization"
+        tests:
+          - accepted_values:
+              values: ['TAX_FREE', 'LOW_TAX', 'MODERATE_TAX', 'HIGH_TAX']
+
+  - name: stg_admin_nav_fund
+    description: "Cleaned and standardized fund-level NAV data"
+    columns:
+      - name: nav_id
+        description: "Unique NAV record identifier"
+        tests:
+          - not_null
+          - unique
+      - name: fund_code
+        description: "Reference to fund"
+        tests:
+          - not_null
+      - name: valuation_date
+        description: "NAV valuation date"
+        tests:
+          - not_null
+      - name: tvpi_ratio
+        description: "Total Value to Paid-In ratio"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: dpi_ratio
+        description: "Distributions to Paid-In ratio"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: rvpi_ratio
+        description: "Residual Value to Paid-In ratio"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: overall_performance_quartile
+        description: "Overall performance quartile assessment"
+        tests:
+          - accepted_values:
+              values: ['TOP_QUARTILE', 'ABOVE_MEDIAN', 'BELOW_MEDIAN', 'BOTTOM_QUARTILE']
+      - name: data_quality_assessment
+        description: "Data quality assessment"
+        tests:
+          - accepted_values:
+              values: ['HIGH_QUALITY', 'MEDIUM_QUALITY', 'LOW_QUALITY', 'CALCULATION_ISSUES']
+
+  - name: stg_admin_nav_investment
+    description: "Cleaned and standardized investment-level NAV data"
+    columns:
+      - name: nav_investment_id
+        description: "Unique investment NAV record identifier"
+        tests:
+          - not_null
+          - unique
+      - name: fund_code
+        description: "Reference to fund"
+        tests:
+          - not_null
+      - name: investment_id
+        description: "Reference to investment"
+        tests:
+          - not_null
+      - name: cost_basis
+        description: "Investment cost basis"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+      - name: fair_value
+        description: "Current fair value"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: standardized_valuation_method
+        description: "Standardized valuation methodology"
+        tests:
+          - accepted_values:
+              values: ['MARKET_MULTIPLE', 'DCF', 'RECENT_TRANSACTION', 'COST_BASIS', 'LIQUIDATION_VALUE', 'OTHER']
+      - name: performance_category
+        description: "Investment performance category"
+        tests:
+          - accepted_values:
+              values: ['EXCELLENT', 'GOOD', 'FAIR', 'POOR', 'LOSS', 'UNKNOWN']
+      - name: standardized_investment_stage
+        description: "Standardized investment stage"
+        tests:
+          - accepted_values:
+              values: ['SEED', 'EARLY_STAGE', 'GROWTH', 'LATE_STAGE', 'BUYOUT', 'MEZZANINE', 'DISTRESSED', 'OTHER']
+      - name: investment_quality_rating
+        description: "Overall investment quality rating"
+        tests:
+          - accepted_values:
+              values: ['HIGH_QUALITY', 'MEDIUM_QUALITY', 'LOW_QUALITY']
