@@ -1,0 +1,49 @@
+journal_entry_id,fund_code,entry_date,entry_type,reference_number,description,account_code,account_name,debit_amount,credit_amount,currency_code,source_document,created_by,created_date,last_modified_date
+JE-001,FUND-001,2022-07-15,Capital Call,CC-001,Capital call from INV-001,1112,Investment Cash,2500000,,USD,CC-001,System,2022-07-15,2022-07-15
+JE-001,FUND-001,2022-07-15,Capital Call,CC-001,Capital call from INV-001,3110,Limited Partner Capital,,2500000,USD,CC-001,System,2022-07-15,2022-07-15
+JE-002,FUND-001,2022-08-15,Investment,INV-001,Investment in TechFlow Solutions,1121,Equity Investments,25000000,,USD,INV-001,System,2022-08-15,2022-08-15
+JE-002,FUND-001,2022-08-15,Investment,INV-001,Investment in TechFlow Solutions,1112,Investment Cash,,25000000,USD,INV-001,System,2022-08-15,2022-08-15
+JE-003,FUND-001,2022-09-30,Management Fee,MF-001,Q3 2022 Management Fee,5220,Management Fees Paid,225000,,USD,MF-001,System,2022-09-30,2022-09-30
+JE-003,FUND-001,2022-09-30,Management Fee,MF-001,Q3 2022 Management Fee,1112,Investment Cash,,225000,USD,MF-001,System,2022-09-30,2022-09-30
+JE-004,FUND-001,2022-09-30,Valuation,VAL-001,Q3 2022 Valuation Adjustment,1121,Equity Investments,3750000,,USD,VAL-001,System,2022-09-30,2022-09-30
+JE-004,FUND-001,2022-09-30,Valuation,VAL-001,Q3 2022 Valuation Adjustment,4120,Unrealized Gains,,3750000,USD,VAL-001,System,2022-09-30,2022-09-30
+JE-005,FUND-001,2022-11-01,Capital Call,CC-004,Capital call from INV-001,1112,Investment Cash,3750000,,USD,CC-004,System,2022-11-01,2022-11-01
+JE-005,FUND-001,2022-11-01,Capital Call,CC-004,Capital call from INV-001,3110,Limited Partner Capital,,3750000,USD,CC-004,System,2022-11-01,2022-11-01
+JE-006,FUND-001,2022-11-20,Investment,INV-002,Investment in RetailMax Holdings,1121,Equity Investments,50000000,,USD,INV-002,System,2022-11-20,2022-11-20
+JE-006,FUND-001,2022-11-20,Investment,INV-002,Investment in RetailMax Holdings,1112,Investment Cash,,50000000,USD,INV-002,System,2022-11-20,2022-11-20
+JE-007,FUND-001,2022-12-31,Valuation,VAL-002,Q4 2022 Valuation Adjustment,1121,Equity Investments,11250000,,USD,VAL-002,System,2022-12-31,2022-12-31
+JE-007,FUND-001,2022-12-31,Valuation,VAL-002,Q4 2022 Valuation Adjustment,4120,Unrealized Gains,,11250000,USD,VAL-002,System,2022-12-31,2022-12-31
+JE-008,FUND-002,2021-10-20,Capital Call,CC-006,Capital call from INV-007,1112,Investment Cash,3000000,,EUR,CC-006,System,2021-10-20,2021-10-20
+JE-008,FUND-002,2021-10-20,Capital Call,CC-006,Capital call from INV-007,3110,Limited Partner Capital,,3000000,EUR,CC-006,System,2021-10-20,2021-10-20
+JE-009,FUND-002,2022-09-25,Investment,INV-004,Investment in MedDevice Innovations,1121,Equity Investments,15000000,,EUR,INV-004,System,2022-09-25,2022-09-25
+JE-009,FUND-002,2022-09-25,Investment,INV-004,Investment in MedDevice Innovations,1112,Investment Cash,,15000000,EUR,INV-004,System,2022-09-25,2022-09-25
+JE-010,FUND-002,2022-12-15,Investment,INV-005,Investment in European Pharma,1123,Co-Investments,18000000,,EUR,INV-005,System,2022-12-15,2022-12-15
+JE-010,FUND-002,2022-12-15,Investment,INV-005,Investment in European Pharma,1112,Investment Cash,,18000000,EUR,INV-005,System,2022-12-15,2022-12-15
+JE-011,FUND-002,2023-03-31,Distribution,DIST-004,Distribution to INV-007,2130,Distributions Payable,1800000,,EUR,DIST-004,System,2023-03-31,2023-03-31
+JE-011,FUND-002,2023-03-31,Distribution,DIST-004,Distribution to INV-007,1121,Equity Investments,,1800000,EUR,DIST-004,System,2023-03-31,2023-03-31
+JE-012,FUND-002,2023-03-31,Distribution,DIST-004,Distribution payment to INV-007,1113,Distribution Cash,1800000,,EUR,DIST-004,System,2023-03-31,2023-03-31
+JE-012,FUND-002,2023-03-31,Distribution,DIST-004,Distribution payment to INV-007,2130,Distributions Payable,,1800000,EUR,DIST-004,System,2023-03-31,2023-03-31
+JE-013,FUND-003,2023-04-10,Capital Call,CC-009,Capital call from INV-004,1112,Investment Cash,2000000,,USD,CC-009,System,2023-04-10,2023-04-10
+JE-013,FUND-003,2023-04-10,Capital Call,CC-009,Capital call from INV-004,3110,Limited Partner Capital,,2000000,USD,CC-009,System,2023-04-10,2023-04-10
+JE-014,FUND-003,2023-04-20,Investment,INV-006,Investment in BioTech Ventures,1121,Equity Investments,8000000,,USD,INV-006,System,2023-04-20,2023-04-20
+JE-014,FUND-003,2023-04-20,Investment,INV-006,Investment in BioTech Ventures,1112,Investment Cash,,8000000,USD,INV-006,System,2023-04-20,2023-04-20
+JE-015,FUND-004,2021-01-15,Capital Call,CC-011,Capital call from INV-006,1112,Investment Cash,5000000,,USD,CC-011,System,2021-01-15,2021-01-15
+JE-015,FUND-004,2021-01-15,Capital Call,CC-011,Capital call from INV-006,3110,Limited Partner Capital,,5000000,USD,CC-011,System,2021-01-15,2021-01-15
+JE-016,FUND-004,2021-02-28,Investment,INV-008,Investment in Infrastructure Debt,1122,Debt Investments,80000000,,USD,INV-008,System,2021-02-28,2021-02-28
+JE-016,FUND-004,2021-02-28,Investment,INV-008,Investment in Infrastructure Debt,1112,Investment Cash,,80000000,USD,INV-008,System,2021-02-28,2021-02-28
+JE-017,FUND-004,2022-03-31,Interest Income,INT-001,Q1 2022 Interest Income,1112,Investment Cash,1600000,,USD,INT-001,System,2022-03-31,2022-03-31
+JE-017,FUND-004,2022-03-31,Interest Income,INT-001,Q1 2022 Interest Income,4140,Interest Income,,1600000,USD,INT-001,System,2022-03-31,2022-03-31
+JE-018,FUND-004,2022-12-31,Distribution,DIST-007,Distribution to INV-006,2130,Distributions Payable,2500000,,USD,DIST-007,System,2022-12-31,2022-12-31
+JE-018,FUND-004,2022-12-31,Distribution,DIST-007,Distribution to INV-006,1112,Investment Cash,,2500000,USD,DIST-007,System,2022-12-31,2022-12-31
+JE-019,FUND-006,2022-11-15,Capital Call,CC-016,Capital call from INV-008,1112,Investment Cash,2900000,,USD,CC-016,System,2022-11-15,2022-11-15
+JE-019,FUND-006,2022-11-15,Capital Call,CC-016,Capital call from INV-008,3110,Limited Partner Capital,,2900000,USD,CC-016,System,2022-11-15,2022-11-15
+JE-020,FUND-006,2022-11-30,Investment,INV-009,Investment in AgriTech Solutions,1121,Equity Investments,22000000,,USD,INV-009,System,2022-11-30,2022-11-30
+JE-020,FUND-006,2022-11-30,Investment,INV-009,Investment in AgriTech Solutions,1112,Investment Cash,,22000000,USD,INV-009,System,2022-11-30,2022-11-30
+JE-021,FUND-001,2023-05-10,Investment,INV-003,Investment in CloudSoft Systems,1121,Equity Investments,30000000,,USD,INV-003,System,2023-05-10,2023-05-10
+JE-021,FUND-001,2023-05-10,Investment,INV-003,Investment in CloudSoft Systems,1112,Investment Cash,,30000000,USD,INV-003,System,2023-05-10,2023-05-10
+JE-022,FUND-001,2023-06-30,Distribution,DIST-001,Distribution to INV-001,2130,Distributions Payable,1250000,,USD,DIST-001,System,2023-06-30,2023-06-30
+JE-022,FUND-001,2023-06-30,Distribution,DIST-001,Distribution to INV-001,1121,Equity Investments,,1250000,USD,DIST-001,System,2023-06-30,2023-06-30
+JE-023,FUND-003,2023-08-30,Investment,INV-007,Investment in FinTech Innovations,1121,Equity Investments,10000000,,USD,INV-007,System,2023-08-30,2023-08-30
+JE-023,FUND-003,2023-08-30,Investment,INV-007,Investment in FinTech Innovations,1112,Investment Cash,,10000000,USD,INV-007,System,2023-08-30,2023-08-30
+JE-024,FUND-001,2023-12-31,Distribution,DIST-009,Distribution to INV-001,2130,Distributions Payable,2000000,,USD,DIST-009,System,2023-12-31,2023-12-31
+JE-024,FUND-001,2023-12-31,Distribution,DIST-009,Distribution to INV-001,1121,Equity Investments,,2000000,USD,DIST-009,System,2023-12-31,2023-12-31

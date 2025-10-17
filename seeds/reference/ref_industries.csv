@@ -1,0 +1,33 @@
+industry_code,industry_name,industry_classification,parent_industry_code,industry_level,gics_sector,gics_industry_group,gics_industry,gics_sub_industry,is_active,created_date,last_modified_date
+TECH,Technology,GICS,,1,Information Technology,Technology Hardware & Equipment,Technology Hardware Storage & Peripherals,Technology Hardware Storage & Peripherals,Yes,2020-01-01,2024-01-01
+TECH-SW,Software,GICS,TECH,2,Information Technology,Software & Services,Software,Application Software,Yes,2020-01-01,2024-01-01
+TECH-HW,Hardware,GICS,TECH,2,Information Technology,Technology Hardware & Equipment,Technology Hardware Storage & Peripherals,Technology Hardware Storage & Peripherals,Yes,2020-01-01,2024-01-01
+TECH-SEMI,Semiconductors,GICS,TECH,2,Information Technology,Semiconductors & Semiconductor Equipment,Semiconductors & Semiconductor Equipment,Semiconductor Equipment,Yes,2020-01-01,2024-01-01
+HC,Healthcare,GICS,,1,Health Care,Pharmaceuticals Biotechnology & Life Sciences,Pharmaceuticals,Pharmaceuticals,Yes,2020-01-01,2024-01-01
+HC-PHARMA,Pharmaceuticals,GICS,HC,2,Health Care,Pharmaceuticals Biotechnology & Life Sciences,Pharmaceuticals,Pharmaceuticals,Yes,2020-01-01,2024-01-01
+HC-BIOTECH,Biotechnology,GICS,HC,2,Health Care,Pharmaceuticals Biotechnology & Life Sciences,Biotechnology,Biotechnology,Yes,2020-01-01,2024-01-01
+HC-MEDDEV,Medical Devices,GICS,HC,2,Health Care,Health Care Equipment & Services,Health Care Equipment & Supplies,Health Care Equipment,Yes,2020-01-01,2024-01-01
+HC-SERVICES,Healthcare Services,GICS,HC,2,Health Care,Health Care Equipment & Services,Health Care Providers & Services,Health Care Services,Yes,2020-01-01,2024-01-01
+FS,Financial Services,GICS,,1,Financials,Banks,Banks,Diversified Banks,Yes,2020-01-01,2024-01-01
+FS-BANK,Banking,GICS,FS,2,Financials,Banks,Banks,Diversified Banks,Yes,2020-01-01,2024-01-01
+FS-INSUR,Insurance,GICS,FS,2,Financials,Insurance,Insurance,Life & Health Insurance,Yes,2020-01-01,2024-01-01
+FS-FINTECH,FinTech,GICS,FS,2,Financials,Diversified Financials,Capital Markets,Investment Banking & Brokerage,Yes,2020-01-01,2024-01-01
+CONS,Consumer,GICS,,1,Consumer Discretionary,Consumer Durables & Apparel,Textiles Apparel & Luxury Goods,Textiles Apparel & Luxury Goods,Yes,2020-01-01,2024-01-01
+CONS-RETAIL,Retail,GICS,CONS,2,Consumer Discretionary,Retailing,Specialty Retail,Specialty Retail,Yes,2020-01-01,2024-01-01
+CONS-STAPLES,Consumer Staples,GICS,CONS,2,Consumer Staples,Food Beverage & Tobacco,Food Products,Packaged Foods & Meats,Yes,2020-01-01,2024-01-01
+CONS-AUTO,Automotive,GICS,CONS,2,Consumer Discretionary,Automobiles & Components,Automobiles,Automobile Manufacturers,Yes,2020-01-01,2024-01-01
+IND,Industrials,GICS,,1,Industrials,Capital Goods,Machinery,Industrial Machinery,Yes,2020-01-01,2024-01-01
+IND-AERO,Aerospace,GICS,IND,2,Industrials,Capital Goods,Aerospace & Defense,Aerospace & Defense,Yes,2020-01-01,2024-01-01
+IND-MANUF,Manufacturing,GICS,IND,2,Industrials,Capital Goods,Machinery,Industrial Machinery,Yes,2020-01-01,2024-01-01
+IND-TRANS,Transportation,GICS,IND,2,Industrials,Transportation,Transportation Infrastructure,Transportation Infrastructure,Yes,2020-01-01,2024-01-01
+ENERGY,Energy,GICS,,1,Energy,Energy,Oil Gas & Consumable Fuels,Oil & Gas Exploration & Production,Yes,2020-01-01,2024-01-01
+ENERGY-OG,Oil & Gas,GICS,ENERGY,2,Energy,Energy,Oil Gas & Consumable Fuels,Oil & Gas Exploration & Production,Yes,2020-01-01,2024-01-01
+ENERGY-RENEW,Renewable Energy,GICS,ENERGY,2,Utilities,Utilities,Independent Power and Renewable Electricity Producers,Independent Power Producers & Energy Traders,Yes,2020-01-01,2024-01-01
+ENERGY-SERV,Energy Services,GICS,ENERGY,2,Energy,Energy,Oil Gas & Consumable Fuels,Oil & Gas Equipment & Services,Yes,2020-01-01,2024-01-01
+RE,Real Estate,GICS,,1,Real Estate,Real Estate,Real Estate Management & Development,Real Estate Development,Yes,2020-01-01,2024-01-01
+RE-COMM,Commercial Real Estate,GICS,RE,2,Real Estate,Real Estate,Real Estate Management & Development,Real Estate Development,Yes,2020-01-01,2024-01-01
+RE-RESI,Residential Real Estate,GICS,RE,2,Real Estate,Real Estate,Real Estate Management & Development,Real Estate Development,Yes,2020-01-01,2024-01-01
+AGRI,Agriculture,GICS,,1,Materials,Materials,Chemicals,Fertilizers & Agricultural Chemicals,Yes,2020-01-01,2024-01-01
+AGRI-TECH,AgTech,GICS,AGRI,2,Materials,Materials,Chemicals,Fertilizers & Agricultural Chemicals,Yes,2020-01-01,2024-01-01
+EDU,Education,GICS,,1,Communication Services,Media & Entertainment,Media,Education Services,Yes,2020-01-01,2024-01-01
+EDU-TECH,EdTech,GICS,EDU,2,Communication Services,Media & Entertainment,Media,Education Services,Yes,2020-01-01,2024-01-01

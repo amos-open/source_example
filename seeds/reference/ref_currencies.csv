@@ -1,0 +1,21 @@
+currency_code,currency_name,currency_symbol,numeric_code,minor_unit,is_active,region,created_date,last_modified_date
+USD,US Dollar,$,840,2,Yes,North America,2020-01-01,2024-01-01
+EUR,Euro,€,978,2,Yes,Europe,2020-01-01,2024-01-01
+GBP,British Pound Sterling,£,826,2,Yes,Europe,2020-01-01,2024-01-01
+JPY,Japanese Yen,¥,392,0,Yes,Asia Pacific,2020-01-01,2024-01-01
+CAD,Canadian Dollar,C$,124,2,Yes,North America,2020-01-01,2024-01-01
+AUD,Australian Dollar,A$,036,2,Yes,Asia Pacific,2020-01-01,2024-01-01
+CHF,Swiss Franc,CHF,756,2,Yes,Europe,2020-01-01,2024-01-01
+SGD,Singapore Dollar,S$,702,2,Yes,Asia Pacific,2020-01-01,2024-01-01
+HKD,Hong Kong Dollar,HK$,344,2,Yes,Asia Pacific,2020-01-01,2024-01-01
+SEK,Swedish Krona,kr,752,2,Yes,Europe,2020-01-01,2024-01-01
+NOK,Norwegian Krone,kr,578,2,Yes,Europe,2020-01-01,2024-01-01
+DKK,Danish Krone,kr,208,2,Yes,Europe,2020-01-01,2024-01-01
+CNY,Chinese Yuan,¥,156,2,Yes,Asia Pacific,2020-01-01,2024-01-01
+KRW,South Korean Won,₩,410,0,Yes,Asia Pacific,2020-01-01,2024-01-01
+INR,Indian Rupee,₹,356,2,Yes,Asia Pacific,2020-01-01,2024-01-01
+BRL,Brazilian Real,R$,986,2,Yes,Latin America,2020-01-01,2024-01-01
+MXN,Mexican Peso,$,484,2,Yes,Latin America,2020-01-01,2024-01-01
+ZAR,South African Rand,R,710,2,Yes,Africa,2020-01-01,2024-01-01
+AED,UAE Dirham,د.إ,784,2,Yes,Middle East,2020-01-01,2024-01-01
+SAR,Saudi Riyal,﷼,682,2,Yes,Middle East,2020-01-01,2024-01-01

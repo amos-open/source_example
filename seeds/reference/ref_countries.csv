@@ -1,0 +1,26 @@
+country_code,country_name,iso_alpha_3,numeric_code,region,sub_region,capital_city,currency_code,phone_code,is_active,created_date,last_modified_date
+US,United States,USA,840,Americas,Northern America,Washington D.C.,USD,+1,Yes,2020-01-01,2024-01-01
+CA,Canada,CAN,124,Americas,Northern America,Ottawa,CAD,+1,Yes,2020-01-01,2024-01-01
+MX,Mexico,MEX,484,Americas,Central America,Mexico City,MXN,+52,Yes,2020-01-01,2024-01-01
+BR,Brazil,BRA,076,Americas,South America,Brasília,BRL,+55,Yes,2020-01-01,2024-01-01
+GB,United Kingdom,GBR,826,Europe,Northern Europe,London,GBP,+44,Yes,2020-01-01,2024-01-01
+DE,Germany,DEU,276,Europe,Western Europe,Berlin,EUR,+49,Yes,2020-01-01,2024-01-01
+FR,France,FRA,250,Europe,Western Europe,Paris,EUR,+33,Yes,2020-01-01,2024-01-01
+IT,Italy,ITA,380,Europe,Southern Europe,Rome,EUR,+39,Yes,2020-01-01,2024-01-01
+ES,Spain,ESP,724,Europe,Southern Europe,Madrid,EUR,+34,Yes,2020-01-01,2024-01-01
+NL,Netherlands,NLD,528,Europe,Western Europe,Amsterdam,EUR,+31,Yes,2020-01-01,2024-01-01
+CH,Switzerland,CHE,756,Europe,Western Europe,Bern,CHF,+41,Yes,2020-01-01,2024-01-01
+SE,Sweden,SWE,752,Europe,Northern Europe,Stockholm,SEK,+46,Yes,2020-01-01,2024-01-01
+NO,Norway,NOR,578,Europe,Northern Europe,Oslo,NOK,+47,Yes,2020-01-01,2024-01-01
+DK,Denmark,DNK,208,Europe,Northern Europe,Copenhagen,DKK,+45,Yes,2020-01-01,2024-01-01
+JP,Japan,JPN,392,Asia,Eastern Asia,Tokyo,JPY,+81,Yes,2020-01-01,2024-01-01
+CN,China,CHN,156,Asia,Eastern Asia,Beijing,CNY,+86,Yes,2020-01-01,2024-01-01
+KR,South Korea,KOR,410,Asia,Eastern Asia,Seoul,KRW,+82,Yes,2020-01-01,2024-01-01
+SG,Singapore,SGP,702,Asia,South-Eastern Asia,Singapore,SGD,+65,Yes,2020-01-01,2024-01-01
+HK,Hong Kong,HKG,344,Asia,Eastern Asia,Hong Kong,HKD,+852,Yes,2020-01-01,2024-01-01
+AU,Australia,AUS,036,Oceania,Australia and New Zealand,Canberra,AUD,+61,Yes,2020-01-01,2024-01-01
+IN,India,IND,356,Asia,Southern Asia,New Delhi,INR,+91,Yes,2020-01-01,2024-01-01
+ZA,South Africa,ZAF,710,Africa,Southern Africa,Cape Town,ZAR,+27,Yes,2020-01-01,2024-01-01
+AE,United Arab Emirates,ARE,784,Asia,Western Asia,Abu Dhabi,AED,+971,Yes,2020-01-01,2024-01-01
+SA,Saudi Arabia,SAU,682,Asia,Western Asia,Riyadh,SAR,+966,Yes,2020-01-01,2024-01-01
+LU,Luxembourg,LUX,442,Europe,Western Europe,Luxembourg,EUR,+352,Yes,2020-01-01,2024-01-01

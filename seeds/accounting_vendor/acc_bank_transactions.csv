@@ -1,0 +1,31 @@
+transaction_id,fund_code,bank_account_number,transaction_date,transaction_type,transaction_amount,transaction_currency,counterparty_name,counterparty_account,description,reference_number,reconciliation_status,journal_entry_id,created_date,last_modified_date
+BT-001,FUND-001,1001-2345-6789,2022-07-15,Wire In,2500000,USD,State Teachers Pension,9876-5432-1098,Capital call payment from INV-001,CC-001,Reconciled,JE-001,2022-07-15,2022-07-15
+BT-002,FUND-001,1001-2345-6789,2022-08-15,Wire Out,25000000,USD,TechFlow Solutions,1234-5678-9012,Investment in TechFlow Solutions,INV-001,Reconciled,JE-002,2022-08-15,2022-08-15
+BT-003,FUND-001,1001-2345-6789,2022-09-30,ACH Out,225000,USD,Meridian Management Company,5555-1111-2222,Q3 2022 Management Fee,MF-001,Reconciled,JE-003,2022-09-30,2022-09-30
+BT-004,FUND-001,1001-2345-6789,2022-11-01,Wire In,3750000,USD,State Teachers Pension,9876-5432-1098,Capital call payment from INV-001,CC-004,Reconciled,JE-005,2022-11-01,2022-11-01
+BT-005,FUND-001,1001-2345-6789,2022-11-20,Wire Out,50000000,USD,RetailMax Holdings,2468-1357-9024,Investment in RetailMax Holdings,INV-002,Reconciled,JE-006,2022-11-20,2022-11-20
+BT-006,FUND-002,2001-3456-7890,2021-10-20,Wire In,3000000,EUR,Alternative Investment Partners,8765-4321-0987,Capital call payment from INV-007,CC-006,Reconciled,JE-008,2021-10-20,2021-10-20
+BT-007,FUND-002,2001-3456-7890,2022-09-25,Wire Out,15000000,EUR,MedDevice Innovations,3456-7890-1234,Investment in MedDevice Innovations,INV-004,Reconciled,JE-009,2022-09-25,2022-09-25
+BT-008,FUND-002,2001-3456-7890,2022-12-15,Wire Out,18000000,EUR,European Pharma,6789-0123-4567,Investment in European Pharma,INV-005,Reconciled,JE-010,2022-12-15,2022-12-15
+BT-009,FUND-002,2001-3456-7890,2023-03-31,Wire Out,1800000,EUR,Alternative Investment Partners,8765-4321-0987,Distribution payment to INV-007,DIST-004,Reconciled,JE-012,2023-03-31,2023-03-31
+BT-010,FUND-003,3001-4567-8901,2023-04-10,Wire In,2000000,USD,Metropolitan Life Insurance,7654-3210-9876,Capital call payment from INV-004,CC-009,Reconciled,JE-013,2023-04-10,2023-04-10
+BT-011,FUND-003,3001-4567-8901,2023-04-20,Wire Out,8000000,USD,BioTech Ventures,4567-8901-2345,Investment in BioTech Ventures,INV-006,Reconciled,JE-014,2023-04-20,2023-04-20
+BT-012,FUND-004,4001-5678-9012,2021-01-15,Wire In,5000000,USD,General Motors Pension Trust,6543-2109-8765,Capital call payment from INV-006,CC-011,Reconciled,JE-015,2021-01-15,2021-01-15
+BT-013,FUND-004,4001-5678-9012,2021-02-28,Wire Out,80000000,USD,Infrastructure Debt Portfolio,7890-1234-5678,Investment in Infrastructure Debt,INV-008,Reconciled,JE-016,2021-02-28,2021-02-28
+BT-014,FUND-004,4001-5678-9012,2022-03-31,Wire In,1600000,USD,Infrastructure Debt Portfolio,7890-1234-5678,Q1 2022 Interest Payment,INT-001,Reconciled,JE-017,2022-03-31,2022-03-31
+BT-015,FUND-004,4001-5678-9012,2022-12-31,Wire Out,2500000,USD,General Motors Pension Trust,6543-2109-8765,Distribution payment to INV-006,DIST-007,Reconciled,JE-018,2022-12-31,2022-12-31
+BT-016,FUND-006,6001-7890-1234,2022-11-15,Wire In,2900000,USD,Thompson Investment Holdings,5432-1098-7654,Capital call payment from INV-008,CC-016,Reconciled,JE-019,2022-11-15,2022-11-15
+BT-017,FUND-006,6001-7890-1234,2022-11-30,Wire Out,22000000,USD,AgriTech Solutions,8901-2345-6789,Investment in AgriTech Solutions,INV-009,Reconciled,JE-020,2022-11-30,2022-11-30
+BT-018,FUND-001,1001-2345-6789,2023-05-10,Wire Out,30000000,USD,CloudSoft Systems,0123-4567-8901,Investment in CloudSoft Systems,INV-003,Reconciled,JE-021,2023-05-10,2023-05-10
+BT-019,FUND-001,1001-2345-6789,2023-06-30,Wire Out,1250000,USD,State Teachers Pension,9876-5432-1098,Distribution payment to INV-001,DIST-001,Reconciled,JE-022,2023-06-30,2023-06-30
+BT-020,FUND-003,3001-4567-8901,2023-08-30,Wire Out,10000000,USD,FinTech Innovations,2345-6789-0123,Investment in FinTech Innovations,INV-007,Reconciled,JE-023,2023-08-30,2023-08-30
+BT-021,FUND-001,1001-2345-6789,2023-12-31,Wire Out,2000000,USD,State Teachers Pension,9876-5432-1098,Distribution payment to INV-001,DIST-009,Reconciled,JE-024,2023-12-31,2023-12-31
+BT-022,FUND-001,1001-2345-6789,2022-08-31,ACH Out,125000,USD,Kirkland & Ellis LLP,1111-2222-3333,Legal fees for TechFlow acquisition,EXP-001,Reconciled,,2022-08-31,2022-08-31
+BT-023,FUND-001,1001-2345-6789,2022-09-01,ACH Out,75000,USD,McKinsey & Company,4444-5555-6666,Due diligence fees for TechFlow,EXP-002,Reconciled,,2022-09-01,2022-09-01
+BT-024,FUND-001,1001-2345-6789,2022-10-15,ACH Out,37500,USD,State Street Corporation,7777-8888-9999,Q3 Fund administration fees,EXP-003,Reconciled,,2022-10-15,2022-10-15
+BT-025,FUND-002,2001-3456-7890,2022-10-15,ACH Out,165000,EUR,Freshfields Bruckhaus Deringer,1010-2020-3030,Legal fees for MedDevice acquisition,EXP-008,Reconciled,,2022-10-15,2022-10-15
+BT-026,FUND-003,3001-4567-8901,2023-05-10,ACH Out,85000,USD,Wilson Sonsini Goodrich & Rosati,4040-5050-6060,Legal fees for BioTech investment,EXP-012,Reconciled,,2023-05-10,2023-05-10
+BT-027,FUND-004,4001-5678-9012,2021-03-15,ACH Out,125000,USD,Latham & Watkins LLP,7070-8080-9090,Legal fees for infrastructure debt,EXP-015,Reconciled,,2021-03-15,2021-03-15
+BT-028,FUND-006,6001-7890-1234,2022-12-20,ACH Out,95000,USD,Cooley LLP,1212-3434-5656,Legal fees for AgriTech investment,EXP-020,Reconciled,,2022-12-20,2022-12-20
+BT-029,FUND-001,1001-2345-6789,2023-01-31,ACH Out,85000,USD,PricewaterhouseCoopers LLP,7878-9090-1212,Annual audit fees,EXP-004,Reconciled,,2023-01-31,2023-01-31
+BT-030,FUND-002,2001-3456-7890,2023-01-15,ACH Out,42500,EUR,BNP Paribas Securities Services,3434-5656-7878,Q4 Fund administration fees,EXP-010,Reconciled,,2023-01-15,2023-01-15

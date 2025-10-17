@@ -1,0 +1,51 @@
+account_code,account_name,account_type,account_category,parent_account_code,account_level,is_active,normal_balance,description,created_date,last_modified_date
+1000,Assets,Asset,Balance Sheet,,1,Yes,Debit,Total Assets,2020-01-01,2024-01-01
+1100,Current Assets,Asset,Balance Sheet,1000,2,Yes,Debit,Current Assets,2020-01-01,2024-01-01
+1110,Cash and Cash Equivalents,Asset,Balance Sheet,1100,3,Yes,Debit,Cash and short-term investments,2020-01-01,2024-01-01
+1111,Operating Cash,Asset,Balance Sheet,1110,4,Yes,Debit,Primary operating bank accounts,2020-01-01,2024-01-01
+1112,Investment Cash,Asset,Balance Sheet,1110,4,Yes,Debit,Cash held for investment purposes,2020-01-01,2024-01-01
+1113,Distribution Cash,Asset,Balance Sheet,1110,4,Yes,Debit,Cash held for investor distributions,2020-01-01,2024-01-01
+1120,Investments at Fair Value,Asset,Balance Sheet,1100,3,Yes,Debit,Portfolio investments at fair value,2020-01-01,2024-01-01
+1121,Equity Investments,Asset,Balance Sheet,1120,4,Yes,Debit,Equity investments in portfolio companies,2020-01-01,2024-01-01
+1122,Debt Investments,Asset,Balance Sheet,1120,4,Yes,Debit,Debt investments and credit facilities,2020-01-01,2024-01-01
+1123,Co-Investments,Asset,Balance Sheet,1120,4,Yes,Debit,Co-investment opportunities,2020-01-01,2024-01-01
+1130,Receivables,Asset,Balance Sheet,1100,3,Yes,Debit,Amounts due from various parties,2020-01-01,2024-01-01
+1131,Management Fee Receivable,Asset,Balance Sheet,1130,4,Yes,Debit,Management fees due from funds,2020-01-01,2024-01-01
+1132,Carried Interest Receivable,Asset,Balance Sheet,1130,4,Yes,Debit,Carried interest due from funds,2020-01-01,2024-01-01
+1133,Other Receivables,Asset,Balance Sheet,1130,4,Yes,Debit,Other amounts receivable,2020-01-01,2024-01-01
+1140,Prepaid Expenses,Asset,Balance Sheet,1100,3,Yes,Debit,Expenses paid in advance,2020-01-01,2024-01-01
+1200,Non-Current Assets,Asset,Balance Sheet,1000,2,Yes,Debit,Non-current assets,2020-01-01,2024-01-01
+1210,Property Plant Equipment,Asset,Balance Sheet,1200,3,Yes,Debit,Fixed assets net of depreciation,2020-01-01,2024-01-01
+1220,Intangible Assets,Asset,Balance Sheet,1200,3,Yes,Debit,Intangible assets net of amortization,2020-01-01,2024-01-01
+2000,Liabilities,Liability,Balance Sheet,,1,Yes,Credit,Total Liabilities,2020-01-01,2024-01-01
+2100,Current Liabilities,Liability,Balance Sheet,2000,2,Yes,Credit,Current liabilities,2020-01-01,2024-01-01
+2110,Accounts Payable,Liability,Balance Sheet,2100,3,Yes,Credit,Trade and other payables,2020-01-01,2024-01-01
+2111,Trade Payables,Liability,Balance Sheet,2110,4,Yes,Credit,Amounts due to vendors and suppliers,2020-01-01,2024-01-01
+2112,Accrued Expenses,Liability,Balance Sheet,2110,4,Yes,Credit,Accrued but unpaid expenses,2020-01-01,2024-01-01
+2120,Management Fee Payable,Liability,Balance Sheet,2100,3,Yes,Credit,Management fees due to GP,2020-01-01,2024-01-01
+2130,Distributions Payable,Liability,Balance Sheet,2100,3,Yes,Credit,Distributions due to investors,2020-01-01,2024-01-01
+2140,Accrued Carried Interest,Liability,Balance Sheet,2100,3,Yes,Credit,Carried interest accrued but not paid,2020-01-01,2024-01-01
+2200,Non-Current Liabilities,Liability,Balance Sheet,2000,2,Yes,Credit,Non-current liabilities,2020-01-01,2024-01-01
+2210,Long-term Debt,Liability,Balance Sheet,2200,3,Yes,Credit,Long-term borrowings,2020-01-01,2024-01-01
+3000,Equity,Equity,Balance Sheet,,1,Yes,Credit,Total Equity,2020-01-01,2024-01-01
+3100,Partner Capital,Equity,Balance Sheet,3000,2,Yes,Credit,Partner capital accounts,2020-01-01,2024-01-01
+3110,Limited Partner Capital,Equity,Balance Sheet,3100,3,Yes,Credit,Limited partner capital contributions,2020-01-01,2024-01-01
+3120,General Partner Capital,Equity,Balance Sheet,3100,3,Yes,Credit,General partner capital contributions,2020-01-01,2024-01-01
+3200,Retained Earnings,Equity,Balance Sheet,3000,2,Yes,Credit,Accumulated earnings,2020-01-01,2024-01-01
+4000,Revenue,Revenue,Income Statement,,1,Yes,Credit,Total Revenue,2020-01-01,2024-01-01
+4100,Investment Income,Revenue,Income Statement,4000,2,Yes,Credit,Income from investments,2020-01-01,2024-01-01
+4110,Realized Gains,Revenue,Income Statement,4100,3,Yes,Credit,Realized gains on investments,2020-01-01,2024-01-01
+4120,Unrealized Gains,Revenue,Income Statement,4100,3,Yes,Credit,Unrealized gains on investments,2020-01-01,2024-01-01
+4130,Dividend Income,Revenue,Income Statement,4100,3,Yes,Credit,Dividends received from investments,2020-01-01,2024-01-01
+4140,Interest Income,Revenue,Income Statement,4100,3,Yes,Credit,Interest income from debt investments,2020-01-01,2024-01-01
+4200,Management Fees,Revenue,Income Statement,4000,2,Yes,Credit,Management fee revenue,2020-01-01,2024-01-01
+4300,Carried Interest,Revenue,Income Statement,4000,2,Yes,Credit,Carried interest revenue,2020-01-01,2024-01-01
+5000,Expenses,Expense,Income Statement,,1,Yes,Debit,Total Expenses,2020-01-01,2024-01-01
+5100,Investment Losses,Expense,Income Statement,5000,2,Yes,Debit,Losses on investments,2020-01-01,2024-01-01
+5110,Realized Losses,Expense,Income Statement,5100,3,Yes,Debit,Realized losses on investments,2020-01-01,2024-01-01
+5120,Unrealized Losses,Expense,Income Statement,5100,3,Yes,Debit,Unrealized losses on investments,2020-01-01,2024-01-01
+5200,Operating Expenses,Expense,Income Statement,5000,2,Yes,Debit,Operating expenses,2020-01-01,2024-01-01
+5210,Professional Fees,Expense,Income Statement,5200,3,Yes,Debit,Legal audit and consulting fees,2020-01-01,2024-01-01
+5220,Management Fees Paid,Expense,Income Statement,5200,3,Yes,Debit,Management fees paid to GP,2020-01-01,2024-01-01
+5230,Administrative Expenses,Expense,Income Statement,5200,3,Yes,Debit,General administrative expenses,2020-01-01,2024-01-01
+5240,Fund Administration Fees,Expense,Income Statement,5200,3,Yes,Debit,Third-party fund administration fees,2020-01-01,2024-01-01
