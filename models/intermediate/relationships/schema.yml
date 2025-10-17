@@ -1,0 +1,279 @@
+version: 2
+
+models:
+  - name: int_relationships_fund_investor
+    description: >
+      Intermediate model preparing fund-investor commitment relationships with comprehensive
+      performance metrics and relationship quality assessment for fundraising and investor management.
+    columns:
+      - name: relationship_id
+        description: Unique identifier for the fund-investor relationship
+        tests:
+          - not_null
+          - unique
+      - name: relationship_type
+        description: Type of relationship (always 'FUND_INVESTOR')
+        tests:
+          - accepted_values:
+              values: ['FUND_INVESTOR']
+      - name: canonical_fund_id
+        description: Canonical fund identifier resolved through cross-reference
+        tests:
+          - not_null
+      - name: source_investor_id
+        description: Investor identifier from the source system
+        tests:
+          - not_null
+      - name: commitment_amount
+        description: Inferred commitment amount from capital call patterns
+      - name: total_called_amount
+        description: Total amount called from the investor
+      - name: total_distributed_amount
+        description: Total amount distributed to the investor
+      - name: commitment_size_category
+        description: Categorization of commitment size
+        tests:
+          - accepted_values:
+              values: ['MEGA_COMMITMENT', 'LARGE_COMMITMENT', 'MEDIUM_COMMITMENT', 
+                      'SMALL_COMMITMENT', 'MICRO_COMMITMENT', 'UNKNOWN_COMMITMENT']
+      - name: payment_behavior_category
+        description: Assessment of investor payment behavior
+        tests:
+          - accepted_values:
+              values: ['EARLY_PAYER', 'ON_TIME_PAYER', 'SLIGHTLY_LATE_PAYER', 
+                      'LATE_PAYER', 'CHRONIC_LATE_PAYER']
+      - name: investor_value_tier
+        description: Overall investor value assessment
+        tests:
+          - accepted_values:
+              values: ['PREMIUM_INVESTOR', 'HIGH_VALUE_INVESTOR', 'SOLID_INVESTOR', 
+                      'STANDARD_INVESTOR', 'CHALLENGING_INVESTOR']
+      - name: fundraising_priority
+        description: Priority level for future fundraising
+        tests:
+          - accepted_values:
+              values: ['TOP_PRIORITY', 'HIGH_PRIORITY', 'MEDIUM_PRIORITY', 'LOW_PRIORITY', 'EXCLUDE']
+      - name: re_up_potential
+        description: Assessment of re-investment potential
+        tests:
+          - accepted_values:
+              values: ['HIGHLY_LIKELY', 'LIKELY', 'POSSIBLE', 'UNCERTAIN', 'UNLIKELY']
+      - name: relationship_quality_score
+        description: Overall relationship quality score (0-100)
+
+  - name: int_relationships_fund_investment
+    description: >
+      Intermediate model preparing fund-investment portfolio relationships with comprehensive
+      performance analytics and strategic importance assessment for portfolio management.
+    columns:
+      - name: relationship_id
+        description: Unique identifier for the fund-investment relationship
+        tests:
+          - not_null
+          - unique
+      - name: relationship_type
+        description: Type of relationship (always 'FUND_INVESTMENT')
+        tests:
+          - accepted_values:
+              values: ['FUND_INVESTMENT']
+      - name: canonical_fund_id
+        description: Canonical fund identifier resolved through cross-reference
+        tests:
+          - not_null
+      - name: canonical_company_id
+        description: Canonical company identifier resolved through cross-reference
+        tests:
+          - not_null
+      - name: investment_date
+        description: Date of the investment
+      - name: total_amount_usd
+        description: Total investment amount in USD
+      - name: ownership_percentage
+        description: Percentage ownership in the company
+      - name: portfolio_position_size
+        description: Size categorization of the portfolio position
+        tests:
+          - accepted_values:
+              values: ['MEGA_POSITION', 'LARGE_POSITION', 'MEDIUM_POSITION', 
+                      'SMALL_POSITION', 'MICRO_POSITION', 'UNKNOWN_POSITION']
+      - name: strategy_alignment
+        description: Investment strategy classification
+        tests:
+          - accepted_values:
+              values: ['CONTROL_STRATEGY', 'MINORITY_BUYOUT_STRATEGY', 'GROWTH_EQUITY_STRATEGY', 
+                      'VENTURE_STRATEGY', 'MEZZANINE_STRATEGY', 'SPECIAL_SITUATIONS_STRATEGY', 
+                      'OTHER_STRATEGY']
+      - name: performance_vs_expectations
+        description: Performance assessment vs stage expectations
+        tests:
+          - accepted_values:
+              values: ['EXCEPTIONAL_PERFORMANCE', 'STRONG_PERFORMANCE', 'MEETING_EXPECTATIONS', 
+                      'BELOW_EXPECTATIONS', 'UNDERPERFORMING', 'UNKNOWN_PERFORMANCE']
+      - name: strategic_importance
+        description: Strategic importance to the portfolio
+        tests:
+          - accepted_values:
+              values: ['FLAGSHIP_INVESTMENT', 'STAR_INVESTMENT', 'CONTROL_INVESTMENT', 
+                      'CORE_INVESTMENT', 'HIGH_PERFORMER', 'STANDARD_INVESTMENT']
+      - name: exit_readiness
+        description: Assessment of exit readiness and timing
+        tests:
+          - accepted_values:
+              values: ['READY_FOR_EXIT', 'EXIT_CONSIDERATION', 'EARLY_EXIT_OPPORTUNITY', 
+                      'PROBLEM_EXIT', 'HOLD_PERIOD']
+      - name: portfolio_impact
+        description: Overall impact on portfolio performance
+        tests:
+          - accepted_values:
+              values: ['PORTFOLIO_DRIVER', 'KEY_CONTRIBUTOR', 'SOLID_CONTRIBUTOR', 
+                      'AVERAGE_CONTRIBUTOR', 'UNDERCONTRIBUTOR']
+      - name: monitoring_priority
+        description: Priority level for portfolio monitoring
+        tests:
+          - accepted_values:
+              values: ['CRITICAL_MONITORING', 'HIGH_MONITORING', 'MEDIUM_MONITORING', 
+                      'STANDARD_MONITORING']
+
+  - name: int_relationships_company_geography
+    description: >
+      Intermediate model preparing company-geography relationships with geographic exposure
+      analysis and risk assessment for portfolio geographic diversification management.
+    columns:
+      - name: relationship_id
+        description: Unique identifier for the company-geography relationship
+        tests:
+          - not_null
+          - unique
+      - name: relationship_type
+        description: Type of relationship (always 'COMPANY_GEOGRAPHY')
+        tests:
+          - accepted_values:
+              values: ['COMPANY_GEOGRAPHY']
+      - name: canonical_company_id
+        description: Canonical company identifier resolved through cross-reference
+        tests:
+          - not_null
+      - name: country_code
+        description: ISO country code for the geographic exposure
+      - name: geographic_region
+        description: Geographic region classification
+        tests:
+          - accepted_values:
+              values: ['NORTH_AMERICA', 'EUROPE', 'ASIA_PACIFIC', 'LATIN_AMERICA', 
+                      'MIDDLE_EAST', 'AFRICA', 'OTHER']
+      - name: normalized_allocation_percentage
+        description: Normalized allocation percentage to this geography (0-100)
+      - name: is_primary_geography
+        description: Whether this is the primary geographic exposure
+      - name: geographic_risk_level
+        description: Risk level assessment for this geography
+        tests:
+          - accepted_values:
+              values: ['LOW_RISK', 'LOW_MODERATE_RISK', 'MODERATE_RISK', 
+                      'MODERATE_HIGH_RISK', 'HIGH_RISK', 'UNKNOWN_RISK']
+      - name: market_development_level
+        description: Market development classification
+        tests:
+          - accepted_values:
+              values: ['DEVELOPED_MARKET', 'EMERGING_MARKET', 'FRONTIER_MARKET', 'UNKNOWN_MARKET']
+      - name: currency_risk_level
+        description: Currency risk assessment
+        tests:
+          - accepted_values:
+              values: ['NO_CURRENCY_RISK', 'LOW_CURRENCY_RISK', 'MODERATE_CURRENCY_RISK', 
+                      'HIGH_CURRENCY_RISK', 'UNKNOWN_CURRENCY_RISK']
+      - name: geographic_significance
+        description: Significance of this geographic exposure
+        tests:
+          - accepted_values:
+              values: ['CONCENTRATED_GEOGRAPHY', 'DOMINANT_GEOGRAPHY', 'PRIMARY_GEOGRAPHY', 
+                      'SIGNIFICANT_GEOGRAPHY', 'MINOR_GEOGRAPHY', 'MINIMAL_GEOGRAPHY']
+      - name: investment_risk_contribution
+        description: Risk contribution to investment from this geography
+        tests:
+          - accepted_values:
+              values: ['LOW_RISK_CONTRIBUTION', 'MODERATE_RISK_CONTRIBUTION', 
+                      'MEDIUM_RISK_CONTRIBUTION', 'HIGH_RISK_CONTRIBUTION', 
+                      'VERY_HIGH_RISK_CONTRIBUTION']
+      - name: diversification_impact
+        description: Impact on portfolio geographic diversification
+        tests:
+          - accepted_values:
+              values: ['CONCENTRATION_RISK', 'STABLE_CONCENTRATION', 'DIVERSIFICATION_BENEFIT', 
+                      'NEUTRAL_IMPACT']
+
+  - name: int_relationships_company_industry
+    description: >
+      Intermediate model preparing company-industry relationships with sector exposure
+      analysis and industry risk assessment for portfolio sector diversification management.
+    columns:
+      - name: relationship_id
+        description: Unique identifier for the company-industry relationship
+        tests:
+          - not_null
+          - unique
+      - name: relationship_type
+        description: Type of relationship (always 'COMPANY_INDUSTRY')
+        tests:
+          - accepted_values:
+              values: ['COMPANY_INDUSTRY']
+      - name: canonical_company_id
+        description: Canonical company identifier resolved through cross-reference
+        tests:
+          - not_null
+      - name: industry_sector
+        description: Standardized industry sector
+        tests:
+          - accepted_values:
+              values: ['TECHNOLOGY', 'HEALTHCARE', 'FINANCIAL_SERVICES', 'CONSUMER', 
+                      'INDUSTRIALS', 'ENERGY', 'REAL_ESTATE', 'OTHER']
+      - name: industry_name
+        description: Specific industry name or sub-sector
+      - name: normalized_allocation_percentage
+        description: Normalized allocation percentage to this industry (0-100)
+      - name: is_primary_industry
+        description: Whether this is the primary industry exposure
+      - name: industry_classification
+        description: Classification of industry relationship
+        tests:
+          - accepted_values:
+              values: ['PRIMARY', 'SECONDARY']
+      - name: industry_risk_profile
+        description: Risk profile assessment for this industry
+        tests:
+          - accepted_values:
+              values: ['HIGH_VOLATILITY', 'MODERATE_VOLATILITY', 'CYCLICAL_RISK', 
+                      'CONSUMER_DEPENDENT', 'ECONOMIC_SENSITIVE', 'COMMODITY_RISK', 
+                      'INTEREST_RATE_SENSITIVE', 'UNKNOWN_RISK']
+      - name: growth_potential
+        description: Growth potential assessment for the industry
+        tests:
+          - accepted_values:
+              values: ['HIGH_GROWTH_POTENTIAL', 'STABLE_GROWTH_POTENTIAL', 
+                      'MODERATE_GROWTH_POTENTIAL', 'CYCLICAL_GROWTH_POTENTIAL', 
+                      'VOLATILE_GROWTH_POTENTIAL', 'UNKNOWN_GROWTH_POTENTIAL']
+      - name: regulatory_environment
+        description: Regulatory environment assessment
+        tests:
+          - accepted_values:
+              values: ['HIGHLY_REGULATED', 'REGULATED', 'MODERATELY_REGULATED', 
+                      'EMERGING_REGULATION', 'UNKNOWN_REGULATION']
+      - name: industry_significance
+        description: Significance of this industry exposure
+        tests:
+          - accepted_values:
+              values: ['PURE_PLAY', 'DOMINANT_EXPOSURE', 'PRIMARY_EXPOSURE', 
+                      'SIGNIFICANT_EXPOSURE', 'MINOR_EXPOSURE', 'MINIMAL_EXPOSURE']
+      - name: sector_attractiveness
+        description: Investment attractiveness from industry perspective
+        tests:
+          - accepted_values:
+              values: ['HIGHLY_ATTRACTIVE_SECTOR', 'ATTRACTIVE_SECTOR', 'NEUTRAL_SECTOR', 
+                      'CHALLENGING_SECTOR', 'UNATTRACTIVE_SECTOR']
+      - name: thematic_alignment
+        description: Alignment with thematic investment trends
+        tests:
+          - accepted_values:
+              values: ['DIGITAL_TRANSFORMATION', 'LIFE_SCIENCES_INNOVATION', 
+                      'CLEAN_ENERGY_TRANSITION', 'FINANCIAL_INNOVATION', 
+                      'DIGITAL_COMMERCE', 'TRADITIONAL_SECTORS']

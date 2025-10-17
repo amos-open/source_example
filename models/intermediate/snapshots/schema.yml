@@ -1,0 +1,226 @@
+version: 2
+
+models:
+  - name: int_snapshots_fund_nav
+    description: >
+      Intermediate model preparing fund-level NAV calculations and performance metrics
+      with comprehensive analytics and benchmarking for fund performance assessment.
+    columns:
+      - name: snapshot_id
+        description: Unique identifier for the fund NAV snapshot
+        tests:
+          - not_null
+          - unique
+      - name: snapshot_type
+        description: Type of snapshot (always 'FUND_NAV')
+        tests:
+          - accepted_values:
+              values: ['FUND_NAV']
+      - name: canonical_fund_id
+        description: Canonical fund identifier resolved through cross-reference
+        tests:
+          - not_null
+      - name: snapshot_date
+        description: Date of the NAV valuation
+        tests:
+          - not_null
+      - name: total_nav_usd
+        description: Total fund NAV converted to USD
+      - name: committed_capital_usd
+        description: Total committed capital converted to USD
+      - name: called_capital_usd
+        description: Total called capital converted to USD
+      - name: tvpi_ratio
+        description: Total Value to Paid-In ratio
+      - name: irr_net
+        description: Net IRR as a decimal
+      - name: fund_size_category
+        description: Fund size categorization based on committed capital
+        tests:
+          - accepted_values:
+              values: ['MEGA_FUND', 'LARGE_FUND', 'MID_FUND', 'SMALL_FUND', 'MICRO_FUND', 'UNKNOWN']
+      - name: deployment_stage
+        description: Capital deployment stage assessment
+        tests:
+          - accepted_values:
+              values: ['FULLY_DEPLOYED', 'MOSTLY_DEPLOYED', 'HALF_DEPLOYED', 
+                      'EARLY_DEPLOYMENT', 'INITIAL_DEPLOYMENT', 'NOT_DEPLOYED']
+      - name: fund_lifecycle_phase
+        description: Current phase in fund lifecycle
+        tests:
+          - accepted_values:
+              values: ['HARVEST_PHASE', 'VALUE_CREATION_PHASE', 'INVESTMENT_PHASE', 
+                      'FUNDRAISING_PHASE', 'UNKNOWN_PHASE']
+      - name: performance_benchmark
+        description: Performance benchmarking against industry standards
+        tests:
+          - accepted_values:
+              values: ['TOP_DECILE', 'TOP_QUARTILE', 'SECOND_QUARTILE', 
+                      'THIRD_QUARTILE', 'BOTTOM_QUARTILE', 'UNDERPERFORMING']
+      - name: investment_recommendation
+        description: Investment recommendation based on performance and health
+        tests:
+          - accepted_values:
+              values: ['HIGHLY_RECOMMENDED', 'RECOMMENDED', 'CONSIDER', 'MONITOR', 'AVOID']
+      - name: monitoring_priority
+        description: Priority level for fund monitoring
+        tests:
+          - accepted_values:
+              values: ['HIGH_PRIORITY', 'MEDIUM_PRIORITY', 'LOW_PRIORITY']
+
+  - name: int_snapshots_investment_nav
+    description: >
+      Intermediate model preparing investment-level NAV calculations and valuations
+      with comprehensive performance analytics and investment assessment.
+    columns:
+      - name: snapshot_id
+        description: Unique identifier for the investment NAV snapshot
+        tests:
+          - not_null
+          - unique
+      - name: snapshot_type
+        description: Type of snapshot (always 'INVESTMENT_NAV')
+        tests:
+          - accepted_values:
+              values: ['INVESTMENT_NAV']
+      - name: canonical_company_id
+        description: Canonical company identifier resolved through cross-reference
+        tests:
+          - not_null
+      - name: canonical_fund_id
+        description: Canonical fund identifier resolved through cross-reference
+        tests:
+          - not_null
+      - name: snapshot_date
+        description: Date of the investment valuation
+        tests:
+          - not_null
+      - name: cost_basis_usd
+        description: Investment cost basis converted to USD
+      - name: fair_value_usd
+        description: Investment fair value converted to USD
+      - name: unrealized_return_multiple_usd
+        description: Unrealized return multiple calculated in USD
+      - name: valuation_method
+        description: Standardized valuation methodology
+        tests:
+          - accepted_values:
+              values: ['MARKET_MULTIPLE', 'DCF', 'RECENT_TRANSACTION', 'COST_BASIS', 
+                      'LIQUIDATION_VALUE', 'OTHER']
+      - name: investment_size_category
+        description: Investment size categorization based on cost basis
+        tests:
+          - accepted_values:
+              values: ['MEGA_INVESTMENT', 'LARGE_INVESTMENT', 'MEDIUM_INVESTMENT', 
+                      'SMALL_INVESTMENT', 'MICRO_INVESTMENT', 'UNKNOWN']
+      - name: performance_vs_expectations
+        description: Performance assessment vs stage expectations
+        tests:
+          - accepted_values:
+              values: ['EXCEEDING_EXPECTATIONS', 'MEETING_EXPECTATIONS', 'BELOW_EXPECTATIONS', 
+                      'UNDERPERFORMING', 'UNKNOWN_PERFORMANCE']
+      - name: investment_maturity
+        description: Investment maturity assessment based on age
+        tests:
+          - accepted_values:
+              values: ['MATURE_INVESTMENT', 'SEASONED_INVESTMENT', 'DEVELOPING_INVESTMENT', 
+                      'EARLY_INVESTMENT', 'NEW_INVESTMENT']
+      - name: exit_readiness
+        description: Assessment of exit readiness and timing
+        tests:
+          - accepted_values:
+              values: ['EXIT_READY', 'EXIT_CONSIDERATION', 'EARLY_EXIT_OPPORTUNITY', 
+                      'EXIT_CHALLENGE', 'HOLD_PERIOD']
+      - name: investment_classification
+        description: Overall investment performance classification
+        tests:
+          - accepted_values:
+              values: ['STAR_PERFORMER', 'STRONG_PERFORMER', 'SOLID_PERFORMER', 
+                      'MONITOR_CLOSELY', 'UNDERPERFORMER']
+      - name: monitoring_priority
+        description: Priority level for investment monitoring
+        tests:
+          - accepted_values:
+              values: ['HIGH_PRIORITY', 'MEDIUM_PRIORITY', 'LOW_PRIORITY']
+
+  - name: int_snapshots_company_metrics
+    description: >
+      Intermediate model aggregating company performance data with financial and operational metrics
+      for comprehensive company performance analysis and portfolio monitoring.
+    columns:
+      - name: snapshot_id
+        description: Unique identifier for the company metrics snapshot
+        tests:
+          - not_null
+          - unique
+      - name: snapshot_type
+        description: Type of snapshot (always 'COMPANY_METRICS')
+        tests:
+          - accepted_values:
+              values: ['COMPANY_METRICS']
+      - name: canonical_company_id
+        description: Canonical company identifier resolved through cross-reference
+        tests:
+          - not_null
+      - name: snapshot_date
+        description: Date of the financial reporting period (quarter end)
+        tests:
+          - not_null
+      - name: reporting_year
+        description: Reporting year for the financial data
+        tests:
+          - not_null
+      - name: reporting_quarter
+        description: Reporting quarter (1-4)
+        tests:
+          - accepted_values:
+              values: [1, 2, 3, 4]
+      - name: revenue_usd
+        description: Revenue converted to USD
+      - name: ebitda_usd
+        description: EBITDA converted to USD
+      - name: revenue_growth_yoy_percent
+        description: Year-over-year revenue growth percentage
+      - name: revenue_scale_category
+        description: Revenue scale categorization
+        tests:
+          - accepted_values:
+              values: ['BILLION_PLUS_REVENUE', 'LARGE_REVENUE', 'MEDIUM_LARGE_REVENUE', 
+                      'MEDIUM_REVENUE', 'SMALL_REVENUE', 'MICRO_REVENUE', 'PRE_REVENUE']
+      - name: growth_trajectory
+        description: Growth trajectory assessment
+        tests:
+          - accepted_values:
+              values: ['HYPER_GROWTH', 'HIGH_GROWTH', 'STRONG_GROWTH', 'MODERATE_GROWTH', 
+                      'SLOW_GROWTH', 'DECLINING', 'UNKNOWN_GROWTH']
+      - name: profitability_progression
+        description: Profitability stage assessment
+        tests:
+          - accepted_values:
+              values: ['FULLY_PROFITABLE', 'EBITDA_POSITIVE', 'GROSS_PROFIT_POSITIVE', 
+                      'REVENUE_GENERATING', 'PRE_REVENUE']
+      - name: business_model_assessment
+        description: Overall business model quality assessment
+        tests:
+          - accepted_values:
+              values: ['EXCEPTIONAL_BUSINESS_MODEL', 'STRONG_BUSINESS_MODEL', 
+                      'DEVELOPING_BUSINESS_MODEL', 'CHALLENGED_BUSINESS_MODEL', 
+                      'UNKNOWN_BUSINESS_MODEL']
+      - name: investment_attractiveness
+        description: Investment attractiveness assessment
+        tests:
+          - accepted_values:
+              values: ['HIGHLY_ATTRACTIVE', 'ATTRACTIVE', 'MODERATELY_ATTRACTIVE', 
+                      'MONITOR_PERFORMANCE', 'UNDERPERFORMING']
+      - name: value_creation_opportunity
+        description: Primary value creation opportunity identified
+        tests:
+          - accepted_values:
+              values: ['OPERATIONAL_IMPROVEMENT', 'WORKING_CAPITAL_OPTIMIZATION', 
+                      'LEVERAGE_OPPORTUNITY', 'GROWTH_ACCELERATION', 
+                      'PROFITABILITY_IMPROVEMENT', 'MAINTAIN_PERFORMANCE']
+      - name: monitoring_priority
+        description: Priority level for company monitoring
+        tests:
+          - accepted_values:
+              values: ['HIGH_PRIORITY', 'MEDIUM_PRIORITY', 'LOW_PRIORITY']

@@ -1,0 +1,221 @@
+version: 2
+
+models:
+  - name: int_transactions_capital_calls
+    description: >
+      Intermediate model standardizing capital call transactions from the fund administration system
+      with consistent categorization, currency conversion, and transaction processing.
+    columns:
+      - name: transaction_id
+        description: Unique identifier for the capital call transaction
+        tests:
+          - not_null
+          - unique
+      - name: transaction_type
+        description: Type of transaction (always 'CAPITAL_CALL')
+        tests:
+          - accepted_values:
+              values: ['CAPITAL_CALL']
+      - name: canonical_fund_id
+        description: Canonical fund identifier resolved through cross-reference
+        tests:
+          - not_null
+      - name: source_investor_id
+        description: Investor identifier from the source system
+        tests:
+          - not_null
+      - name: transaction_date
+        description: Date when the capital call was issued
+        tests:
+          - not_null
+      - name: gross_amount_usd
+        description: Gross capital call amount converted to USD
+        tests:
+          - not_null
+      - name: payment_status
+        description: Standardized payment status
+        tests:
+          - accepted_values:
+              values: ['PAID', 'OUTSTANDING', 'OVERDUE', 'PARTIAL', 'CANCELLED']
+      - name: transaction_purpose
+        description: Standardized purpose of the capital call
+        tests:
+          - accepted_values:
+              values: ['INITIAL_INVESTMENT', 'PORTFOLIO_INVESTMENT', 'FOLLOW_ON_INVESTMENT', 
+                      'MANAGEMENT_FEES', 'FUND_EXPENSES', 'OTHER']
+      - name: transaction_size_category
+        description: Size category of the transaction in USD
+        tests:
+          - accepted_values:
+              values: ['VERY_LARGE', 'LARGE', 'MEDIUM', 'SMALL', 'VERY_SMALL', 'UNKNOWN']
+      - name: transaction_efficiency
+        description: Assessment of transaction processing efficiency
+        tests:
+          - accepted_values:
+              values: ['HIGHLY_EFFICIENT', 'EFFICIENT', 'MODERATELY_EFFICIENT', 
+                      'PENDING_ASSESSMENT', 'INEFFICIENT']
+      - name: call_composition_type
+        description: Analysis of capital call composition
+        tests:
+          - accepted_values:
+              values: ['INVESTMENT_FOCUSED', 'FEE_FOCUSED', 'EXPENSE_HEAVY', 
+                      'MIXED_INVESTMENT', 'BALANCED']
+      - name: processing_priority
+        description: Priority level for transaction processing
+        tests:
+          - accepted_values:
+              values: ['HIGH_PRIORITY', 'MEDIUM_PRIORITY', 'REVIEW_REQUIRED', 'STANDARD']
+
+  - name: int_transactions_distributions
+    description: >
+      Intermediate model standardizing distribution transactions from the fund administration system
+      with consistent categorization, currency conversion, and tax processing.
+    columns:
+      - name: transaction_id
+        description: Unique identifier for the distribution transaction
+        tests:
+          - not_null
+          - unique
+      - name: transaction_type
+        description: Type of transaction (always 'DISTRIBUTION')
+        tests:
+          - accepted_values:
+              values: ['DISTRIBUTION']
+      - name: canonical_fund_id
+        description: Canonical fund identifier resolved through cross-reference
+        tests:
+          - not_null
+      - name: source_investor_id
+        description: Investor identifier from the source system
+        tests:
+          - not_null
+      - name: transaction_date
+        description: Date when the distribution was declared
+        tests:
+          - not_null
+      - name: gross_amount_usd
+        description: Gross distribution amount converted to USD
+        tests:
+          - not_null
+      - name: distribution_type
+        description: Standardized type of distribution
+        tests:
+          - accepted_values:
+              values: ['RETURN_OF_CAPITAL', 'CAPITAL_GAIN', 'DIVIDEND_INCOME', 
+                      'INTEREST_INCOME', 'CARRIED_INTEREST', 'OTHER']
+      - name: payment_status
+        description: Standardized payment status
+        tests:
+          - accepted_values:
+              values: ['PAID', 'PENDING', 'CANCELLED', 'FAILED']
+      - name: transaction_size_category
+        description: Size category of the transaction in USD
+        tests:
+          - accepted_values:
+              values: ['VERY_LARGE', 'LARGE', 'MEDIUM', 'SMALL', 'VERY_SMALL', 'UNKNOWN']
+      - name: tax_impact_category
+        description: Assessment of tax implications
+        tests:
+          - accepted_values:
+              values: ['TAX_DEFERRED', 'LOW_TAX_IMPACT', 'MODERATE_TAX_IMPACT', 
+                      'HIGH_TAX_IMPACT', 'ORDINARY_INCOME_TAX', 'CARRY_TAX_TREATMENT', 
+                      'UNKNOWN_TAX_TREATMENT']
+      - name: return_indicator
+        description: Indicator of the type of return represented
+        tests:
+          - accepted_values:
+              values: ['SIGNIFICANT_RETURN', 'POSITIVE_RETURN', 'CAPITAL_RETURN', 
+                      'INCOME_DISTRIBUTION', 'OTHER_DISTRIBUTION']
+      - name: processing_priority
+        description: Priority level for transaction processing
+        tests:
+          - accepted_values:
+              values: ['HIGH_PRIORITY', 'REVIEW_REQUIRED', 'TAX_REVIEW_REQUIRED', 'STANDARD']
+
+  - name: int_transactions_investments
+    description: >
+      Intermediate model standardizing investment transactions from the portfolio management system
+      with consistent categorization, currency conversion, and investment processing.
+    columns:
+      - name: transaction_id
+        description: Unique identifier for the investment transaction
+        tests:
+          - not_null
+          - unique
+      - name: transaction_type
+        description: Type of transaction (always 'INVESTMENT')
+        tests:
+          - accepted_values:
+              values: ['INVESTMENT']
+      - name: canonical_company_id
+        description: Canonical company identifier resolved through cross-reference
+        tests:
+          - not_null
+      - name: canonical_fund_id
+        description: Canonical fund identifier resolved through cross-reference
+        tests:
+          - not_null
+      - name: transaction_date
+        description: Date when the investment was made
+        tests:
+          - not_null
+      - name: total_amount_usd
+        description: Total investment amount converted to USD
+        tests:
+          - not_null
+      - name: investment_type
+        description: Standardized type of investment
+        tests:
+          - accepted_values:
+              values: ['EQUITY', 'DEBT', 'CONVERTIBLE', 'WARRANT', 'MEZZANINE', 'OTHER']
+      - name: investment_stage
+        description: Standardized investment stage
+        tests:
+          - accepted_values:
+              values: ['SEED', 'EARLY_STAGE', 'GROWTH', 'LATE_STAGE', 'BUYOUT', 
+                      'MEZZANINE', 'DISTRESSED', 'OTHER']
+      - name: sector
+        description: Standardized sector classification
+        tests:
+          - accepted_values:
+              values: ['TECHNOLOGY', 'HEALTHCARE', 'FINANCIAL_SERVICES', 'CONSUMER', 
+                      'INDUSTRIALS', 'ENERGY', 'REAL_ESTATE', 'OTHER']
+      - name: ownership_percentage
+        description: Percentage ownership acquired
+      - name: deal_size_category
+        description: Size category of the investment deal
+        tests:
+          - accepted_values:
+              values: ['MEGA_DEAL', 'LARGE_DEAL', 'MEDIUM_DEAL', 'SMALL_DEAL', 
+                      'MICRO_DEAL', 'UNKNOWN']
+      - name: investment_strategy_classification
+        description: Classification of investment strategy
+        tests:
+          - accepted_values:
+              values: ['CONTROL_BUYOUT', 'MINORITY_BUYOUT', 'GROWTH_EQUITY', 
+                      'VENTURE_CAPITAL', 'MEZZANINE_FINANCING', 'DISTRESSED_INVESTMENT', 
+                      'OTHER_STRATEGY']
+      - name: control_classification
+        description: Assessment of control and governance influence
+        tests:
+          - accepted_values:
+              values: ['FULL_CONTROL', 'OPERATIONAL_CONTROL', 'BOARD_INFLUENCE', 
+                      'PASSIVE_INVESTMENT', 'UNKNOWN_CONTROL']
+      - name: risk_return_profile
+        description: Risk-adjusted return potential assessment
+        tests:
+          - accepted_values:
+              values: ['HIGH_RISK_HIGH_RETURN', 'MODERATE_RISK_HIGH_RETURN', 
+                      'MODERATE_RISK_MODERATE_RETURN', 'LOW_RISK_MODERATE_RETURN', 
+                      'HIGH_RISK_VARIABLE_RETURN', 'UNKNOWN_RISK_RETURN']
+      - name: monitoring_priority
+        description: Priority level for portfolio monitoring
+        tests:
+          - accepted_values:
+              values: ['HIGH_PRIORITY', 'MEDIUM_PRIORITY', 'LOW_PRIORITY']
+      - name: lifecycle_status
+        description: Current phase in investment lifecycle
+        tests:
+          - accepted_values:
+              values: ['EXIT_PREPARATION', 'VALUE_CREATION', 'GROWTH_PHASE', 
+                      'INTEGRATION_PHASE', 'UNKNOWN_PHASE']

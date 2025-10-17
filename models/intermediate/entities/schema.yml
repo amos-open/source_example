@@ -1,0 +1,233 @@
+version: 2
+
+models:
+  - name: int_entities_fund
+    description: >
+      Intermediate model combining fund data from multiple source systems using cross-reference mappings
+      to create unified fund entities ready for canonical model consumption.
+    columns:
+      - name: canonical_fund_id
+        description: Canonical identifier for the fund across all source systems
+        tests:
+          - not_null
+          - unique
+      - name: fund_name
+        description: Primary fund name (prioritized from admin system)
+        tests:
+          - not_null
+      - name: fund_legal_name
+        description: Legal name of the fund
+      - name: admin_fund_code
+        description: Fund code from the fund administration system
+      - name: crm_fund_id
+        description: Fund identifier from the CRM system
+      - name: vintage_year
+        description: Fund vintage year
+        tests:
+          - accepted_values:
+              values: [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
+      - name: fund_type
+        description: Type of fund (e.g., Growth Equity, Buyout, Venture Capital)
+      - name: investment_strategy
+        description: Investment strategy of the fund
+      - name: geography_focus
+        description: Geographic focus of the fund
+      - name: sector_focus
+        description: Sector focus of the fund
+      - name: target_size
+        description: Target fund size in base currency
+      - name: final_size
+        description: Final fund size in base currency
+      - name: base_currency_code
+        description: Base currency of the fund
+        tests:
+          - accepted_values:
+              values: ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'SGD']
+      - name: management_fee_rate
+        description: Management fee rate as a decimal
+      - name: carried_interest_rate
+        description: Carried interest rate as a decimal
+      - name: fund_status
+        description: Current status of the fund
+      - name: lifecycle_stage
+        description: Current lifecycle stage of the fund
+      - name: investment_capacity
+        description: Current investment capacity assessment
+      - name: overall_data_quality
+        description: Overall data quality rating
+        tests:
+          - accepted_values:
+              values: ['EXCELLENT', 'GOOD', 'FAIR', 'POOR']
+      - name: investment_recommendation
+        description: Investment recommendation based on attractiveness score
+        tests:
+          - accepted_values:
+              values: ['HIGHLY_RECOMMENDED', 'RECOMMENDED', 'CONSIDER', 'NOT_RECOMMENDED']
+
+  - name: int_entities_company
+    description: >
+      Intermediate model combining company data from multiple source systems using cross-reference mappings
+      to create unified company entities with comprehensive entity resolution logic.
+    columns:
+      - name: canonical_company_id
+        description: Canonical identifier for the company across all source systems
+        tests:
+          - not_null
+          - unique
+      - name: company_name
+        description: Primary company name (prioritized from CRM system)
+        tests:
+          - not_null
+      - name: company_legal_name
+        description: Legal name of the company
+      - name: crm_company_id
+        description: Company identifier from the CRM system
+      - name: pm_company_id
+        description: Company identifier from the portfolio management system
+      - name: industry_primary
+        description: Primary industry classification
+      - name: industry_sector
+        description: Standardized industry sector
+      - name: country_code
+        description: ISO country code
+      - name: founded_year
+        description: Year the company was founded
+      - name: employee_count
+        description: Number of employees
+      - name: company_size_category
+        description: Company size category based on employee count
+        tests:
+          - accepted_values:
+              values: ['UNKNOWN', 'SMALL', 'MEDIUM', 'LARGE', 'ENTERPRISE']
+      - name: investment_status
+        description: Current investment status
+        tests:
+          - accepted_values:
+              values: ['PORTFOLIO_COMPANY', 'FORMER_PORTFOLIO', 'PROSPECT']
+      - name: latest_revenue
+        description: Latest reported revenue
+      - name: latest_ebitda
+        description: Latest reported EBITDA
+      - name: latest_enterprise_value
+        description: Latest enterprise valuation
+      - name: overall_data_quality
+        description: Overall data quality rating
+        tests:
+          - accepted_values:
+              values: ['EXCELLENT', 'GOOD', 'FAIR', 'POOR']
+      - name: investment_recommendation
+        description: Investment recommendation based on attractiveness score
+        tests:
+          - accepted_values:
+              values: ['HIGHLY_RECOMMENDED', 'RECOMMENDED', 'CONSIDER', 'NOT_RECOMMENDED']
+
+  - name: int_entities_investor
+    description: >
+      Intermediate model preparing investor master data with enhanced categorization,
+      scoring, and comprehensive profiling for fundraising and relationship management.
+    columns:
+      - name: investor_code
+        description: Primary identifier for the investor
+        tests:
+          - not_null
+          - unique
+      - name: investor_name
+        description: Name of the investor
+        tests:
+          - not_null
+      - name: standardized_investor_type
+        description: Standardized investor type classification
+        tests:
+          - accepted_values:
+              values: ['PENSION_FUND', 'ENDOWMENT', 'FOUNDATION', 'INSURANCE_COMPANY', 
+                      'SOVEREIGN_WEALTH_FUND', 'FAMILY_OFFICE', 'FUND_OF_FUNDS', 
+                      'BANK', 'CORPORATE', 'HIGH_NET_WORTH', 'OTHER']
+      - name: investor_size_category
+        description: Investor size category
+        tests:
+          - accepted_values:
+              values: ['LARGE_INSTITUTIONAL', 'MEDIUM_INSTITUTIONAL', 'PRIVATE_WEALTH', 'CORPORATE', 'OTHER']
+      - name: geographic_region
+        description: Geographic region of the investor
+        tests:
+          - accepted_values:
+              values: ['NORTH_AMERICA', 'EUROPE', 'ASIA_PACIFIC', 'MIDDLE_EAST', 'OTHER']
+      - name: compliance_status
+        description: Overall compliance status
+        tests:
+          - accepted_values:
+              values: ['FULLY_COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT']
+      - name: investor_tier
+        description: Investor tier classification
+      - name: investment_behavior_profile
+        description: Investment behavior profile
+      - name: fundraising_priority
+        description: Priority level for fundraising activities
+        tests:
+          - accepted_values:
+              values: ['PRIORITY_1', 'PRIORITY_2', 'PRIORITY_3', 'LOW_PRIORITY']
+      - name: final_investor_classification
+        description: Final classification for fundraising purposes
+        tests:
+          - accepted_values:
+              values: ['TARGET_INVESTOR', 'QUALIFIED_INVESTOR', 'POTENTIAL_INVESTOR', 
+                      'PROSPECT_INVESTOR', 'EXCLUDED_INVESTOR']
+      - name: engagement_strategy
+        description: Recommended engagement strategy
+        tests:
+          - accepted_values:
+              values: ['DIRECT_SENIOR_ENGAGEMENT', 'STRUCTURED_ENGAGEMENT', 'NURTURE_RELATIONSHIP', 
+                      'MONITOR_AND_QUALIFY', 'NO_ENGAGEMENT']
+
+  - name: int_entities_counterparty
+    description: >
+      Intermediate model consolidating counterparty data from multiple source systems,
+      creating unified counterparty entities for service providers, lenders, co-investors, and other external parties.
+    columns:
+      - name: canonical_counterparty_id
+        description: Canonical identifier for the counterparty
+        tests:
+          - not_null
+          - unique
+      - name: counterparty_name
+        description: Name of the counterparty organization
+        tests:
+          - not_null
+      - name: counterparty_type
+        description: Type of counterparty
+        tests:
+          - accepted_values:
+              values: ['SERVICE_PROVIDER', 'CO_INVESTOR', 'LENDER', 'VENDOR', 
+                      'LEGAL_COUNSEL', 'AUDITOR', 'OTHER']
+      - name: counterparty_category
+        description: Category for relationship management
+        tests:
+          - accepted_values:
+              values: ['PROFESSIONAL_SERVICES', 'ADVISORY_SERVICES', 'FINANCIAL_PARTNERS', 
+                      'OPERATIONAL_VENDORS', 'OTHER']
+      - name: primary_contact_name
+        description: Name of the primary contact person
+      - name: primary_contact_email
+        description: Email of the primary contact person
+      - name: relationship_status
+        description: Current relationship status
+      - name: relationship_strength
+        description: Strength of the relationship
+      - name: last_interaction_date
+        description: Date of last interaction
+      - name: relationship_priority
+        description: Priority level for relationship management
+        tests:
+          - accepted_values:
+              values: ['HIGH_PRIORITY', 'MEDIUM_PRIORITY', 'LOW_PRIORITY', 'MONITOR_ONLY']
+      - name: engagement_strategy
+        description: Recommended engagement strategy
+        tests:
+          - accepted_values:
+              values: ['IMMEDIATE_OUTREACH', 'REGULAR_ENGAGEMENT', 'MAINTAIN_CONTACT', 
+                      'PERIODIC_OUTREACH', 'MONITOR_ACTIVITY', 'NO_ACTION_REQUIRED']
+      - name: data_quality_rating
+        description: Overall data quality rating
+        tests:
+          - accepted_values:
+              values: ['HIGH', 'MEDIUM', 'LOW']
