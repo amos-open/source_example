@@ -1,0 +1,2 @@
+-- Common transformation macros used across all source systems
+-- This file will be populated during the staging layer implementation

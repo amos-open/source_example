@@ -1,119 +1,463 @@
-name: 'source_example'
-version: '0.0.1'
+name: 'amos_source_example'
+version: '1.0.0'
 config-version: 2
 
+# Profile configuration - supports multiple warehouses
 profile: 'amos_snowflake'
 
+# Path configurations
 model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+docs-paths: ["docs"]
 target-path: "target"
 clean-targets: ["target", "dbt_packages"]
 
-seed-paths: ["seeds"]
+# Package variables for configuration
+vars:
+  # Source system configuration
+  active_source: 'amos_source_example'
+  
+  # Warehouse-specific settings
+  raw_database: "{{ env_var('DBT_RAW_DATABASE', 'RAW') }}"
+  staging_schema_suffix: "_stg_amos_source_example"
+  
+  # Data quality settings
+  enable_data_quality_tests: true
+  test_failure_threshold: 0.05
+  
+  # Performance settings
+  enable_incremental_processing: true
+  default_materialization: 'view'
+  large_table_threshold: 1000000
 
+# Dependencies
+require-dbt-version: [">=1.0.0", "<2.0.0"]
+
+# Seed configurations
 seeds:
   +quote_columns: false
-  +database: RAW 
-
-  # --------------------------
-  # Reference / Cross-refs
-  # --------------------------
-  source_example:
-    reference:
-      +schema: REF
-      ref_currency:
-        +alias: example_ref_currency
-      ref_fx_rates:
-        +alias: example_ref_fx_rates
-        +column_types:
-          fx_rate_as_of: date
-          base_currency: varchar(3)
-          currency_code: varchar(3)
-          fx_rate: number(18,8)
-          fx_rate_source: varchar
-      xref_fund:
-        +alias: example_xref_fund
-      xref_investor:
-        +alias: example_xref_investor
-      xref_company:
-        +alias: example_xref_company
-
-    # --------------------------
-    # CRM
-    # --------------------------
-    crm:
-      +schema: EXAMPLE_CRM
+  +database: "{{ var('raw_database', 'RAW') }}"
+  
+  amos_source_example:
+    # CRM Vendor seed data
+    crm_vendor:
+      +schema: AMOS_CRM_VENDOR
       crm_opportunities:
-        +alias: example_crm_opportunities
+        +alias: amos_crm_opportunities
         +column_types:
+          opportunity_id: varchar(50)
+          opportunity_name: varchar(500)
           expected_amount: number(20,2)
-          close_date: date
+          expected_close_date: date
+          stage: varchar(100)
+          probability: number(5,2)
+          currency_code: varchar(3)
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+      
+      crm_companies:
+        +alias: amos_crm_companies
+        +column_types:
+          company_id: varchar(50)
+          company_name: varchar(500)
+          industry_name: varchar(200)
+          country_name: varchar(100)
+          website: varchar(500)
+          employee_count: number(10,0)
+          annual_revenue: number(20,2)
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+      
+      crm_contacts:
+        +alias: amos_crm_contacts
+        +column_types:
+          contact_id: varchar(50)
+          company_id: varchar(50)
+          first_name: varchar(100)
+          last_name: varchar(100)
+          title: varchar(200)
+          email: varchar(300)
+          phone: varchar(50)
           created_at: timestamp_ntz
           updated_at: timestamp_ntz
 
-    # --------------------------
-    # Fund Admin
-    # --------------------------
-    admin:
-      +schema: EXAMPLE_ADMIN
-      fund_admin_capital_calls:
-        +alias: example_fund_admin_capital_calls
+    # Fund Administration Vendor seed data
+    fund_admin_vendor:
+      +schema: AMOS_FUND_ADMIN_VENDOR
+      admin_funds:
+        +alias: amos_admin_funds
         +column_types:
-          call_date: date
-          call_amount: number(20,2)
-      fund_admin_distributions:
-        +alias: example_fund_admin_distributions
+          fund_code: varchar(50)
+          fund_name: varchar(500)
+          vintage_year: number(4,0)
+          target_size: number(20,2)
+          base_currency_code: varchar(3)
+          management_fee_rate: number(8,6)
+          carried_interest_rate: number(8,6)
+          fund_status: varchar(50)
+          inception_date: date
+          final_close_date: date
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+      
+      admin_investors:
+        +alias: amos_admin_investors
         +column_types:
-          distribution_date: date
-          distribution_amount: number(20,2)
-      fund_admin_management_fees:
-        +alias: example_fund_admin_management_fees
+          investor_code: varchar(50)
+          investor_name: varchar(500)
+          investor_type: varchar(100)
+          domicile_country: varchar(100)
+          tax_status: varchar(100)
+          kyc_status: varchar(50)
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+      
+      admin_commitments:
+        +alias: amos_admin_commitments
         +column_types:
-          fee_date: date
-          fee_amount: number(20,2)
-      fund_admin_expenses:
-        +alias: example_fund_admin_expenses
-        +column_types:
-          expense_date: date
-          expense_amount: number(20,2)
-      fund_admin_investment_nav:
-        +alias: example_fund_admin_investment_nav
-        +column_types:
-          as_of_date: date
-          current_nav: number(24,2)
-      fund_admin_fund_nav:
-        +alias: example_fund_admin_fund_nav
-        +column_types:
-          as_of_date: date
-          nav_amount: number(24,2)
-      fund_admin_investor_commitments:
-        +alias: example_fund_admin_investor_commitments
-        +column_types:
+          commitment_id: varchar(50)
+          fund_code: varchar(50)
+          investor_code: varchar(50)
           commitment_amount: number(20,2)
           commitment_date: date
-
-    # --------------------------
-    # Portfolio Mgmt
-    # --------------------------
-    pm:
-      +schema: EXAMPLE_PM
-      pm_company_performance:
-        +alias: example_pm_company_performance
+          currency_code: varchar(3)
+          commitment_status: varchar(50)
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+      
+      admin_capital_calls:
+        +alias: amos_admin_capital_calls
         +column_types:
-          date_as_of: date
+          capital_call_id: varchar(50)
+          fund_code: varchar(50)
+          investor_code: varchar(50)
+          call_date: date
+          due_date: date
+          call_amount: number(20,2)
+          currency_code: varchar(3)
+          call_status: varchar(50)
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+      
+      admin_distributions:
+        +alias: amos_admin_distributions
+        +column_types:
+          distribution_id: varchar(50)
+          fund_code: varchar(50)
+          investor_code: varchar(50)
+          distribution_date: date
+          distribution_amount: number(20,2)
+          currency_code: varchar(3)
+          distribution_type: varchar(100)
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+      
+      admin_nav_fund:
+        +alias: amos_admin_nav_fund
+        +column_types:
+          nav_id: varchar(50)
+          fund_code: varchar(50)
+          as_of_date: date
+          nav_amount: number(24,2)
+          currency_code: varchar(3)
+          nav_per_share: number(18,8)
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+      
+      admin_nav_investment:
+        +alias: amos_admin_nav_investment
+        +column_types:
+          nav_id: varchar(50)
+          fund_code: varchar(50)
+          investment_code: varchar(50)
+          as_of_date: date
+          current_nav: number(24,2)
+          currency_code: varchar(3)
+          valuation_method: varchar(100)
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+      
+      admin_fees:
+        +alias: amos_admin_fees
+        +column_types:
+          fee_id: varchar(50)
+          fund_code: varchar(50)
+          fee_date: date
+          fee_type: varchar(100)
+          fee_amount: number(20,2)
+          currency_code: varchar(3)
+          fee_status: varchar(50)
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+      
+      admin_expenses:
+        +alias: amos_admin_expenses
+        +column_types:
+          expense_id: varchar(50)
+          fund_code: varchar(50)
+          expense_date: date
+          expense_type: varchar(100)
+          expense_amount: number(20,2)
+          currency_code: varchar(3)
+          expense_status: varchar(50)
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+
+    # Portfolio Management Vendor seed data
+    portfolio_management_vendor:
+      +schema: AMOS_PM_VENDOR
+      pm_investments:
+        +alias: amos_pm_investments
+        +column_types:
+          investment_code: varchar(50)
+          investment_name: varchar(500)
+          company_name: varchar(500)
+          fund_code: varchar(50)
+          investment_date: date
+          investment_amount: number(20,2)
+          currency_code: varchar(3)
+          investment_type: varchar(100)
+          stage: varchar(100)
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+      
+      pm_company_financials:
+        +alias: amos_pm_company_financials
+        +column_types:
+          financial_id: varchar(50)
+          company_code: varchar(50)
+          reporting_date: date
           revenue_ltm: number(24,2)
           ebitda_ltm: number(24,2)
           net_income_ltm: number(24,2)
-          cash: number(24,2)
-          debt: number(24,2)
-      pm_company_valuations:
-        +alias: example_pm_company_valuations
+          total_assets: number(24,2)
+          total_debt: number(24,2)
+          cash_balance: number(24,2)
+          currency_code: varchar(3)
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+      
+      pm_company_metrics:
+        +alias: amos_pm_company_metrics
         +column_types:
-          date_from: date
-          amount: number(20,2)
+          metric_id: varchar(50)
+          company_code: varchar(50)
+          metric_date: date
+          metric_name: varchar(200)
+          metric_value: number(24,8)
+          metric_unit: varchar(50)
+          benchmark_value: number(24,8)
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+      
+      pm_valuations:
+        +alias: amos_pm_valuations
+        +column_types:
+          valuation_id: varchar(50)
+          investment_code: varchar(50)
+          valuation_date: date
+          valuation_amount: number(20,2)
+          currency_code: varchar(3)
+          valuation_method: varchar(100)
+          valuation_multiple: number(8,2)
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
 
+    # Accounting Vendor seed data
+    accounting_vendor:
+      +schema: AMOS_ACCOUNTING_VENDOR
+      acc_chart_of_accounts:
+        +alias: amos_acc_chart_of_accounts
+        +column_types:
+          account_code: varchar(50)
+          account_name: varchar(500)
+          account_type: varchar(100)
+          parent_account_code: varchar(50)
+          account_level: number(2,0)
+          is_active: boolean
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+      
+      acc_journal_entries:
+        +alias: amos_acc_journal_entries
+        +column_types:
+          journal_entry_id: varchar(50)
+          transaction_date: date
+          account_code: varchar(50)
+          debit_amount: number(20,2)
+          credit_amount: number(20,2)
+          currency_code: varchar(3)
+          description: varchar(1000)
+          reference_number: varchar(100)
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+      
+      acc_bank_transactions:
+        +alias: amos_acc_bank_transactions
+        +column_types:
+          transaction_id: varchar(50)
+          bank_account_code: varchar(50)
+          transaction_date: date
+          transaction_amount: number(20,2)
+          currency_code: varchar(3)
+          transaction_type: varchar(100)
+          counterparty_name: varchar(500)
+          description: varchar(1000)
+          created_at: timestamp_ntz
+          updated_at: timestamp_ntz
+
+    # Reference Data
+    reference:
+      +schema: AMOS_REF
+      ref_currencies:
+        +alias: amos_ref_currencies
+        +column_types:
+          currency_code: varchar(3)
+          currency_name: varchar(100)
+          currency_symbol: varchar(10)
+          decimal_places: number(2,0)
+          is_active: boolean
+      
+      ref_countries:
+        +alias: amos_ref_countries
+        +column_types:
+          country_code: varchar(3)
+          country_name: varchar(100)
+          region: varchar(100)
+          sub_region: varchar(100)
+          iso_alpha_2: varchar(2)
+          iso_alpha_3: varchar(3)
+          is_active: boolean
+      
+      ref_industries:
+        +alias: amos_ref_industries
+        +column_types:
+          industry_code: varchar(20)
+          industry_name: varchar(200)
+          sector_name: varchar(100)
+          classification_system: varchar(50)
+          level: number(2,0)
+          parent_industry_code: varchar(20)
+          is_active: boolean
+      
+      ref_fx_rates:
+        +alias: amos_ref_fx_rates
+        +column_types:
+          fx_rate_date: date
+          base_currency_code: varchar(3)
+          currency_code: varchar(3)
+          fx_rate: number(18,8)
+          fx_rate_source: varchar(100)
+      
+      # Cross-reference tables for entity resolution
+      xref_funds:
+        +alias: amos_xref_funds
+        +column_types:
+          canonical_fund_id: varchar(50)
+          crm_fund_id: varchar(50)
+          admin_fund_code: varchar(50)
+          pm_fund_code: varchar(50)
+          fund_name: varchar(500)
+          is_active: boolean
+      
+      xref_companies:
+        +alias: amos_xref_companies
+        +column_types:
+          canonical_company_id: varchar(50)
+          crm_company_id: varchar(50)
+          pm_company_code: varchar(50)
+          company_name: varchar(500)
+          is_active: boolean
+      
+      xref_investors:
+        +alias: amos_xref_investors
+        +column_types:
+          canonical_investor_id: varchar(50)
+          admin_investor_code: varchar(50)
+          crm_investor_id: varchar(50)
+          investor_name: varchar(500)
+          is_active: boolean
+
+# Model configurations
 models:
-  source_example:
-    +materialized: view
+  amos_source_example:
+    +materialized: "{{ var('default_materialization', 'view') }}"
+    +enabled: "{{ var('active_source', 'amos_source_example') == 'amos_source_example' }}"
+    
+    # Staging layer configuration
     staging:
-      +enabled: "{{ var('active_source', 'example') == 'example' }}"
-      +schema: "{{ target.schema }}_stg_example"
+      +schema: "{{ target.schema }}{{ var('staging_schema_suffix', '_stg_amos_source_example') }}"
+      +materialized: view
+      +docs:
+        node_color: "#4CAF50"
+      
+      # CRM staging models
+      crm:
+        +tags: ["crm", "staging"]
+      
+      # Fund admin staging models  
+      admin:
+        +tags: ["fund_admin", "staging"]
+      
+      # Portfolio management staging models
+      pm:
+        +tags: ["portfolio_mgmt", "staging"]
+      
+      # Accounting staging models
+      accounting:
+        +tags: ["accounting", "staging"]
+      
+      # Reference data staging models
+      reference:
+        +tags: ["reference", "staging"]
+    
+    # Intermediate layer configuration
+    intermediate:
+      +schema: "{{ target.schema }}_int_amos_source_example"
+      +materialized: table
+      +docs:
+        node_color: "#FF9800"
+      
+      # Entity preparation models
+      entities:
+        +tags: ["entities", "intermediate"]
+      
+      # Transaction preparation models
+      transactions:
+        +tags: ["transactions", "intermediate"]
+        +materialized: "{{ 'incremental' if var('enable_incremental_processing', true) else 'table' }}"
+      
+      # Snapshot preparation models
+      snapshots:
+        +tags: ["snapshots", "intermediate"]
+        +materialized: "{{ 'incremental' if var('enable_incremental_processing', true) else 'table' }}"
+      
+      # Relationship preparation models
+      relationships:
+        +tags: ["relationships", "intermediate"]
+    
+    # Export layer configuration (final staging outputs for amos_core)
+    exports:
+      +schema: "{{ target.schema }}_export_amos_source_example"
+      +materialized: table
+      +tags: ["exports", "amos_core_integration"]
+      +docs:
+        node_color: "#2196F3"
+
+# Test configurations
+tests:
+  +store_failures: true
+  +schema: "{{ target.schema }}_test_results"
+  amos_source_example:
+    +severity: "{{ 'error' if var('enable_data_quality_tests', true) else 'warn' }}"
+
+# Snapshot configurations
+snapshots:
+  amos_source_example:
+    +target_schema: "{{ target.schema }}_snapshots"
+    +strategy: timestamp
+    +updated_at: updated_at
+
+# Documentation configurations are handled at the model level
