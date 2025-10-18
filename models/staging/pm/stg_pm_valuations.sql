@@ -35,7 +35,7 @@ cleaned as (
         -- Valuation date
         case 
             when valuation_date is not null 
-            then cast(valuation_date as date)
+            then CAST(valuation_date AS DATE)
             else null
         end as valuation_date,
         
@@ -45,7 +45,7 @@ cleaned as (
         -- Enterprise and equity values
         case 
             when enterprise_value is not null and enterprise_value > 0
-            then cast(enterprise_value as number(24,2))
+            then CAST(enterprise_value AS NUMERIC(24,2))
             else null
         end as enterprise_value,
         
@@ -53,7 +53,7 @@ cleaned as (
         
         case 
             when equity_value is not null and equity_value > 0
-            then cast(equity_value as number(24,2))
+            then CAST(equity_value AS NUMERIC(24,2))
             else null
         end as equity_value,
         
@@ -62,19 +62,19 @@ cleaned as (
         -- Valuation multiples
         case 
             when revenue_multiple is not null and revenue_multiple > 0
-            then cast(revenue_multiple as number(8,2))
+            then CAST(revenue_multiple AS NUMERIC(8,2))
             else null
         end as revenue_multiple,
         
         case 
             when ebitda_multiple is not null and ebitda_multiple > 0
-            then cast(ebitda_multiple as number(8,2))
+            then CAST(ebitda_multiple AS NUMERIC(8,2))
             else null
         end as ebitda_multiple,
         
         case 
             when book_multiple is not null and book_multiple > 0
-            then cast(book_multiple as number(8,2))
+            then CAST(book_multiple AS NUMERIC(8,2))
             else null
         end as book_multiple,
         
@@ -82,14 +82,14 @@ cleaned as (
         case 
             when discount_rate is not null 
                 and discount_rate between 0 and 1
-            then cast(discount_rate as number(8,6))
+            then CAST(discount_rate AS NUMERIC(8,6))
             else null
         end as discount_rate,
         
         case 
             when terminal_growth_rate is not null 
                 and terminal_growth_rate between -0.1 and 0.2
-            then cast(terminal_growth_rate as number(8,6))
+            then CAST(terminal_growth_rate AS NUMERIC(8,6))
             else null
         end as terminal_growth_rate,
         
@@ -104,33 +104,33 @@ cleaned as (
         -- Last financing reference
         case 
             when last_financing_round_valuation is not null and last_financing_round_valuation > 0
-            then cast(last_financing_round_valuation as number(24,2))
+            then CAST(last_financing_round_valuation AS NUMERIC(24,2))
             else null
         end as last_financing_round_valuation,
         
         case 
             when last_financing_date is not null 
-            then cast(last_financing_date as date)
+            then CAST(last_financing_date AS DATE)
             else null
         end as last_financing_date,
         
         -- Audit fields
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'PORTFOLIO_MGMT_VENDOR' as source_system,
         'amos_pm_valuations' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where valuation_id is not null  -- Filter out records without primary key
@@ -205,7 +205,7 @@ enhanced as (
         
         case 
             when valuation_date is not null and last_financing_date is not null
-            then datediff('month', last_financing_date, valuation_date)
+            then DATE_DIFF(valuation_date, last_financing_date, MONTH)
             else null
         end as months_since_last_financing,
         
@@ -304,19 +304,7 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        hash(
-            valuation_id,
-            company_id,
-            investment_id,
-            valuation_date,
-            enterprise_value,
-            equity_value,
-            valuation_method,
-            revenue_multiple,
-            ebitda_multiple,
-            confidence_level,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(valuation_id, company_id, investment_id, valuation_date, enterprise_value, equity_value, valuation_method, revenue_multiple, ebitda_multiple, confidence_level, last_modified_date)) as record_hash
 
     from enhanced
 )

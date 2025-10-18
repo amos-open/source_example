@@ -45,7 +45,7 @@ cleaned as (
         -- Phone number cleaning (basic formatting)
         case 
             when phone is not null and phone != ''
-            then regexp_replace(trim(phone), '[^0-9+()-]', '')
+            then REGEXP_REPLACE(trim(phone), '[^0-9+()-]', '')
             else null
         end as phone_number,
         
@@ -78,7 +78,7 @@ cleaned as (
         -- Contact activity
         case 
             when last_contact_date is not null 
-            then cast(last_contact_date as date)
+            then CAST(last_contact_date AS DATE)
             else null
         end as last_contact_date,
         
@@ -88,20 +88,20 @@ cleaned as (
         -- Audit fields
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'CRM_VENDOR' as source_system,
         'amos_crm_contacts' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where contact_id is not null  -- Filter out records without primary key
@@ -169,10 +169,10 @@ enhanced as (
         -- Contact recency scoring
         case 
             when last_contact_date is null then 0
-            when datediff('day', last_contact_date, current_date()) <= 30 then 5
-            when datediff('day', last_contact_date, current_date()) <= 90 then 4
-            when datediff('day', last_contact_date, current_date()) <= 180 then 3
-            when datediff('day', last_contact_date, current_date()) <= 365 then 2
+            when DATE_DIFF(CURRENT_DATE(), last_contact_date, DAY) <= 30 then 5
+            when DATE_DIFF(CURRENT_DATE(), last_contact_date, DAY) <= 90 then 4
+            when DATE_DIFF(CURRENT_DATE(), last_contact_date, DAY) <= 180 then 3
+            when DATE_DIFF(CURRENT_DATE(), last_contact_date, DAY) <= 365 then 2
             else 1
         end as contact_recency_score,
         
@@ -229,19 +229,7 @@ final as (
         end as contact_status,
         
         -- Record hash for change detection
-        hash(
-            contact_id,
-            company_id,
-            first_name,
-            last_name,
-            job_title,
-            email_address,
-            role_type,
-            is_decision_maker,
-            relationship_strength,
-            last_contact_date,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(contact_id, company_id, first_name, last_name, job_title, email_address, role_type, is_decision_maker, relationship_strength, last_contact_date, last_modified_date)) as record_hash
 
     from enhanced
 )

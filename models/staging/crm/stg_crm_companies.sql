@@ -46,14 +46,14 @@ cleaned as (
         -- Company details
         case 
             when founded_year is not null 
-                and founded_year between 1800 and year(current_date())
-            then cast(founded_year as number(4,0))
+                and founded_year between 1800 and EXTRACT(YEAR FROM CURRENT_DATE())
+            then CAST(founded_year AS NUMERIC(4,0))
             else null
         end as founded_year,
         
         case 
             when employee_count is not null and employee_count > 0
-            then cast(employee_count as number(10,0))
+            then CAST(employee_count AS NUMERIC(10,0))
             else null
         end as employee_count,
         
@@ -82,14 +82,14 @@ cleaned as (
         case 
             when esg_score is not null 
                 and esg_score between 0 and 100
-            then cast(esg_score as number(5,2))
+            then CAST(esg_score AS NUMERIC(5,2))
             else null
         end as esg_score,
         
         case 
             when data_quality_score is not null 
                 and data_quality_score between 0 and 100
-            then cast(data_quality_score as number(5,2))
+            then CAST(data_quality_score AS NUMERIC(5,2))
             else null
         end as data_quality_score,
         
@@ -100,20 +100,20 @@ cleaned as (
         -- Audit fields
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'CRM_VENDOR' as source_system,
         'amos_crm_companies' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where company_id is not null  -- Filter out records without primary key
@@ -219,17 +219,7 @@ final as (
         end as overall_data_quality,
         
         -- Record hash for change detection
-        hash(
-            company_id,
-            company_name,
-            legal_name,
-            industry_primary,
-            country_code,
-            founded_year,
-            employee_count,
-            revenue_range_text,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(company_id, company_name, legal_name, industry_primary, country_code, founded_year, employee_count, revenue_range_text, last_modified_date)) as record_hash
 
     from enhanced
 )

@@ -52,7 +52,7 @@ cleaned as (
         
         case 
             when contact_phone is not null and contact_phone != ''
-            then regexp_replace(trim(contact_phone), '[^0-9+()-]', '')
+            then REGEXP_REPLACE(trim(contact_phone), '[^0-9+()-]', '')
             else null
         end as contact_phone,
         
@@ -79,20 +79,20 @@ cleaned as (
         -- Audit fields
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'FUND_ADMIN_VENDOR' as source_system,
         'amos_admin_investors' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where investor_code is not null  -- Filter out records without primary key
@@ -204,7 +204,7 @@ enhanced as (
 final as (
     select
         -- Generate deterministic hash ID from investor_code for compatibility
-        cast(hash(investor_code) as varchar) as id,
+        cast(FARM_FINGERPRINT(investor_code) as varchar) as id,
         *,
         
         -- Overall investor attractiveness score
@@ -231,19 +231,7 @@ final as (
         end as data_quality_rating,
         
         -- Record hash for change detection
-        hash(
-            investor_code,
-            investor_name,
-            investor_type,
-            standardized_country_code,
-            kyc_status,
-            aml_status,
-            accredited_status,
-            investment_capacity,
-            risk_tolerance,
-            liquidity_preference,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(investor_code, investor_name, investor_type, standardized_country_code, kyc_status, aml_status, accredited_status, investment_capacity, risk_tolerance, liquidity_preference, last_modified_date)) as record_hash
 
     from enhanced
 )

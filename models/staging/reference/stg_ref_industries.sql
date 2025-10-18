@@ -35,7 +35,7 @@ cleaned as (
         case 
             when industry_level is not null 
                 and industry_level between 1 and 5
-            then cast(industry_level as number(1,0))
+            then CAST(industry_level AS NUMERIC(1,0))
             else null
         end as industry_level,
         
@@ -54,20 +54,20 @@ cleaned as (
         -- Audit fields
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'REFERENCE' as source_system,
         'amos_ref_industries' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where industry_code is not null  -- Filter out records without primary key
@@ -195,7 +195,7 @@ enhanced as (
 final as (
     select
         -- Generated ID for compatibility
-        cast(hash(industry_code) as varchar) as id,
+        cast(FARM_FINGERPRINT(industry_code) as varchar) as id,
         *,
         
         -- Overall industry data quality
@@ -237,19 +237,7 @@ final as (
         ) / 7.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        hash(
-            industry_code,
-            industry_name,
-            classification_system,
-            parent_industry_code,
-            industry_level,
-            gics_sector,
-            gics_industry_group,
-            gics_industry,
-            gics_sub_industry,
-            is_active,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(industry_code, industry_name, classification_system, parent_industry_code, industry_level, gics_sector, gics_industry_group, gics_industry, gics_sub_industry, is_active, last_modified_date)) as record_hash
 
     from enhanced
 )

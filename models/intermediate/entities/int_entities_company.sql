@@ -194,7 +194,7 @@ unified_companies as (
             coalesce(pmv.valuation_date, '1900-01-01'::date)
         ) as last_modified_date,
         
-        current_timestamp() as processed_at
+        CURRENT_TIMESTAMP() as processed_at
 
     from xref_companies x
     left join crm_companies c on x.crm_company_id = c.company_id
@@ -211,9 +211,9 @@ enhanced_companies as (
         -- Company lifecycle stage
         case 
             when founded_year is null then 'UNKNOWN'
-            when year(current_date()) - founded_year < 5 then 'STARTUP'
-            when year(current_date()) - founded_year < 10 then 'GROWTH'
-            when year(current_date()) - founded_year < 20 then 'MATURE'
+            when EXTRACT(YEAR FROM CURRENT_DATE()) - founded_year < 5 then 'STARTUP'
+            when EXTRACT(YEAR FROM CURRENT_DATE()) - founded_year < 10 then 'GROWTH'
+            when EXTRACT(YEAR FROM CURRENT_DATE()) - founded_year < 20 then 'MATURE'
             else 'ESTABLISHED'
         end as company_lifecycle_stage,
         
@@ -253,7 +253,7 @@ enhanced_companies as (
         -- Investment performance indicators
         case 
             when first_investment_date is not null then
-                datediff('year', first_investment_date, current_date())
+                DATE_DIFF(current_date(), first_investment_date, YEAR)
             else null
         end as investment_duration_years,
         
@@ -266,13 +266,13 @@ enhanced_companies as (
         -- Data freshness assessment
         case 
             when latest_financial_date is not null then
-                datediff('month', latest_financial_date, current_date())
+                DATE_DIFF(current_date(), latest_financial_date, MONTH)
             else null
         end as financial_data_age_months,
         
         case 
             when latest_valuation_date is not null then
-                datediff('month', latest_valuation_date, current_date())
+                DATE_DIFF(current_date(), latest_valuation_date, MONTH)
             else null
         end as valuation_data_age_months,
         
@@ -306,14 +306,14 @@ enhanced_companies as (
 final as (
     select
         -- Canonical model format - exact column names and types expected by amos_core
-        cast(canonical_company_id as varchar(36)) as id,
-        cast(company_name as varchar(255)) as name,
-        cast(website_url as varchar(255)) as website,
-        cast(company_description as text) as description,
-        cast(coalesce(c.base_currency_code, 'USD') as varchar(3)) as currency,
-        cast(c.industry_id as varchar(36)) as industry_id,
-        cast(created_date as timestamp) as created_at,
-        cast(last_modified_date as timestamp) as updated_at,
+        CAST(canonical_company_id AS STRING) as id,
+        CAST(company_name AS STRING) as name,
+        CAST(website_url AS STRING) as website,
+        CAST(company_description AS STRING) as description,
+        CAST(coalesce(c.base_currency_code, 'USD') AS STRING) as currency,
+        CAST(c.industry_id AS STRING) as industry_id,
+        CAST(created_date AS TIMESTAMP) as created_at,
+        CAST(last_modified_date AS TIMESTAMP) as updated_at,
         
         -- Additional intermediate fields for analysis (not used by canonical model)
         crm_company_id,
@@ -373,19 +373,7 @@ final as (
         end as investment_recommendation,
         
         -- Record hash for change detection
-        hash(
-            canonical_company_id,
-            company_name,
-            industry_primary,
-            country_code,
-            founded_year,
-            employee_count,
-            revenue_midpoint_millions,
-            latest_revenue,
-            latest_ebitda,
-            latest_enterprise_value,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(canonical_company_id, company_name, industry_primary, country_code, founded_year, employee_count, revenue_midpoint_millions, latest_revenue, latest_ebitda, latest_enterprise_value, last_modified_date)) as record_hash
 
     from enhanced_companies
     where canonical_company_id is not null

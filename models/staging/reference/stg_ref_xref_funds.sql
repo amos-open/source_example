@@ -42,20 +42,20 @@ cleaned as (
         -- Audit fields
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'REFERENCE' as source_system,
         'amos_xref_funds' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where canonical_fund_id is not null  -- Filter out records without canonical ID
@@ -97,8 +97,7 @@ enhanced as (
         end as source_coverage_level,
         
         -- Fund name standardization for matching
-        upper(regexp_replace(
-            regexp_replace(canonical_fund_name, '[^A-Za-z0-9 ]', ''),
+        upper(REGEXP_REPLACE(regexp_replace(canonical_fund_name, '[^A-Za-z0-9 ]', ''),
             '\\s+', ' '
         )) as normalized_fund_name,
         
@@ -117,16 +116,16 @@ enhanced as (
         
         -- Extract fund vintage from name
         case 
-            when canonical_fund_name ~ '\\b(I|1)\\b' then 1
-            when canonical_fund_name ~ '\\b(II|2)\\b' then 2
-            when canonical_fund_name ~ '\\b(III|3)\\b' then 3
-            when canonical_fund_name ~ '\\b(IV|4)\\b' then 4
-            when canonical_fund_name ~ '\\b(V|5)\\b' then 5
-            when canonical_fund_name ~ '\\b(VI|6)\\b' then 6
-            when canonical_fund_name ~ '\\b(VII|7)\\b' then 7
-            when canonical_fund_name ~ '\\b(VIII|8)\\b' then 8
-            when canonical_fund_name ~ '\\b(IX|9)\\b' then 9
-            when canonical_fund_name ~ '\\b(X|10)\\b' then 10
+            when REGEXP_LIKE(canonical_fund_name, '\\b(I|1)\\b') then 1
+            when REGEXP_LIKE(canonical_fund_name, '\\b(II|2)\\b') then 2
+            when REGEXP_LIKE(canonical_fund_name, '\\b(III|3)\\b') then 3
+            when REGEXP_LIKE(canonical_fund_name, '\\b(IV|4)\\b') then 4
+            when REGEXP_LIKE(canonical_fund_name, '\\b(V|5)\\b') then 5
+            when REGEXP_LIKE(canonical_fund_name, '\\b(VI|6)\\b') then 6
+            when REGEXP_LIKE(canonical_fund_name, '\\b(VII|7)\\b') then 7
+            when REGEXP_LIKE(canonical_fund_name, '\\b(VIII|8)\\b') then 8
+            when REGEXP_LIKE(canonical_fund_name, '\\b(IX|9)\\b') then 9
+            when REGEXP_LIKE(canonical_fund_name, '\\b(X|10)\\b') then 10
             else null
         end as inferred_fund_number,
         
@@ -195,16 +194,7 @@ final as (
         ) / 7.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        hash(
-            canonical_fund_id,
-            crm_fund_id,
-            admin_fund_code,
-            pm_fund_id,
-            accounting_fund_code,
-            canonical_fund_name,
-            resolution_confidence,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(canonical_fund_id, crm_fund_id, admin_fund_code, pm_fund_id, accounting_fund_code, canonical_fund_name, resolution_confidence, last_modified_date)) as record_hash
 
     from enhanced
 )

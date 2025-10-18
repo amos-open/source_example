@@ -41,7 +41,7 @@ cleaned as (
         -- Financial information
         case 
             when amount is not null and amount > 0 
-            then cast(amount as number(20,2))
+            then CAST(amount AS NUMERIC(20,2))
             else null
         end as expected_amount,
         upper(trim(currency_code)) as currency_code,
@@ -59,19 +59,19 @@ cleaned as (
         -- Dates
         case 
             when expected_close_date is not null 
-            then cast(expected_close_date as date)
+            then CAST(expected_close_date AS DATE)
             else null
         end as expected_close_date,
         
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
@@ -102,20 +102,10 @@ cleaned as (
         -- Source system metadata
         'CRM_VENDOR' as source_system,
         'amos_crm_opportunities' as source_table,
-        current_timestamp() as loaded_at,
+        CURRENT_TIMESTAMP() as loaded_at,
         
         -- Record hash for change detection
-        hash(
-            opportunity_id,
-            opportunity_name,
-            company_id,
-            stage,
-            expected_close_date,
-            amount,
-            currency_code,
-            probability,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(opportunity_id, opportunity_name, company_id, stage, expected_close_date, amount, currency_code, probability, last_modified_date)) as record_hash
 
     from source
     where opportunity_id is not null  -- Filter out records without primary key
@@ -124,7 +114,7 @@ cleaned as (
 final as (
     select
         -- Generated ID for compatibility
-        cast(hash(opportunity_id) as varchar) as id,
+        cast(FARM_FINGERPRINT(opportunity_id) as varchar) as id,
         *,
         
         -- Add derived fields
@@ -137,7 +127,7 @@ final as (
         -- Calculate days to expected close
         case 
             when expected_close_date is not null 
-            then datediff('day', current_date(), expected_close_date)
+            then DATE_DIFF(expected_close_date, current_date(), DAY)
             else null
         end as days_to_close,
         

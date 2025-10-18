@@ -143,7 +143,7 @@ company_geography_relationships as (
         acg.state_province,
         acg.city,
         
-        current_timestamp() as processed_at
+        CURRENT_TIMESTAMP() as processed_at
 
     from all_company_geography acg
     left join company_xref cx on acg.source_company_id = cx.crm_company_id or acg.source_company_id = cx.pm_company_id
@@ -342,16 +342,7 @@ final as (
         end as monitoring_priority,
         
         -- Record hash for change detection
-        hash(
-            relationship_id,
-            canonical_company_id,
-            country_code,
-            geographic_region,
-            normalized_allocation_percentage,
-            is_primary_geography,
-            geography_types,
-            source_systems
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(relationship_id, canonical_company_id, country_code, geographic_region, normalized_allocation_percentage, is_primary_geography, geography_types, source_systems)) as record_hash
 
     from enhanced_relationships
 )

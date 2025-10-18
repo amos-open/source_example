@@ -127,7 +127,7 @@ fund_nav_snapshots as (
         -- Audit fields
         anf.created_date,
         anf.last_modified_date,
-        current_timestamp() as processed_at
+        CURRENT_TIMESTAMP() as processed_at
 
     from admin_nav_fund anf
     left join fund_xref fx on anf.fund_code = fx.admin_fund_code
@@ -305,7 +305,7 @@ enhanced_snapshots as (
         -- Snapshot recency assessment
         case 
             when snapshot_date is not null then
-                datediff('day', snapshot_date, current_date())
+                DATE_DIFF(current_date(), snapshot_date, DAY)
             else null
         end as days_since_snapshot,
         
@@ -387,19 +387,7 @@ final as (
         end as monitoring_priority,
         
         -- Record hash for change detection
-        hash(
-            snapshot_id,
-            canonical_fund_id,
-            snapshot_date,
-            total_nav_usd,
-            committed_capital_usd,
-            called_capital_usd,
-            distributed_capital_usd,
-            tvpi_ratio,
-            irr_net,
-            number_of_investments,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(snapshot_id, canonical_fund_id, snapshot_date, total_nav_usd, committed_capital_usd, called_capital_usd, distributed_capital_usd, tvpi_ratio, irr_net, number_of_investments, last_modified_date)) as record_hash
 
     from enhanced_snapshots
 )

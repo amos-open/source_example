@@ -108,7 +108,7 @@ capital_call_transactions as (
         cc.created_date,
         cc.last_modified_date,
         cc.completeness_score,
-        current_timestamp() as processed_at
+        CURRENT_TIMESTAMP() as processed_at
 
     from admin_capital_calls cc
     left join fund_xref fx on cc.fund_code = fx.admin_fund_code
@@ -246,7 +246,7 @@ enhanced_transactions as (
         -- Days since transaction
         case 
             when transaction_date is not null then
-                datediff('day', transaction_date, current_date())
+                DATE_DIFF(current_date(), transaction_date, DAY)
             else null
         end as days_since_transaction,
         
@@ -304,17 +304,7 @@ final as (
         end as data_quality_flag,
         
         -- Record hash for change detection
-        hash(
-            transaction_id,
-            canonical_fund_id,
-            source_investor_id,
-            transaction_date,
-            gross_amount_usd,
-            payment_status,
-            settlement_date,
-            settled_amount_usd,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(transaction_id, canonical_fund_id, source_investor_id, transaction_date, gross_amount_usd, payment_status, settlement_date, settled_amount_usd, last_modified_date)) as record_hash
 
     from enhanced_transactions
 )

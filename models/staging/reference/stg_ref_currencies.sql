@@ -34,14 +34,14 @@ cleaned as (
         case 
             when numeric_code is not null 
                 and numeric_code between 1 and 999
-            then cast(numeric_code as number(3,0))
+            then CAST(numeric_code AS NUMERIC(3,0))
             else null
         end as iso_numeric_code,
         
         case 
             when minor_unit is not null 
                 and minor_unit between 0 and 4
-            then cast(minor_unit as number(1,0))
+            then CAST(minor_unit AS NUMERIC(1,0))
             else 2  -- Default to 2 decimal places
         end as decimal_places,
         
@@ -56,20 +56,20 @@ cleaned as (
         -- Audit fields
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'REFERENCE' as source_system,
         'amos_ref_currencies' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where currency_code is not null  -- Filter out records without primary key
@@ -182,16 +182,7 @@ final as (
         ) / 5.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        hash(
-            currency_code,
-            currency_name,
-            currency_symbol,
-            iso_numeric_code,
-            decimal_places,
-            is_active,
-            region,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(currency_code, currency_name, currency_symbol, iso_numeric_code, decimal_places, is_active, region, last_modified_date)) as record_hash
 
     from enhanced
 )

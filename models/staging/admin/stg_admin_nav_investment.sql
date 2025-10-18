@@ -37,14 +37,14 @@ cleaned as (
         -- Valuation date
         case 
             when valuation_date is not null 
-            then cast(valuation_date as date)
+            then CAST(valuation_date AS DATE)
             else null
         end as valuation_date,
         
         -- Financial metrics
         case 
             when cost_basis is not null and cost_basis > 0
-            then cast(cost_basis as number(20,2))
+            then CAST(cost_basis AS NUMERIC(20,2))
             else null
         end as cost_basis,
         
@@ -52,7 +52,7 @@ cleaned as (
         
         case 
             when fair_value is not null and fair_value >= 0
-            then cast(fair_value as number(20,2))
+            then CAST(fair_value AS NUMERIC(20,2))
             else null
         end as fair_value,
         
@@ -60,7 +60,7 @@ cleaned as (
         
         case 
             when unrealized_gain_loss is not null 
-            then cast(unrealized_gain_loss as number(20,2))
+            then CAST(unrealized_gain_loss AS NUMERIC(20,2))
             else null
         end as unrealized_gain_loss,
         
@@ -69,20 +69,20 @@ cleaned as (
         
         case 
             when valuation_multiple is not null and valuation_multiple > 0
-            then cast(valuation_multiple as number(8,4))
+            then CAST(valuation_multiple AS NUMERIC(8,4))
             else null
         end as valuation_multiple,
         
         case 
             when last_financing_valuation is not null and last_financing_valuation > 0
-            then cast(last_financing_valuation as number(20,2))
+            then CAST(last_financing_valuation AS NUMERIC(20,2))
             else null
         end as last_financing_valuation,
         
         -- Investment characteristics
         case 
             when investment_date is not null 
-            then cast(investment_date as date)
+            then CAST(investment_date AS DATE)
             else null
         end as investment_date,
         
@@ -94,39 +94,39 @@ cleaned as (
         case 
             when ownership_percentage is not null 
                 and ownership_percentage between 0 and 100
-            then cast(ownership_percentage as number(8,4))
+            then CAST(ownership_percentage AS NUMERIC(8,4))
             else null
         end as ownership_percentage,
         
         case 
             when board_seats is not null and board_seats >= 0
-            then cast(board_seats as number(3,0))
+            then CAST(board_seats AS NUMERIC(3,0))
             else null
         end as board_seats,
         
         case 
             when liquidation_preference is not null and liquidation_preference > 0
-            then cast(liquidation_preference as number(8,4))
+            then CAST(liquidation_preference AS NUMERIC(8,4))
             else null
         end as liquidation_preference,
         
         -- Audit fields
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'FUND_ADMIN_VENDOR' as source_system,
         'amos_admin_nav_investment' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where nav_investment_id is not null  -- Filter out records without primary key
@@ -172,13 +172,13 @@ enhanced as (
         -- Investment age calculation
         case 
             when investment_date is not null and valuation_date is not null
-            then datediff('month', investment_date, valuation_date)
+            then DATE_DIFF(valuation_date, investment_date, MONTH)
             else null
         end as investment_age_months,
         
         case 
             when investment_date is not null and valuation_date is not null
-            then datediff('year', investment_date, valuation_date)
+            then DATE_DIFF(valuation_date, investment_date, YEAR)
             else null
         end as investment_age_years,
         
@@ -298,17 +298,7 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        hash(
-            nav_investment_id,
-            fund_code,
-            investment_id,
-            valuation_date,
-            cost_basis,
-            fair_value,
-            valuation_method,
-            valuation_multiple,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(nav_investment_id, fund_code, investment_id, valuation_date, cost_basis, fair_value, valuation_method, valuation_multiple, last_modified_date)) as record_hash
 
     from enhanced
 )

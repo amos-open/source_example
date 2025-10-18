@@ -33,7 +33,7 @@ cleaned as (
         -- Entry details
         case 
             when entry_date is not null 
-            then cast(entry_date as date)
+            then CAST(entry_date AS DATE)
             else null
         end as entry_date,
         
@@ -48,13 +48,13 @@ cleaned as (
         -- Financial amounts
         case 
             when debit_amount is not null and debit_amount > 0
-            then cast(debit_amount as number(20,2))
+            then CAST(debit_amount AS NUMERIC(20,2))
             else null
         end as debit_amount,
         
         case 
             when credit_amount is not null and credit_amount > 0
-            then cast(credit_amount as number(20,2))
+            then CAST(credit_amount AS NUMERIC(20,2))
             else null
         end as credit_amount,
         
@@ -66,20 +66,20 @@ cleaned as (
         
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'ACCOUNTING_VENDOR' as source_system,
         'amos_acc_journal_entries' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where journal_entry_id is not null  -- Filter out records without primary key
@@ -225,17 +225,7 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        hash(
-            journal_entry_id,
-            fund_code,
-            entry_date,
-            account_code,
-            debit_amount,
-            credit_amount,
-            entry_type,
-            reference_number,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(journal_entry_id, fund_code, entry_date, account_code, debit_amount, credit_amount, entry_type, reference_number, last_modified_date)) as record_hash
 
     from enhanced
 )

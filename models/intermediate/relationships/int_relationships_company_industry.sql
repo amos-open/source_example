@@ -176,7 +176,7 @@ company_industry_relationships as (
         aci.industry_classification,
         aci.industry_rank,
         
-        current_timestamp() as processed_at
+        CURRENT_TIMESTAMP() as processed_at
 
     from all_company_industry aci
     left join company_xref cx on aci.source_company_id = cx.crm_company_id or aci.source_company_id = cx.pm_company_id
@@ -464,16 +464,7 @@ final as (
         end as thematic_alignment,
         
         -- Record hash for change detection
-        hash(
-            relationship_id,
-            canonical_company_id,
-            industry_sector,
-            industry_name,
-            normalized_allocation_percentage,
-            is_primary_industry,
-            industry_classification,
-            source_systems
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(relationship_id, canonical_company_id, industry_sector, industry_name, normalized_allocation_percentage, is_primary_industry, industry_classification, source_systems)) as record_hash
 
     from enhanced_relationships
 )

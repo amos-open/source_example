@@ -125,7 +125,7 @@ investment_transactions as (
         pi.created_date,
         pi.last_modified_date,
         pi.completeness_score,
-        current_timestamp() as processed_at
+        CURRENT_TIMESTAMP() as processed_at
 
     from pm_investments pi
     left join company_xref cx on pi.company_id = cx.pm_company_id
@@ -275,9 +275,9 @@ enhanced_transactions as (
         case 
             when target_exit_date is not null then
                 case 
-                    when datediff('year', current_date(), target_exit_date) <= 1 then 'NEAR_TERM_EXIT'
-                    when datediff('year', current_date(), target_exit_date) <= 3 then 'MEDIUM_TERM_EXIT'
-                    when datediff('year', current_date(), target_exit_date) <= 5 then 'LONG_TERM_EXIT'
+                    when DATE_DIFF(target_exit_date, current_date(), YEAR) <= 1 then 'NEAR_TERM_EXIT'
+                    when DATE_DIFF(target_exit_date, current_date(), YEAR) <= 3 then 'MEDIUM_TERM_EXIT'
+                    when DATE_DIFF(target_exit_date, current_date(), YEAR) <= 5 then 'LONG_TERM_EXIT'
                     else 'EXTENDED_HOLD'
                 end
             else 'NO_TARGET_EXIT'
@@ -286,7 +286,7 @@ enhanced_transactions as (
         -- Days since investment
         case 
             when transaction_date is not null then
-                datediff('day', transaction_date, current_date())
+                DATE_DIFF(current_date(), transaction_date, DAY)
             else null
         end as days_since_investment,
         
@@ -370,18 +370,7 @@ final as (
         end as lifecycle_status,
         
         -- Record hash for change detection
-        hash(
-            transaction_id,
-            canonical_company_id,
-            canonical_fund_id,
-            transaction_date,
-            total_amount_usd,
-            investment_type,
-            investment_stage,
-            ownership_percentage,
-            exit_strategy,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(transaction_id, canonical_company_id, canonical_fund_id, transaction_date, total_amount_usd, investment_type, investment_stage, ownership_percentage, exit_strategy, last_modified_date)) as record_hash
 
     from enhanced_transactions
 )

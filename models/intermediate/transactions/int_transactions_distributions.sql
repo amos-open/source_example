@@ -111,7 +111,7 @@ distribution_transactions as (
         ad.created_date,
         ad.last_modified_date,
         ad.completeness_score,
-        current_timestamp() as processed_at
+        CURRENT_TIMESTAMP() as processed_at
 
     from admin_distributions ad
     left join fund_xref fx on ad.fund_code = fx.admin_fund_code
@@ -237,7 +237,7 @@ enhanced_transactions as (
         -- Days since transaction
         case 
             when transaction_date is not null then
-                datediff('day', transaction_date, current_date())
+                DATE_DIFF(current_date(), transaction_date, DAY)
             else null
         end as days_since_transaction,
         
@@ -332,18 +332,7 @@ final as (
         end as return_indicator,
         
         -- Record hash for change detection
-        hash(
-            transaction_id,
-            canonical_fund_id,
-            source_investor_id,
-            transaction_date,
-            gross_amount_usd,
-            distribution_type,
-            payment_status,
-            settlement_date,
-            net_amount_usd,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(transaction_id, canonical_fund_id, source_investor_id, transaction_date, gross_amount_usd, distribution_type, payment_status, settlement_date, net_amount_usd, last_modified_date)) as record_hash
 
     from enhanced_transactions
 )

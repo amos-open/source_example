@@ -34,33 +34,33 @@ cleaned as (
         -- Distribution details
         case 
             when distribution_number is not null and distribution_number > 0
-            then cast(distribution_number as number(5,0))
+            then CAST(distribution_number AS NUMERIC(5,0))
             else null
         end as distribution_number,
         
         -- Dates
         case 
             when distribution_date is not null 
-            then cast(distribution_date as date)
+            then CAST(distribution_date AS DATE)
             else null
         end as distribution_date,
         
         case 
             when record_date is not null 
-            then cast(record_date as date)
+            then CAST(record_date AS DATE)
             else null
         end as record_date,
         
         case 
             when payment_date is not null 
-            then cast(payment_date as date)
+            then CAST(payment_date AS DATE)
             else null
         end as payment_date,
         
         -- Financial amounts
         case 
             when distribution_amount is not null and distribution_amount > 0
-            then cast(distribution_amount as number(20,2))
+            then CAST(distribution_amount AS NUMERIC(20,2))
             else null
         end as distribution_amount,
         
@@ -68,19 +68,19 @@ cleaned as (
         
         case 
             when withholding_tax_amount is not null and withholding_tax_amount >= 0
-            then cast(withholding_tax_amount as number(20,2))
+            then CAST(withholding_tax_amount AS NUMERIC(20,2))
             else null
         end as withholding_tax_amount,
         
         case 
             when net_distribution_amount is not null and net_distribution_amount >= 0
-            then cast(net_distribution_amount as number(20,2))
+            then CAST(net_distribution_amount AS NUMERIC(20,2))
             else null
         end as net_distribution_amount,
         
         case 
             when cumulative_distributions is not null and cumulative_distributions >= 0
-            then cast(cumulative_distributions as number(20,2))
+            then CAST(cumulative_distributions AS NUMERIC(20,2))
             else null
         end as cumulative_distributions,
         
@@ -90,8 +90,8 @@ cleaned as (
         
         case 
             when tax_year is not null 
-                and tax_year between 2000 and year(current_date()) + 1
-            then cast(tax_year as number(4,0))
+                and tax_year between 2000 and EXTRACT(YEAR FROM CURRENT_DATE()) + 1
+            then CAST(tax_year AS NUMERIC(4,0))
             else null
         end as tax_year,
         
@@ -101,20 +101,20 @@ cleaned as (
         -- Audit fields
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'FUND_ADMIN_VENDOR' as source_system,
         'amos_admin_distributions' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where distribution_id is not null  -- Filter out records without primary key
@@ -169,13 +169,13 @@ enhanced as (
         -- Payment timing analysis
         case 
             when distribution_date is not null and payment_date is not null
-            then datediff('day', distribution_date, payment_date)
+            then DATE_DIFF(payment_date, distribution_date, DAY)
             else null
         end as payment_delay_days,
         
         case 
             when record_date is not null and distribution_date is not null
-            then datediff('day', record_date, distribution_date)
+            then DATE_DIFF(distribution_date, record_date, DAY)
             else null
         end as record_to_distribution_days,
         
@@ -246,17 +246,7 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        hash(
-            distribution_id,
-            fund_code,
-            investor_code,
-            distribution_date,
-            distribution_amount,
-            distribution_type,
-            payment_status,
-            payment_date,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(distribution_id, fund_code, investor_code, distribution_date, distribution_amount, distribution_type, payment_status, payment_date, last_modified_date)) as record_hash
 
     from enhanced
 )

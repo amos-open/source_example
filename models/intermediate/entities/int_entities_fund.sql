@@ -144,7 +144,7 @@ unified_funds as (
             coalesce(x.last_modified_date, '1900-01-01'::date)
         ) as last_modified_date,
         
-        current_timestamp() as processed_at
+        CURRENT_TIMESTAMP() as processed_at
 
     from xref_funds x
     left join fund_admin a on x.admin_fund_code = a.fund_code
@@ -258,18 +258,18 @@ enhanced_funds as (
 final as (
     select
         -- Canonical model format - exact column names and types expected by amos_core
-        cast(canonical_fund_id as varchar(36)) as id,
-        cast(fund_name as varchar(255)) as name,
-        cast(fund_type as varchar(64)) as type,
-        cast(vintage_year as integer) as vintage,
-        cast(management_fee_rate as decimal(7,4)) as management_fee,
-        cast(hurdle_rate as decimal(7,4)) as hurdle,
-        cast(carried_interest_rate as decimal(7,4)) as carried_interest,
-        cast(target_size as numeric(20,2)) as target_commitment,
-        cast(geography_focus as varchar(128)) as incorporated_in,
-        cast(base_currency_code as varchar(3)) as base_currency_code,
-        cast(created_date as text) as created_at,
-        cast(last_modified_date as text) as updated_at,
+        CAST(canonical_fund_id AS STRING) as id,
+        CAST(fund_name AS STRING) as name,
+        CAST(fund_type AS STRING) as type,
+        CAST(vintage_year AS INT64) as vintage,
+        CAST(management_fee_rate AS NUMERIC(7,4)) as management_fee,
+        CAST(hurdle_rate AS NUMERIC(7,4)) as hurdle,
+        CAST(carried_interest_rate AS NUMERIC(7,4)) as carried_interest,
+        CAST(target_size AS NUMERIC(20,2)) as target_commitment,
+        CAST(geography_focus AS STRING) as incorporated_in,
+        CAST(base_currency_code AS STRING) as base_currency_code,
+        CAST(created_date AS STRING) as created_at,
+        CAST(last_modified_date AS STRING) as updated_at,
         
         -- Additional intermediate fields for analysis (not used by canonical model)
         fund_legal_name,
@@ -295,20 +295,7 @@ final as (
         end as investment_recommendation,
         
         -- Record hash for change detection
-        hash(
-            canonical_fund_id,
-            fund_name,
-            vintage_year,
-            target_size,
-            final_size,
-            base_currency_code,
-            investment_strategy,
-            geography_focus,
-            management_fee_rate,
-            carried_interest_rate,
-            fund_status,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(canonical_fund_id, fund_name, vintage_year, target_size, final_size, base_currency_code, investment_strategy, geography_focus, management_fee_rate, carried_interest_rate, fund_status, last_modified_date)) as record_hash
 
     from enhanced_funds
     where canonical_fund_id is not null

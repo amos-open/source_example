@@ -38,14 +38,14 @@ cleaned as (
         -- Investment date
         case 
             when investment_date is not null 
-            then cast(investment_date as date)
+            then CAST(investment_date AS DATE)
             else null
         end as investment_date,
         
         -- Financial amounts
         case 
             when initial_investment_amount is not null and initial_investment_amount > 0
-            then cast(initial_investment_amount as number(20,2))
+            then CAST(initial_investment_amount AS NUMERIC(20,2))
             else null
         end as initial_investment_amount,
         
@@ -53,7 +53,7 @@ cleaned as (
         
         case 
             when total_invested_amount is not null and total_invested_amount > 0
-            then cast(total_invested_amount as number(20,2))
+            then CAST(total_invested_amount AS NUMERIC(20,2))
             else null
         end as total_invested_amount,
         
@@ -63,13 +63,13 @@ cleaned as (
         case 
             when ownership_percentage is not null 
                 and ownership_percentage between 0 and 100
-            then cast(ownership_percentage as number(8,4))
+            then CAST(ownership_percentage AS NUMERIC(8,4))
             else null
         end as ownership_percentage,
         
         case 
             when board_seats is not null and board_seats >= 0
-            then cast(board_seats as number(3,0))
+            then CAST(board_seats AS NUMERIC(3,0))
             else null
         end as board_seats,
         
@@ -102,27 +102,27 @@ cleaned as (
         
         case 
             when target_exit_date is not null 
-            then cast(target_exit_date as date)
+            then CAST(target_exit_date AS DATE)
             else null
         end as target_exit_date,
         
         -- Audit fields
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'PORTFOLIO_MGMT_VENDOR' as source_system,
         'amos_pm_investments' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where investment_id is not null  -- Filter out records without primary key
@@ -242,20 +242,20 @@ enhanced as (
         -- Investment age calculation
         case 
             when investment_date is not null
-            then datediff('month', investment_date, current_date())
+            then DATE_DIFF(CURRENT_DATE(), investment_date, MONTH)
             else null
         end as investment_age_months,
         
         case 
             when investment_date is not null
-            then datediff('year', investment_date, current_date())
+            then DATE_DIFF(CURRENT_DATE(), investment_date, YEAR)
             else null
         end as investment_age_years,
         
         -- Target holding period
         case 
             when investment_date is not null and target_exit_date is not null
-            then datediff('year', investment_date, target_exit_date)
+            then DATE_DIFF(target_exit_date, investment_date, YEAR)
             else null
         end as target_holding_period_years,
         
@@ -312,18 +312,7 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        hash(
-            investment_id,
-            company_id,
-            fund_id,
-            investment_date,
-            total_invested_amount,
-            ownership_percentage,
-            investment_stage,
-            sector,
-            exit_strategy,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(investment_id, company_id, fund_id, investment_date, total_invested_amount, ownership_percentage, investment_stage, sector, exit_strategy, last_modified_date)) as record_hash
 
     from enhanced
 )

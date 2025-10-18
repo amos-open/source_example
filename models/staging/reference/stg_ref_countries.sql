@@ -34,7 +34,7 @@ cleaned as (
         case 
             when numeric_code is not null 
                 and numeric_code between 1 and 999
-            then cast(numeric_code as number(3,0))
+            then CAST(numeric_code AS NUMERIC(3,0))
             else null
         end as iso_numeric_code,
         
@@ -56,20 +56,20 @@ cleaned as (
         -- Audit fields
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'REFERENCE' as source_system,
         'amos_ref_countries' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where country_code is not null  -- Filter out records without primary key
@@ -82,14 +82,14 @@ enhanced as (
         -- Country code validation against ISO 3166-1 alpha-2
         case 
             when length(country_code) = 2 
-                and country_code ~ '^[A-Z]{2}$' then true
+                and REGEXP_LIKE(country_code, '^[A-Z]{2}$') then true
             else false
         end as is_valid_iso_alpha_2,
         
         -- ISO alpha-3 validation
         case 
             when length(iso_alpha_3_code) = 3 
-                and iso_alpha_3_code ~ '^[A-Z]{3}$' then true
+                and REGEXP_LIKE(iso_alpha_3_code, '^[A-Z]{3}$') then true
             else false
         end as is_valid_iso_alpha_3,
         
@@ -232,18 +232,7 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        hash(
-            country_code,
-            country_name,
-            iso_alpha_3_code,
-            iso_numeric_code,
-            region,
-            sub_region,
-            capital_city,
-            primary_currency_code,
-            is_active,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(country_code, country_name, iso_alpha_3_code, iso_numeric_code, region, sub_region, capital_city, primary_currency_code, is_active, last_modified_date)) as record_hash
 
     from enhanced
 )

@@ -72,7 +72,7 @@ investor_activity as (
         i.source_system,
         i.loaded_at,
         
-        current_timestamp() as processed_at
+        CURRENT_TIMESTAMP() as processed_at
 
     from admin_investors i
 ),
@@ -208,11 +208,11 @@ enhanced_investors as (
 final as (
     select
         -- Canonical model format - exact column names and types expected by amos_core
-        cast(canonical_investor_id as varchar(36)) as id,
-        cast(investor_name as varchar(255)) as name,
-        cast(investor_type_id as varchar(36)) as investor_type_id,
-        cast(created_date as timestamp) as created_at,
-        cast(last_modified_date as timestamp) as updated_at,
+        CAST(canonical_investor_id AS STRING) as id,
+        CAST(investor_name AS STRING) as name,
+        CAST(investor_type_id AS STRING) as investor_type_id,
+        CAST(created_date AS TIMESTAMP) as created_at,
+        CAST(last_modified_date AS TIMESTAMP) as updated_at,
         
         -- Additional intermediate fields for analysis (not used by canonical model)
         investor_code,
@@ -242,18 +242,7 @@ final as (
         end as engagement_strategy,
         
         -- Record hash for change detection
-        hash(
-            investor_code,
-            investor_name,
-            standardized_investor_type,
-            standardized_country_code,
-            investment_capacity,
-            risk_tolerance,
-            liquidity_preference,
-            compliance_status,
-            has_esg_requirements,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(investor_code, investor_name, standardized_investor_type, standardized_country_code, investment_capacity, risk_tolerance, liquidity_preference, compliance_status, has_esg_requirements, last_modified_date)) as record_hash
 
     from enhanced_investors
     where canonical_investor_id is not null

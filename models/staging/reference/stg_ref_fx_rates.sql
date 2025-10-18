@@ -27,7 +27,7 @@ cleaned as (
         -- Rate date
         case 
             when rate_date is not null 
-            then cast(rate_date as date)
+            then CAST(rate_date AS DATE)
             else null
         end as rate_date,
         
@@ -38,7 +38,7 @@ cleaned as (
         -- Exchange rate
         case 
             when exchange_rate is not null and exchange_rate > 0
-            then cast(exchange_rate as number(18,8))
+            then CAST(exchange_rate AS NUMERIC(18,8))
             else null
         end as exchange_rate,
         
@@ -48,20 +48,20 @@ cleaned as (
         -- Audit fields
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'REFERENCE' as source_system,
         'amos_ref_fx_rates' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where rate_date is not null 
@@ -219,14 +219,7 @@ final as (
         ) / 5.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        hash(
-            rate_date,
-            base_currency_code,
-            quote_currency_code,
-            exchange_rate,
-            rate_source,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(rate_date, base_currency_code, quote_currency_code, exchange_rate, rate_source, last_modified_date)) as record_hash
 
     from enhanced
 )

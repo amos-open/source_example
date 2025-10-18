@@ -26,12 +26,12 @@ cleaned as (
         upper(trim(resolution_confidence)) as resolution_confidence,
         upper(trim(primary_source_system)) as primary_source_system,
         
-        case when created_date is not null then cast(created_date as date) else null end as created_date,
-        case when last_modified_date is not null then cast(last_modified_date as date) else null end as last_modified_date,
+        case when created_date is not null then CAST(created_date AS DATE) else null end as created_date,
+        case when last_modified_date is not null then CAST(last_modified_date AS DATE) else null end as last_modified_date,
         
         'REFERENCE' as source_system,
         'amos_xref_companies' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where canonical_company_id is not null
@@ -77,15 +77,7 @@ final as (
             else 'LOW_QUALITY'
         end as data_quality_rating,
         
-        hash(
-            canonical_company_id,
-            crm_company_id,
-            pm_company_id,
-            accounting_entity_id,
-            canonical_company_name,
-            resolution_confidence,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(canonical_company_id, crm_company_id, pm_company_id, accounting_entity_id, canonical_company_name, resolution_confidence, last_modified_date)) as record_hash
 
     from enhanced
 )

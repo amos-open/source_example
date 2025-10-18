@@ -35,7 +35,7 @@ cleaned as (
         -- Transaction details
         case 
             when transaction_date is not null 
-            then cast(transaction_date as date)
+            then CAST(transaction_date AS DATE)
             else null
         end as transaction_date,
         
@@ -43,7 +43,7 @@ cleaned as (
         
         case 
             when transaction_amount is not null 
-            then cast(transaction_amount as number(20,2))
+            then CAST(transaction_amount AS NUMERIC(20,2))
             else null
         end as transaction_amount,
         
@@ -64,20 +64,20 @@ cleaned as (
         -- Audit fields
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'ACCOUNTING_VENDOR' as source_system,
         'amos_acc_bank_transactions' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where transaction_id is not null  -- Filter out records without primary key
@@ -203,7 +203,7 @@ enhanced as (
         -- Reconciliation timing
         case 
             when created_date is not null and transaction_date is not null
-            then datediff('day', transaction_date, created_date)
+            then DATE_DIFF(created_date, transaction_date, DAY)
             else null
         end as days_to_record,
         
@@ -264,17 +264,7 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        hash(
-            transaction_id,
-            fund_code,
-            transaction_date,
-            transaction_amount,
-            transaction_type,
-            counterparty_name,
-            reconciliation_status,
-            journal_entry_id,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(transaction_id, fund_code, transaction_date, transaction_amount, transaction_type, counterparty_name, reconciliation_status, journal_entry_id, last_modified_date)) as record_hash
 
     from enhanced
 )

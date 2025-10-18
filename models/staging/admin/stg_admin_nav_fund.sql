@@ -32,20 +32,20 @@ cleaned as (
         -- Valuation date
         case 
             when valuation_date is not null 
-            then cast(valuation_date as date)
+            then CAST(valuation_date AS DATE)
             else null
         end as valuation_date,
         
         -- NAV metrics
         case 
             when nav_per_share is not null and nav_per_share > 0
-            then cast(nav_per_share as number(18,8))
+            then CAST(nav_per_share AS NUMERIC(18,8))
             else null
         end as nav_per_share,
         
         case 
             when total_nav is not null and total_nav >= 0
-            then cast(total_nav as number(24,2))
+            then CAST(total_nav AS NUMERIC(24,2))
             else null
         end as total_nav,
         
@@ -54,109 +54,109 @@ cleaned as (
         -- Capital flow metrics
         case 
             when committed_capital is not null and committed_capital >= 0
-            then cast(committed_capital as number(24,2))
+            then CAST(committed_capital AS NUMERIC(24,2))
             else null
         end as committed_capital,
         
         case 
             when called_capital is not null and called_capital >= 0
-            then cast(called_capital as number(24,2))
+            then CAST(called_capital AS NUMERIC(24,2))
             else null
         end as called_capital,
         
         case 
             when distributed_capital is not null and distributed_capital >= 0
-            then cast(distributed_capital as number(24,2))
+            then CAST(distributed_capital AS NUMERIC(24,2))
             else null
         end as distributed_capital,
         
         case 
             when remaining_value is not null and remaining_value >= 0
-            then cast(remaining_value as number(24,2))
+            then CAST(remaining_value AS NUMERIC(24,2))
             else null
         end as remaining_value,
         
         case 
             when total_value is not null and total_value >= 0
-            then cast(total_value as number(24,2))
+            then CAST(total_value AS NUMERIC(24,2))
             else null
         end as total_value,
         
         -- Performance ratios
         case 
             when dpi_ratio is not null and dpi_ratio >= 0
-            then cast(dpi_ratio as number(8,4))
+            then CAST(dpi_ratio AS NUMERIC(8,4))
             else null
         end as dpi_ratio,
         
         case 
             when rvpi_ratio is not null and rvpi_ratio >= 0
-            then cast(rvpi_ratio as number(8,4))
+            then CAST(rvpi_ratio AS NUMERIC(8,4))
             else null
         end as rvpi_ratio,
         
         case 
             when tvpi_ratio is not null and tvpi_ratio >= 0
-            then cast(tvpi_ratio as number(8,4))
+            then CAST(tvpi_ratio AS NUMERIC(8,4))
             else null
         end as tvpi_ratio,
         
         -- IRR metrics (stored as decimals, e.g., 0.25 = 25%)
         case 
             when irr_gross is not null 
-            then cast(irr_gross as number(8,6))
+            then CAST(irr_gross AS NUMERIC(8,6))
             else null
         end as irr_gross,
         
         case 
             when irr_net is not null 
-            then cast(irr_net as number(8,6))
+            then CAST(irr_net AS NUMERIC(8,6))
             else null
         end as irr_net,
         
         -- Fee and expense tracking
         case 
             when management_fees_paid is not null and management_fees_paid >= 0
-            then cast(management_fees_paid as number(20,2))
+            then CAST(management_fees_paid AS NUMERIC(20,2))
             else null
         end as management_fees_paid,
         
         case 
             when carried_interest_paid is not null and carried_interest_paid >= 0
-            then cast(carried_interest_paid as number(20,2))
+            then CAST(carried_interest_paid AS NUMERIC(20,2))
             else null
         end as carried_interest_paid,
         
         case 
             when fund_expenses is not null and fund_expenses >= 0
-            then cast(fund_expenses as number(20,2))
+            then CAST(fund_expenses AS NUMERIC(20,2))
             else null
         end as fund_expenses,
         
         -- Portfolio metrics
         case 
             when number_of_investments is not null and number_of_investments >= 0
-            then cast(number_of_investments as number(5,0))
+            then CAST(number_of_investments AS NUMERIC(5,0))
             else null
         end as number_of_investments,
         
         -- Audit fields
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'FUND_ADMIN_VENDOR' as source_system,
         'amos_admin_nav_fund' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where nav_id is not null  -- Filter out records without primary key
@@ -317,18 +317,7 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        hash(
-            nav_id,
-            fund_code,
-            valuation_date,
-            total_nav,
-            called_capital,
-            distributed_capital,
-            remaining_value,
-            tvpi_ratio,
-            irr_net,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(nav_id, fund_code, valuation_date, total_nav, called_capital, distributed_capital, remaining_value, tvpi_ratio, irr_net, last_modified_date)) as record_hash
 
     from enhanced
 )

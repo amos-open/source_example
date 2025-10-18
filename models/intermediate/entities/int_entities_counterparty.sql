@@ -149,39 +149,39 @@ all_counterparties as (
 consolidated_counterparties as (
     select
         -- Generate canonical counterparty ID
-        'CPTY-' || upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', '')) || '-' || 
-        row_number() over (partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', '')) order by created_date) as canonical_counterparty_id,
+        'CPTY-' || upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', '')) || '-' || 
+        row_number() over (partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', '')) order by created_date) as canonical_counterparty_id,
         
         counterparty_name,
         
         -- Consolidate contact information (prioritize CRM data)
         first_value(primary_contact_name ignore nulls) over (
-            partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', ''))
+            partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
             order by case when source_system = 'CRM_VENDOR' then 1 else 2 end
             rows between unbounded preceding and unbounded following
         ) as primary_contact_name,
         
         first_value(primary_contact_title ignore nulls) over (
-            partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', ''))
+            partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
             order by case when source_system = 'CRM_VENDOR' then 1 else 2 end
             rows between unbounded preceding and unbounded following
         ) as primary_contact_title,
         
         first_value(primary_contact_email ignore nulls) over (
-            partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', ''))
+            partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
             order by case when source_system = 'CRM_VENDOR' then 1 else 2 end
             rows between unbounded preceding and unbounded following
         ) as primary_contact_email,
         
         first_value(primary_contact_phone ignore nulls) over (
-            partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', ''))
+            partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
             order by case when source_system = 'CRM_VENDOR' then 1 else 2 end
             rows between unbounded preceding and unbounded following
         ) as primary_contact_phone,
         
         -- Consolidate counterparty type (prioritize most specific)
         first_value(counterparty_type) over (
-            partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', ''))
+            partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
             order by case 
                 when counterparty_type in ('LEGAL_COUNSEL', 'AUDITOR', 'SERVICE_PROVIDER') then 1
                 when counterparty_type in ('LENDER', 'CO_INVESTOR') then 2
@@ -191,62 +191,62 @@ consolidated_counterparties as (
         ) as counterparty_type,
         
         first_value(counterparty_industry ignore nulls) over (
-            partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', ''))
+            partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
             order by case when source_system = 'CRM_VENDOR' then 1 else 2 end
             rows between unbounded preceding and unbounded following
         ) as counterparty_industry,
         
         first_value(country_code ignore nulls) over (
-            partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', ''))
+            partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
             order by case when source_system = 'CRM_VENDOR' then 1 else 2 end
             rows between unbounded preceding and unbounded following
         ) as country_code,
         
         -- Relationship information
         first_value(relationship_status ignore nulls) over (
-            partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', ''))
+            partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
             order by last_modified_date desc
             rows between unbounded preceding and unbounded following
         ) as relationship_status,
         
         first_value(relationship_strength ignore nulls) over (
-            partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', ''))
+            partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
             order by case when source_system = 'CRM_VENDOR' then 1 else 2 end
             rows between unbounded preceding and unbounded following
         ) as relationship_strength,
         
         max(last_interaction_date) over (
-            partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', ''))
+            partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
         ) as last_interaction_date,
         
         first_value(interaction_frequency ignore nulls) over (
-            partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', ''))
+            partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
             order by case when source_system = 'CRM_VENDOR' then 1 else 2 end
             rows between unbounded preceding and unbounded following
         ) as interaction_frequency,
         
         -- Source system tracking
         string_agg(distinct source_system, ', ') over (
-            partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', ''))
+            partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
         ) as source_systems,
         
         count(*) over (
-            partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', ''))
+            partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
         ) as source_record_count,
         
         min(created_date) over (
-            partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', ''))
+            partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
         ) as created_date,
         
         max(last_modified_date) over (
-            partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', ''))
+            partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
         ) as last_modified_date,
         
-        current_timestamp() as processed_at,
+        CURRENT_TIMESTAMP() as processed_at,
         
         -- Row number for deduplication
         row_number() over (
-            partition by upper(regexp_replace(counterparty_name, '[^A-Za-z0-9]', ''))
+            partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
             order by case when source_system = 'CRM_VENDOR' then 1 else 2 end, created_date
         ) as rn
 
@@ -298,9 +298,9 @@ enhanced_counterparties as (
         -- Relationship recency assessment
         case 
             when last_interaction_date is null then 'NO_RECENT_ACTIVITY'
-            when datediff('month', last_interaction_date, current_date()) <= 3 then 'RECENT'
-            when datediff('month', last_interaction_date, current_date()) <= 12 then 'MODERATE'
-            when datediff('month', last_interaction_date, current_date()) <= 24 then 'STALE'
+            when DATE_DIFF(current_date(), last_interaction_date, MONTH) <= 3 then 'RECENT'
+            when DATE_DIFF(current_date(), last_interaction_date, MONTH) <= 12 then 'MODERATE'
+            when DATE_DIFF(current_date(), last_interaction_date, MONTH) <= 24 then 'STALE'
             else 'INACTIVE'
         end as relationship_recency,
         
@@ -329,12 +329,12 @@ enhanced_counterparties as (
 final as (
     select
         -- Canonical model format - exact column names and types expected by amos_core
-        cast(canonical_counterparty_id as varchar(36)) as id,
-        cast(counterparty_name as varchar(255)) as name,
-        cast(counterparty_type as varchar(64)) as type,
-        cast(country_code as char(2)) as country_code,
-        cast(created_date as timestamp) as created_at,
-        cast(last_modified_date as timestamp) as updated_at,
+        CAST(canonical_counterparty_id AS STRING) as id,
+        CAST(counterparty_name AS STRING) as name,
+        CAST(counterparty_type AS STRING) as type,
+        CAST(country_code AS STRING) as country_code,
+        CAST(created_date AS TIMESTAMP) as created_at,
+        CAST(last_modified_date AS TIMESTAMP) as updated_at,
         
         -- Additional intermediate fields for analysis (not used by canonical model)
         primary_contact_name,
@@ -386,17 +386,7 @@ final as (
         end as data_quality_rating,
         
         -- Record hash for change detection
-        hash(
-            canonical_counterparty_id,
-            counterparty_name,
-            counterparty_type,
-            primary_contact_name,
-            primary_contact_email,
-            relationship_status,
-            relationship_strength,
-            last_interaction_date,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(canonical_counterparty_id, counterparty_name, counterparty_type, primary_contact_name, primary_contact_email, relationship_status, relationship_strength, last_interaction_date, last_modified_date)) as record_hash
 
     from enhanced_counterparties
     where canonical_counterparty_id is not null

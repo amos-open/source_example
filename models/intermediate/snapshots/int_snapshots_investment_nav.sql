@@ -127,7 +127,7 @@ investment_nav_snapshots as (
         -- Audit fields
         ani.created_date,
         ani.last_modified_date,
-        current_timestamp() as processed_at
+        CURRENT_TIMESTAMP() as processed_at
 
     from admin_nav_investment ani
     left join company_xref cx on ani.investment_id = cx.pm_company_id
@@ -293,7 +293,7 @@ enhanced_snapshots as (
         -- Snapshot recency assessment
         case 
             when snapshot_date is not null then
-                datediff('day', snapshot_date, current_date())
+                DATE_DIFF(current_date(), snapshot_date, DAY)
             else null
         end as days_since_snapshot,
         
@@ -397,19 +397,7 @@ final as (
         end as investment_classification,
         
         -- Record hash for change detection
-        hash(
-            snapshot_id,
-            canonical_company_id,
-            canonical_fund_id,
-            snapshot_date,
-            cost_basis_usd,
-            fair_value_usd,
-            valuation_method,
-            ownership_percentage,
-            investment_stage,
-            sector,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(snapshot_id, canonical_company_id, canonical_fund_id, snapshot_date, cost_basis_usd, fair_value_usd, valuation_method, ownership_percentage, investment_stage, sector, last_modified_date)) as record_hash
 
     from enhanced_snapshots
 )

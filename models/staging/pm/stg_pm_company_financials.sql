@@ -35,22 +35,22 @@ cleaned as (
         
         case 
             when reporting_year is not null 
-                and reporting_year between 2000 and year(current_date()) + 1
-            then cast(reporting_year as number(4,0))
+                and reporting_year between 2000 and EXTRACT(YEAR FROM CURRENT_DATE()) + 1
+            then CAST(reporting_year AS NUMERIC(4,0))
             else null
         end as reporting_year,
         
         case 
             when reporting_quarter is not null 
                 and reporting_quarter between 1 and 4
-            then cast(reporting_quarter as number(1,0))
+            then CAST(reporting_quarter AS NUMERIC(1,0))
             else null
         end as reporting_quarter,
         
         -- Income statement items
         case 
             when revenue is not null and revenue >= 0
-            then cast(revenue as number(24,2))
+            then CAST(revenue AS NUMERIC(24,2))
             else null
         end as revenue,
         
@@ -58,33 +58,33 @@ cleaned as (
         
         case 
             when gross_profit is not null 
-            then cast(gross_profit as number(24,2))
+            then CAST(gross_profit AS NUMERIC(24,2))
             else null
         end as gross_profit,
         
         case 
             when gross_margin_percent is not null 
                 and gross_margin_percent between -100 and 100
-            then cast(gross_margin_percent as number(8,4))
+            then CAST(gross_margin_percent AS NUMERIC(8,4))
             else null
         end as gross_margin_percent,
         
         case 
             when ebitda is not null 
-            then cast(ebitda as number(24,2))
+            then CAST(ebitda AS NUMERIC(24,2))
             else null
         end as ebitda,
         
         case 
             when ebitda_margin_percent is not null 
                 and ebitda_margin_percent between -100 and 100
-            then cast(ebitda_margin_percent as number(8,4))
+            then CAST(ebitda_margin_percent AS NUMERIC(8,4))
             else null
         end as ebitda_margin_percent,
         
         case 
             when net_income is not null 
-            then cast(net_income as number(24,2))
+            then CAST(net_income AS NUMERIC(24,2))
             else null
         end as net_income,
         
@@ -93,108 +93,108 @@ cleaned as (
         -- Balance sheet items
         case 
             when total_assets is not null and total_assets >= 0
-            then cast(total_assets as number(24,2))
+            then CAST(total_assets AS NUMERIC(24,2))
             else null
         end as total_assets,
         
         case 
             when total_liabilities is not null and total_liabilities >= 0
-            then cast(total_liabilities as number(24,2))
+            then CAST(total_liabilities AS NUMERIC(24,2))
             else null
         end as total_liabilities,
         
         case 
             when shareholders_equity is not null 
-            then cast(shareholders_equity as number(24,2))
+            then CAST(shareholders_equity AS NUMERIC(24,2))
             else null
         end as shareholders_equity,
         
         case 
             when cash_and_equivalents is not null and cash_and_equivalents >= 0
-            then cast(cash_and_equivalents as number(24,2))
+            then CAST(cash_and_equivalents AS NUMERIC(24,2))
             else null
         end as cash_and_equivalents,
         
         case 
             when accounts_receivable is not null and accounts_receivable >= 0
-            then cast(accounts_receivable as number(24,2))
+            then CAST(accounts_receivable AS NUMERIC(24,2))
             else null
         end as accounts_receivable,
         
         case 
             when inventory is not null and inventory >= 0
-            then cast(inventory as number(24,2))
+            then CAST(inventory AS NUMERIC(24,2))
             else null
         end as inventory,
         
         case 
             when accounts_payable is not null and accounts_payable >= 0
-            then cast(accounts_payable as number(24,2))
+            then CAST(accounts_payable AS NUMERIC(24,2))
             else null
         end as accounts_payable,
         
         -- Debt information
         case 
             when debt_total is not null and debt_total >= 0
-            then cast(debt_total as number(24,2))
+            then CAST(debt_total AS NUMERIC(24,2))
             else null
         end as debt_total,
         
         case 
             when debt_current is not null and debt_current >= 0
-            then cast(debt_current as number(24,2))
+            then CAST(debt_current AS NUMERIC(24,2))
             else null
         end as debt_current,
         
         case 
             when debt_long_term is not null and debt_long_term >= 0
-            then cast(debt_long_term as number(24,2))
+            then CAST(debt_long_term AS NUMERIC(24,2))
             else null
         end as debt_long_term,
         
         -- Cash flow items
         case 
             when capex is not null 
-            then cast(capex as number(24,2))
+            then CAST(capex AS NUMERIC(24,2))
             else null
         end as capex,
         
         case 
             when free_cash_flow is not null 
-            then cast(free_cash_flow as number(24,2))
+            then CAST(free_cash_flow AS NUMERIC(24,2))
             else null
         end as free_cash_flow,
         
         case 
             when working_capital is not null 
-            then cast(working_capital as number(24,2))
+            then CAST(working_capital AS NUMERIC(24,2))
             else null
         end as working_capital,
         
         -- Operational metrics
         case 
             when employees_count is not null and employees_count >= 0
-            then cast(employees_count as number(10,0))
+            then CAST(employees_count AS NUMERIC(10,0))
             else null
         end as employees_count,
         
         -- Audit fields
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'PORTFOLIO_MGMT_VENDOR' as source_system,
         'amos_pm_company_financials' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where financial_id is not null  -- Filter out records without primary key
@@ -350,7 +350,7 @@ enhanced as (
 final as (
     select
         -- Generated ID for compatibility
-        cast(hash(company_id, reporting_year, reporting_quarter) as varchar) as id,
+        cast(FARM_FINGERPRINT(CONCAT(company_id, reporting_year, reporting_quarter)) as varchar) as id,
         *,
         
         -- Overall financial health score (0-100)
@@ -410,19 +410,7 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        hash(
-            financial_id,
-            company_id,
-            reporting_year,
-            reporting_quarter,
-            revenue,
-            gross_profit,
-            ebitda,
-            net_income,
-            total_assets,
-            cash_and_equivalents,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(financial_id, company_id, reporting_year, reporting_quarter, revenue, gross_profit, ebitda, net_income, total_assets, cash_and_equivalents, last_modified_date)) as record_hash
 
     from enhanced
 )

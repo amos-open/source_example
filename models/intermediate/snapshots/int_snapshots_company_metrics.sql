@@ -112,7 +112,7 @@ yoy_growth_metrics as (
         
         case 
             when prior_year.employees_count is not null and prior_year.employees_count > 0 and current_year.employees_count is not null
-            then ((current_year.employees_count - prior_year.employees_count) / prior_year.employees_count::float) * 100
+            then ((current_year.employees_count - prior_year.employees_count) / CAST(prior_year.employees_count AS FLOAT64)) * 100
             else null
         end as employee_growth_yoy_percent
 
@@ -202,7 +202,7 @@ company_metrics_snapshots as (
         -- Audit fields
         cf.created_date,
         cf.last_modified_date,
-        current_timestamp() as processed_at
+        CURRENT_TIMESTAMP() as processed_at
 
     from current_financials cf
     left join company_xref cx on cf.company_id = cx.pm_company_id
@@ -393,7 +393,7 @@ enhanced_snapshots as (
         -- Snapshot recency assessment
         case 
             when snapshot_date is not null then
-                datediff('day', snapshot_date, current_date())
+                DATE_DIFF(current_date(), snapshot_date, DAY)
             else null
         end as days_since_snapshot,
         
@@ -485,19 +485,7 @@ final as (
         end as value_creation_opportunity,
         
         -- Record hash for change detection
-        hash(
-            snapshot_id,
-            canonical_company_id,
-            snapshot_date,
-            revenue_usd,
-            ebitda_usd,
-            net_income_usd,
-            total_assets_usd,
-            employees_count,
-            revenue_growth_yoy_percent,
-            ebitda_growth_yoy_percent,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(snapshot_id, canonical_company_id, snapshot_date, revenue_usd, ebitda_usd, net_income_usd, total_assets_usd, employees_count, revenue_growth_yoy_percent, ebitda_growth_yoy_percent, last_modified_date)) as record_hash
 
     from enhanced_snapshots
 )

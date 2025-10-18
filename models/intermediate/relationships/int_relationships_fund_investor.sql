@@ -178,7 +178,7 @@ fund_investor_relationships as (
             coalesce(fid.latest_distribution_date, '1900-01-01'::date)
         ) as latest_activity_date,
         
-        current_timestamp() as processed_at
+        CURRENT_TIMESTAMP() as processed_at
 
     from fund_investor_capital_calls ficc
     left join fund_investor_distributions fid 
@@ -215,7 +215,7 @@ enhanced_relationships as (
         -- Payment reliability assessment
         case 
             when total_capital_calls > 0 then
-                (paid_calls_count::float / total_capital_calls) * 100
+                (CAST(paid_calls_count AS FLOAT64) / total_capital_calls) * 100
             else null
         end as payment_reliability_percentage,
         
@@ -230,7 +230,7 @@ enhanced_relationships as (
         -- Relationship maturity assessment
         case 
             when relationship_start_date is not null then
-                datediff('year', relationship_start_date, current_date())
+                DATE_DIFF(current_date(), relationship_start_date, YEAR)
             else null
         end as relationship_age_years,
         
@@ -245,7 +245,7 @@ enhanced_relationships as (
         -- Activity recency assessment
         case 
             when latest_activity_date is not null then
-                datediff('month', latest_activity_date, current_date())
+                DATE_DIFF(current_date(), latest_activity_date, MONTH)
             else null
         end as months_since_last_activity,
         
@@ -307,12 +307,12 @@ enhanced_relationships as (
 final as (
     select
         -- Canonical model format - exact column names and types expected by amos_core
-        cast(relationship_id as varchar(36)) as commitment_id,
-        cast(relationship_id as varchar(36)) as id,
-        cast(canonical_fund_id as varchar(36)) as fund_id,
-        cast(source_investor_id as varchar(36)) as investor_id,
-        cast(relationship_start_date as timestamp) as created_at,
-        cast(latest_activity_date as timestamp) as updated_at,
+        CAST(relationship_id AS STRING) as commitment_id,
+        CAST(relationship_id AS STRING) as id,
+        CAST(canonical_fund_id AS STRING) as fund_id,
+        CAST(source_investor_id AS STRING) as investor_id,
+        CAST(relationship_start_date AS TIMESTAMP) as created_at,
+        CAST(latest_activity_date AS TIMESTAMP) as updated_at,
         
         -- Additional intermediate fields for analysis (not used by canonical model)
         relationship_type,
@@ -397,17 +397,7 @@ final as (
         end as data_quality_rating,
         
         -- Record hash for change detection
-        hash(
-            relationship_id,
-            canonical_fund_id,
-            source_investor_id,
-            commitment_amount,
-            total_called_amount,
-            total_distributed_amount,
-            total_capital_calls,
-            total_distributions,
-            latest_activity_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(relationship_id, canonical_fund_id, source_investor_id, commitment_amount, total_called_amount, total_distributed_amount, total_capital_calls, total_distributions, latest_activity_date)) as record_hash
 
     from enhanced_relationships
     where relationship_id is not null

@@ -20,12 +20,12 @@ cleaned as (
         trim(crm_investor_id) as crm_investor_id,
         trim(investor_name) as canonical_investor_name,
         
-        case when created_date is not null then cast(created_date as date) else null end as created_date,
-        case when last_modified_date is not null then cast(last_modified_date as date) else null end as last_modified_date,
+        case when created_date is not null then CAST(created_date AS DATE) else null end as created_date,
+        case when last_modified_date is not null then CAST(last_modified_date AS DATE) else null end as last_modified_date,
         
         'REFERENCE' as source_system,
         'amos_xref_investors' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where canonical_investor_id is not null
@@ -45,13 +45,7 @@ final as (
             else 'INVALID_FORMAT'
         end as canonical_id_validation,
         
-        hash(
-            canonical_investor_id,
-            admin_investor_code,
-            crm_investor_id,
-            canonical_investor_name,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(canonical_investor_id, admin_investor_code, crm_investor_id, canonical_investor_name, last_modified_date)) as record_hash
 
     from cleaned
 )

@@ -34,33 +34,33 @@ cleaned as (
         -- Call details
         case 
             when call_number is not null and call_number > 0
-            then cast(call_number as number(5,0))
+            then CAST(call_number AS NUMERIC(5,0))
             else null
         end as call_number,
         
         -- Dates
         case 
             when call_date is not null 
-            then cast(call_date as date)
+            then CAST(call_date AS DATE)
             else null
         end as call_date,
         
         case 
             when due_date is not null 
-            then cast(due_date as date)
+            then CAST(due_date AS DATE)
             else null
         end as due_date,
         
         case 
             when payment_date is not null 
-            then cast(payment_date as date)
+            then CAST(payment_date AS DATE)
             else null
         end as payment_date,
         
         -- Financial amounts
         case 
             when call_amount is not null and call_amount > 0
-            then cast(call_amount as number(20,2))
+            then CAST(call_amount AS NUMERIC(20,2))
             else null
         end as call_amount,
         
@@ -68,7 +68,7 @@ cleaned as (
         
         case 
             when commitment_amount is not null and commitment_amount > 0
-            then cast(commitment_amount as number(20,2))
+            then CAST(commitment_amount AS NUMERIC(20,2))
             else null
         end as commitment_amount,
         
@@ -77,7 +77,7 @@ cleaned as (
         case 
             when call_percentage is not null 
                 and call_percentage between 0 and 100
-            then cast(call_percentage as number(8,4))
+            then CAST(call_percentage AS NUMERIC(8,4))
             else null
         end as call_percentage,
         
@@ -86,19 +86,19 @@ cleaned as (
         
         case 
             when management_fee_amount is not null and management_fee_amount >= 0
-            then cast(management_fee_amount as number(20,2))
+            then CAST(management_fee_amount AS NUMERIC(20,2))
             else null
         end as management_fee_amount,
         
         case 
             when investment_amount is not null and investment_amount >= 0
-            then cast(investment_amount as number(20,2))
+            then CAST(investment_amount AS NUMERIC(20,2))
             else null
         end as investment_amount,
         
         case 
             when expense_amount is not null and expense_amount >= 0
-            then cast(expense_amount as number(20,2))
+            then CAST(expense_amount AS NUMERIC(20,2))
             else null
         end as expense_amount,
         
@@ -107,7 +107,7 @@ cleaned as (
         
         case 
             when payment_amount is not null and payment_amount >= 0
-            then cast(payment_amount as number(20,2))
+            then CAST(payment_amount AS NUMERIC(20,2))
             else null
         end as payment_amount,
         
@@ -116,20 +116,20 @@ cleaned as (
         -- Audit fields
         case 
             when created_date is not null 
-            then cast(created_date as date)
+            then CAST(created_date AS DATE)
             else null
         end as created_date,
         
         case 
             when last_modified_date is not null 
-            then cast(last_modified_date as date)
+            then CAST(last_modified_date AS DATE)
             else null
         end as last_modified_date,
         
         -- Source system metadata
         'FUND_ADMIN_VENDOR' as source_system,
         'amos_admin_capital_calls' as source_table,
-        current_timestamp() as loaded_at
+        CURRENT_TIMESTAMP() as loaded_at
 
     from source
     where capital_call_id is not null  -- Filter out records without primary key
@@ -155,19 +155,19 @@ enhanced as (
         -- Calculate timing metrics
         case 
             when call_date is not null and due_date is not null
-            then datediff('day', call_date, due_date)
+            then DATE_DIFF(due_date, call_date, DAY)
             else null
         end as payment_period_days,
         
         case 
             when due_date is not null and payment_date is not null
-            then datediff('day', due_date, payment_date)
+            then DATE_DIFF(payment_date, due_date, DAY)
             else null
         end as days_late_early,  -- Positive = late, negative = early
         
         case 
             when call_date is not null and payment_date is not null
-            then datediff('day', call_date, payment_date)
+            then DATE_DIFF(payment_date, call_date, DAY)
             else null
         end as total_payment_days,
         
@@ -266,17 +266,7 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        hash(
-            capital_call_id,
-            fund_code,
-            investor_code,
-            call_date,
-            call_amount,
-            payment_status,
-            payment_date,
-            payment_amount,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(capital_call_id, fund_code, investor_code, call_date, call_amount, payment_status, payment_date, payment_amount, last_modified_date)) as record_hash
 
     from enhanced
 )

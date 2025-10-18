@@ -146,7 +146,7 @@ fund_investment_relationships as (
             coalesce(cnd.last_modified_date, '1900-01-01'::date)
         ) as last_modified_date,
         
-        current_timestamp() as processed_at
+        CURRENT_TIMESTAMP() as processed_at
 
     from pm_investments pi
     left join company_xref cx on pi.company_id = cx.pm_company_id
@@ -271,7 +271,7 @@ enhanced_relationships as (
         -- Data freshness assessment
         case 
             when latest_valuation_date is not null then
-                datediff('day', latest_valuation_date, current_date())
+                DATE_DIFF(current_date(), latest_valuation_date, DAY)
             else null
         end as days_since_valuation,
         
@@ -359,19 +359,7 @@ final as (
         end as data_quality_rating,
         
         -- Record hash for change detection
-        hash(
-            relationship_id,
-            canonical_fund_id,
-            canonical_company_id,
-            investment_date,
-            total_amount_usd,
-            ownership_percentage,
-            current_fair_value,
-            current_return_multiple,
-            investment_stage,
-            sector,
-            last_modified_date
-        ) as record_hash
+        FARM_FINGERPRINT(CONCAT(relationship_id, canonical_fund_id, canonical_company_id, investment_date, total_amount_usd, ownership_percentage, current_fair_value, current_return_multiple, investment_stage, sector, last_modified_date)) as record_hash
 
     from enhanced_relationships
 )
