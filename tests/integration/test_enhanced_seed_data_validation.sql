@@ -21,7 +21,7 @@ WITH seed_column_validation AS (
       WHEN crm_company_id IS NULL OR canonical_company_id IS NULL 
       THEN 1 ELSE 0 
     END) as missing_id_records
-  FROM {{ ref('seed_crm_companies') }}
+  FROM {{ ref('crm_companies') }}
   
   UNION ALL
   
@@ -35,7 +35,7 @@ WITH seed_column_validation AS (
       WHEN crm_investor_id IS NULL OR canonical_investor_id IS NULL 
       THEN 1 ELSE 0 
     END) as missing_id_records
-  FROM {{ ref('seed_crm_contacts') }}
+  FROM {{ ref('crm_contacts') }}
   
   UNION ALL
   
@@ -50,7 +50,7 @@ WITH seed_column_validation AS (
       WHEN admin_fund_id IS NULL OR canonical_fund_id IS NULL 
       THEN 1 ELSE 0 
     END) as missing_id_records
-  FROM {{ ref('seed_admin_funds') }}
+  FROM {{ ref('admin_funds') }}
   
   UNION ALL
   
@@ -64,7 +64,7 @@ WITH seed_column_validation AS (
       WHEN admin_investor_id IS NULL OR canonical_investor_id IS NULL 
       THEN 1 ELSE 0 
     END) as missing_id_records
-  FROM {{ ref('seed_admin_investors') }}
+  FROM {{ ref('admin_investors') }}
   
   UNION ALL
   
@@ -79,7 +79,7 @@ WITH seed_column_validation AS (
       WHEN pm_investment_id IS NULL OR canonical_company_id IS NULL 
       THEN 1 ELSE 0 
     END) as missing_id_records
-  FROM {{ ref('seed_pm_investments') }}
+  FROM {{ ref('pm_investments') }}
 ),
 
 -- Test 2: Validate canonical ID format in seed files
@@ -95,15 +95,15 @@ canonical_format_validation AS (
     END) as invalid_format_count,
     0 as missing_id_records -- placeholder for consistency
   FROM (
-    SELECT canonical_company_id FROM {{ ref('seed_crm_companies') }}
+    SELECT canonical_company_id FROM {{ ref('crm_companies') }}
     UNION ALL
-    SELECT canonical_company_id FROM {{ ref('seed_pm_investments') }}
+    SELECT canonical_company_id FROM {{ ref('pm_investments') }}
     UNION ALL
-    SELECT canonical_fund_id FROM {{ ref('seed_admin_funds') }}
+    SELECT canonical_fund_id FROM {{ ref('admin_funds') }}
     UNION ALL
-    SELECT canonical_investor_id FROM {{ ref('seed_crm_contacts') }}
+    SELECT canonical_investor_id FROM {{ ref('crm_contacts') }}
     UNION ALL
-    SELECT canonical_investor_id FROM {{ ref('seed_admin_investors') }}
+    SELECT canonical_investor_id FROM {{ ref('admin_investors') }}
   )
 ),
 
@@ -183,7 +183,7 @@ data_quality_validation AS (
       THEN 1 ELSE 0 
     END) as canonical_id_count,
     0 as missing_id_records
-  FROM {{ ref('seed_admin_funds') }}
+  FROM {{ ref('admin_funds') }}
 )
 
 -- Combine all validation results and show only failures

@@ -21,7 +21,7 @@ WITH seed_to_staging_flow AS (
     'crm_companies' as source_table,
     COUNT(*) as seed_count,
     COUNT(DISTINCT crm_company_id) as unique_ids_seed
-  FROM {{ ref('seed_crm_companies') }}
+  FROM {{ ref('crm_companies') }}
   WHERE crm_company_id IS NOT NULL
   
   UNION ALL
@@ -30,7 +30,7 @@ WITH seed_to_staging_flow AS (
     'crm_contacts' as source_table,
     COUNT(*) as seed_count,
     COUNT(DISTINCT crm_investor_id) as unique_ids_seed
-  FROM {{ ref('seed_crm_contacts') }}
+  FROM {{ ref('crm_contacts') }}
   WHERE crm_investor_id IS NOT NULL
   
   UNION ALL
@@ -39,7 +39,7 @@ WITH seed_to_staging_flow AS (
     'admin_funds' as source_table,
     COUNT(*) as seed_count,
     COUNT(DISTINCT admin_fund_id) as unique_ids_seed
-  FROM {{ ref('seed_admin_funds') }}
+  FROM {{ ref('admin_funds') }}
   WHERE admin_fund_id IS NOT NULL
   
   UNION ALL
@@ -48,7 +48,7 @@ WITH seed_to_staging_flow AS (
     'pm_investments' as source_table,
     COUNT(*) as seed_count,
     COUNT(DISTINCT pm_investment_id) as unique_ids_seed
-  FROM {{ ref('seed_pm_investments') }}
+  FROM {{ ref('pm_investments') }}
   WHERE pm_investment_id IS NOT NULL
 ),
 

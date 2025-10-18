@@ -261,13 +261,13 @@
 {% macro alias_staging_columns(entity_type) %}
     -- Generate column aliases for staging to intermediate mapping
     {% if entity_type == 'company' %}
-        {{ bridge_company_staging_to_intermediate() }}
+        {{ amos_source_example.bridge_company_staging_to_intermediate() }}
     {% elif entity_type == 'fund' %}
-        {{ bridge_fund_staging_to_intermediate() }}
+        {{ amos_source_example.bridge_fund_staging_to_intermediate() }}
     {% elif entity_type == 'investor' %}
-        {{ bridge_investor_staging_to_intermediate() }}
+        {{ amos_source_example.bridge_investor_staging_to_intermediate() }}
     {% elif entity_type == 'counterparty' %}
-        {{ bridge_counterparty_staging_to_intermediate() }}
+        {{ amos_source_example.bridge_counterparty_staging_to_intermediate() }}
     {% else %}
         {{ exceptions.raise_compiler_error("Unknown entity type: " ~ entity_type) }}
     {% endif %}
@@ -276,13 +276,13 @@
 {% macro alias_intermediate_columns(entity_type) %}
     -- Generate column aliases for intermediate to canonical mapping
     {% if entity_type == 'company' %}
-        {{ bridge_company_intermediate_to_canonical() }}
+        {{ amos_source_example.bridge_company_intermediate_to_canonical() }}
     {% elif entity_type == 'fund' %}
-        {{ bridge_fund_intermediate_to_canonical() }}
+        {{ amos_source_example.bridge_fund_intermediate_to_canonical() }}
     {% elif entity_type == 'investor' %}
-        {{ bridge_investor_intermediate_to_canonical() }}
+        {{ amos_source_example.bridge_investor_intermediate_to_canonical() }}
     {% elif entity_type == 'counterparty' %}
-        {{ bridge_counterparty_intermediate_to_canonical() }}
+        {{ amos_source_example.bridge_counterparty_intermediate_to_canonical() }}
     {% else %}
         {{ exceptions.raise_compiler_error("Unknown entity type: " ~ entity_type) }}
     {% endif %}

@@ -37,7 +37,8 @@ require-dbt-version: [">=1.0.0", "<2.0.0"]
 
 # Seed configurations
 seeds:
-  +quote_columns: false
+  +quote_columns: true
+  +full_refresh: true
   +database: "RAW"  # Load seeds into RAW database
   
   amos_source_example:

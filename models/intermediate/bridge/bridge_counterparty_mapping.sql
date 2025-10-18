@@ -45,7 +45,7 @@ WITH staging_counterparties AS (
         TIMESTAMP('2024-10-18 00:00:00') as updated_timestamp
     
     -- In real implementation, this would be:
-    -- SELECT * FROM {{ ref('stg_acc_counterparties') }}
+    {# SELECT * FROM {{ ref('stg_acc_counterparties') }} #}
 ),
 
 -- Apply bridge transformation mapping
