@@ -255,21 +255,15 @@ enhanced_funds as (
     from unified_funds
 ),
 
+-- Apply bridge transformation for consistent column mapping
+bridge_transformed as (
+    select * from {{ ref('bridge_fund_mapping') }}
+),
+
 final as (
     select
-        -- Canonical model format - exact column names and types expected by amos_core
-        CAST(canonical_fund_id AS STRING) as id,
-        CAST(fund_name AS STRING) as name,
-        CAST(fund_type AS STRING) as type,
-        CAST(vintage_year AS INT64) as vintage,
-        CAST(management_fee_rate AS NUMERIC) as management_fee,
-        CAST(hurdle_rate AS NUMERIC) as hurdle,
-        CAST(carried_interest_rate AS NUMERIC) as carried_interest,
-        CAST(target_size AS NUMERIC) as target_commitment,
-        CAST(geography_focus AS STRING) as incorporated_in,
-        CAST(base_currency_code AS STRING) as base_currency_code,
-        CAST(created_date AS STRING) as created_at,
-        CAST(last_modified_date AS STRING) as updated_at,
+        -- Canonical model format using bridge transformation
+        {{ alias_intermediate_columns('fund') }},
         
         -- Additional intermediate fields for analysis (not used by canonical model)
         fund_legal_name,
@@ -295,10 +289,10 @@ final as (
         end as investment_recommendation,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(canonical_fund_id, fund_name, vintage_year, target_size, final_size, base_currency_code, investment_strategy, geography_focus, management_fee_rate, carried_interest_rate, fund_status, last_modified_date)) as record_hash
+        FARM_FINGERPRINT(CONCAT(id, name, vintage, target_commitment, final_size, base_currency_code, investment_strategy, incorporated_in, management_fee, carried_interest, fund_status, updated_at)) as record_hash
 
-    from enhanced_funds
-    where canonical_fund_id is not null
+    from bridge_transformed
+    where id is not null
 )
 
 select * from final

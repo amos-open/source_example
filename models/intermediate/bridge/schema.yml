@@ -1,0 +1,290 @@
+version: 2
+
+models:
+  - name: bridge_company_mapping
+    description: >
+      Bridge transformation model that handles column name mismatches between
+      staging CRM companies and intermediate company entity structure.
+      Provides explicit field mapping, data type conversions, and cross-reference lookups.
+    columns:
+      - name: id
+        description: Canonical company identifier from cross-reference mapping
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: Company name (prioritized from CRM, fallback to PM)
+        data_type: string
+        tests:
+          - not_null
+      - name: crm_company_id
+        description: Original CRM system company identifier
+        data_type: string
+      - name: website
+        description: Company website URL (mapped from website_url)
+        data_type: string
+      - name: description
+        description: Company description (mapped from company_description)
+        data_type: string
+      - name: country_code
+        description: ISO country code (mapped from standardized_country_code)
+        data_type: string
+      - name: created_at
+        description: Creation timestamp (cast from created_date)
+        data_type: timestamp
+      - name: updated_at
+        description: Update timestamp (cast from last_modified_date)
+        data_type: timestamp
+      - name: primary_data_source
+        description: Primary source system for company data
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['CRM_VENDOR', 'PM_VENDOR', 'UNKNOWN']
+      - name: source_coverage
+        description: Coverage assessment across source systems
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['MULTI_SOURCE', 'CRM_ONLY', 'PM_ONLY', 'NO_SOURCE']
+      - name: investment_status
+        description: Current investment status
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['PORTFOLIO_COMPANY', 'FORMER_PORTFOLIO', 'PROSPECT']
+      - name: overall_completeness_score
+        description: Data completeness score (0-100)
+        data_type: numeric
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+              inclusive: true
+
+  - name: bridge_fund_mapping
+    description: >
+      Bridge transformation model that handles column name mismatches between
+      staging admin funds and intermediate fund entity structure.
+      Provides field mapping, numeric conversions, and fund lifecycle assessment.
+    columns:
+      - name: id
+        description: Canonical fund identifier from cross-reference mapping
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: Fund name (mapped from fund_name)
+        data_type: string
+        tests:
+          - not_null
+      - name: admin_fund_code
+        description: Original admin system fund identifier
+        data_type: string
+      - name: type
+        description: Fund type/strategy (mapped from fund_type)
+        data_type: string
+      - name: vintage
+        description: Fund vintage year (mapped from vintage_year)
+        data_type: int64
+      - name: management_fee
+        description: Management fee rate (mapped from management_fee_rate)
+        data_type: numeric
+      - name: hurdle
+        description: Hurdle rate (mapped from hurdle_rate)
+        data_type: numeric
+      - name: carried_interest
+        description: Carried interest rate (mapped from carried_interest_rate)
+        data_type: numeric
+      - name: target_commitment
+        description: Target fund size (mapped from target_size)
+        data_type: numeric
+      - name: incorporated_in
+        description: Legal jurisdiction (mapped from jurisdiction)
+        data_type: string
+      - name: base_currency_code
+        description: Fund base currency (mapped from base_currency)
+        data_type: string
+      - name: fund_lifecycle_stage
+        description: Current lifecycle stage of the fund
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['FUNDRAISING', 'INVESTMENT_PERIOD', 'HARVEST_PERIOD', 'MATURE', 'UNKNOWN']
+      - name: fee_structure_category
+        description: Fee structure assessment
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['STANDARD', 'HIGH', 'LOW', 'UNKNOWN']
+      - name: fundraising_success
+        description: Target achievement assessment
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['TARGET_ACHIEVED', 'PARTIALLY_ACHIEVED', 'UNDER_TARGET', 'UNKNOWN']
+
+  - name: bridge_investor_mapping
+    description: >
+      Bridge transformation model that handles column name mismatches between
+      staging admin investors and intermediate investor entity structure.
+      Provides investor classification, profiling, and scoring logic.
+    columns:
+      - name: id
+        description: Canonical investor identifier from cross-reference mapping
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: Investor name (mapped from investor_name)
+        data_type: string
+        tests:
+          - not_null
+      - name: investor_code
+        description: Original admin system investor identifier
+        data_type: string
+      - name: standardized_investor_type
+        description: Standardized investor type classification
+        data_type: string
+      - name: standardized_country_code
+        description: ISO country code
+        data_type: string
+      - name: investment_capacity
+        description: Investment capacity assessment
+        data_type: string
+      - name: risk_tolerance
+        description: Risk tolerance level
+        data_type: string
+      - name: compliance_status
+        description: Compliance status
+        data_type: string
+      - name: has_esg_requirements
+        description: Whether investor has ESG requirements
+        data_type: boolean
+      - name: investor_size_category
+        description: Size-based investor categorization
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['INSTITUTIONAL_LARGE', 'INSTITUTIONAL_MEDIUM', 'INSTITUTIONAL_SMALL', 'PRIVATE_WEALTH', 'OTHER']
+      - name: geographic_region
+        description: Geographic region classification
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['NORTH_AMERICA', 'EUROPE', 'ASIA_PACIFIC', 'MIDDLE_EAST', 'OTHER']
+      - name: investor_tier
+        description: Investment profile tier assessment
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['TIER_1_INSTITUTIONAL', 'TIER_2_INSTITUTIONAL', 'QUALIFIED_PRIVATE', 'STANDARD_INVESTOR']
+      - name: esg_alignment
+        description: ESG alignment assessment
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['ESG_FOCUSED', 'ESG_AWARE', 'ESG_NEUTRAL']
+      - name: fundraising_priority_score
+        description: Priority score for fundraising (1-10)
+        data_type: int64
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 10
+              inclusive: true
+
+  - name: bridge_counterparty_mapping
+    description: >
+      Bridge transformation model that handles column name mismatches between
+      staging accounting counterparties and intermediate counterparty entity structure.
+      Provides relationship management scoring and engagement strategies.
+    columns:
+      - name: id
+        description: Counterparty identifier (mapped from counterparty_id)
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: Counterparty name (mapped from counterparty_name)
+        data_type: string
+        tests:
+          - not_null
+      - name: type
+        description: Counterparty type (mapped from counterparty_type)
+        data_type: string
+      - name: country_code
+        description: ISO country code
+        data_type: string
+      - name: primary_contact_name
+        description: Primary contact person name
+        data_type: string
+      - name: primary_contact_email
+        description: Primary contact email address
+        data_type: string
+      - name: counterparty_category
+        description: Category for relationship management
+        data_type: string
+      - name: relationship_status
+        description: Current relationship status
+        data_type: string
+      - name: relationship_strength
+        description: Strength of the relationship
+        data_type: string
+      - name: last_interaction_date
+        description: Date of last interaction
+        data_type: date
+      - name: relationship_priority
+        description: Priority level for relationship management
+        data_type: string
+      - name: engagement_strategy
+        description: Recommended engagement strategy
+        data_type: string
+      - name: service_category
+        description: Service provider categorization
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['PROFESSIONAL_SERVICES', 'FINANCIAL_PARTNERS', 'OPERATIONAL_VENDORS', 'OTHER']
+      - name: geographic_region
+        description: Geographic region classification
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['NORTH_AMERICA', 'EUROPE', 'ASIA_PACIFIC', 'MIDDLE_EAST', 'OTHER']
+      - name: relationship_value_tier
+        description: Relationship value assessment
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['STRATEGIC_PARTNER', 'VALUED_PARTNER', 'STANDARD_PARTNER', 'TRANSACTIONAL_PARTNER']
+      - name: recommended_engagement_frequency
+        description: Recommended engagement frequency
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['MONTHLY', 'QUARTERLY', 'SEMI_ANNUAL', 'ANNUAL']
+      - name: contact_completeness
+        description: Contact information completeness
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['COMPLETE', 'PARTIAL', 'INCOMPLETE']
+      - name: relationship_freshness
+        description: Relationship interaction freshness
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['RECENT', 'MODERATE', 'STALE', 'NO_INTERACTION']
+      - name: overall_relationship_score
+        description: Overall relationship score (1-10)
+        data_type: int64
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 10
+              inclusive: true

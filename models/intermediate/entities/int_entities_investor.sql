@@ -205,14 +205,15 @@ enhanced_investors as (
     from investor_activity
 ),
 
+-- Apply bridge transformation for consistent column mapping
+bridge_transformed as (
+    select * from {{ ref('bridge_investor_mapping') }}
+),
+
 final as (
     select
-        -- Canonical model format - exact column names and types expected by amos_core
-        CAST(GENERATE_UUID() AS STRING) as id,  -- Generate canonical investor ID
-        CAST(investor_name AS STRING) as name,
-        CAST(GENERATE_UUID() AS STRING) as investor_type_id,  -- Generate UUID for investor_type_id
-        CAST(created_date AS TIMESTAMP) as created_at,
-        CAST(last_modified_date AS TIMESTAMP) as updated_at,
+        -- Canonical model format using bridge transformation
+        {{ alias_intermediate_columns('investor') }},
         
         -- Additional intermediate fields for analysis (not used by canonical model)
         investor_code,
@@ -242,10 +243,10 @@ final as (
         end as engagement_strategy,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(investor_code, investor_name, standardized_investor_type, standardized_country_code, investment_capacity, risk_tolerance, liquidity_preference, compliance_status, has_esg_requirements, last_modified_date)) as record_hash
+        FARM_FINGERPRINT(CONCAT(investor_code, name, standardized_investor_type, standardized_country_code, investment_capacity, risk_tolerance, compliance_status, has_esg_requirements, updated_at)) as record_hash
 
-    from enhanced_investors
-    where canonical_investor_id is not null
+    from bridge_transformed
+    where id is not null
 )
 
 select * from final

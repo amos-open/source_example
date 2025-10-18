@@ -302,18 +302,16 @@ enhanced_companies as (
     from unified_companies
 ),
 
+-- Apply bridge transformation for consistent column mapping
+bridge_transformed as (
+    select * from {{ ref('bridge_company_mapping') }}
+),
+
 -- Final quality assessment and scoring
 final as (
     select
         -- Canonical model format - exact column names and types expected by amos_core
-        CAST(canonical_company_id AS STRING) as id,
-        CAST(company_name AS STRING) as name,
-        CAST(website_url AS STRING) as website,
-        CAST(company_description AS STRING) as description,
-        CAST(COALESCE(country_code, 'USD') AS STRING) as currency,  -- Use country_code as currency fallback
-        CAST(GENERATE_UUID() AS STRING) as industry_id,  -- Generate UUID for industry_id
-        CAST(created_date AS TIMESTAMP) as created_at,
-        CAST(last_modified_date AS TIMESTAMP) as updated_at,
+        {{ alias_intermediate_columns('company') }},
         
         -- Additional intermediate fields for analysis (not used by canonical model)
         crm_company_id,
@@ -373,10 +371,10 @@ final as (
         end as investment_recommendation,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(canonical_company_id, company_name, industry_primary, country_code, founded_year, employee_count, revenue_midpoint_millions, latest_revenue, latest_ebitda, latest_enterprise_value, last_modified_date)) as record_hash
+        FARM_FINGERPRINT(CONCAT(id, name, industry_primary, country_code, founded_year, employee_count, revenue_midpoint_millions, latest_revenue, latest_ebitda, latest_enterprise_value, updated_at)) as record_hash
 
-    from enhanced_companies
-    where canonical_company_id is not null
+    from bridge_transformed
+    where id is not null
 )
 
 select * from final

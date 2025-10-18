@@ -326,15 +326,15 @@ enhanced_counterparties as (
     from unique_counterparties
 ),
 
+-- Apply bridge transformation for consistent column mapping
+bridge_transformed as (
+    select * from {{ ref('bridge_counterparty_mapping') }}
+),
+
 final as (
     select
-        -- Canonical model format - exact column names and types expected by amos_core
-        CAST(canonical_counterparty_id AS STRING) as id,
-        CAST(counterparty_name AS STRING) as name,
-        CAST(counterparty_type AS STRING) as type,
-        CAST(SUBSTR(country_code, 1, 2) AS STRING) as country_code,  -- Ensure 2-character country code
-        CAST(created_date AS TIMESTAMP) as created_at,
-        CAST(last_modified_date AS TIMESTAMP) as updated_at,
+        -- Canonical model format using bridge transformation
+        {{ alias_intermediate_columns('counterparty') }},
         
         -- Additional intermediate fields for analysis (not used by canonical model)
         primary_contact_name,
