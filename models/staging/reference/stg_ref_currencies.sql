@@ -182,7 +182,16 @@ final as (
         ) / 5.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(currency_code, currency_name, currency_symbol, iso_numeric_code, decimal_places, is_active, region, last_modified_date)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(currency_code,''),
+          COALESCE(currency_name,''),
+          COALESCE(currency_symbol,''),
+          COALESCE(TO_VARCHAR(iso_numeric_code),''),
+          COALESCE(TO_VARCHAR(decimal_places),''),
+          COALESCE(TO_VARCHAR(is_active),''),
+          COALESCE(region,''),
+          COALESCE(TO_VARCHAR(last_modified_date),'')
+        ))) as record_hash
 
     from enhanced
 )

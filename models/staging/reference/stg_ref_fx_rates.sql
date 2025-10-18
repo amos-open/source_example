@@ -219,7 +219,14 @@ final as (
         ) / 5.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(rate_date, base_currency_code, quote_currency_code, exchange_rate, rate_source, last_modified_date)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(TO_VARCHAR(rate_date),''),
+          COALESCE(base_currency_code,''),
+          COALESCE(quote_currency_code,''),
+          COALESCE(TO_VARCHAR(exchange_rate),''),
+          COALESCE(rate_source,''),
+          COALESCE(TO_VARCHAR(last_modified_date),'')
+        ))) as record_hash
 
     from enhanced
 )

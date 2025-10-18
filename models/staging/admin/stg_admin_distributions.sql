@@ -169,13 +169,13 @@ enhanced as (
         -- Payment timing analysis
         case 
             when distribution_date is not null and payment_date is not null
-            then DATE_DIFF(payment_date, distribution_date, DAY)
+            then DATEDIFF('day', distribution_date, payment_date)
             else null
         end as payment_delay_days,
         
         case 
             when record_date is not null and distribution_date is not null
-            then DATE_DIFF(distribution_date, record_date, DAY)
+            then DATEDIFF('day', record_date, distribution_date)
             else null
         end as record_to_distribution_days,
         
@@ -246,7 +246,17 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(distribution_id, fund_code, investor_code, distribution_date, distribution_amount, distribution_type, payment_status, payment_date, last_modified_date)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(distribution_id,''),
+          COALESCE(fund_code,''),
+          COALESCE(investor_code,''),
+          COALESCE(TO_VARCHAR(distribution_date),''),
+          COALESCE(TO_VARCHAR(distribution_amount),''),
+          COALESCE(distribution_type,''),
+          COALESCE(payment_status,''),
+          COALESCE(TO_VARCHAR(payment_date),''),
+          COALESCE(TO_VARCHAR(last_modified_date),'')
+        ))) as record_hash
 
     from enhanced
 )

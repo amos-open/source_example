@@ -172,13 +172,13 @@ enhanced as (
         -- Investment age calculation
         case 
             when investment_date is not null and valuation_date is not null
-            then DATE_DIFF(valuation_date, investment_date, MONTH)
+            then DATEDIFF('month', investment_date, valuation_date)
             else null
         end as investment_age_months,
         
         case 
             when investment_date is not null and valuation_date is not null
-            then DATE_DIFF(valuation_date, investment_date, YEAR)
+            then DATEDIFF('year', investment_date, valuation_date)
             else null
         end as investment_age_years,
         
@@ -298,7 +298,17 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(nav_investment_id, fund_code, investment_id, valuation_date, cost_basis, fair_value, valuation_method, valuation_multiple, last_modified_date)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(nav_investment_id,''),
+          COALESCE(fund_code,''),
+          COALESCE(investment_id,''),
+          COALESCE(TO_VARCHAR(valuation_date),''),
+          COALESCE(TO_VARCHAR(cost_basis),''),
+          COALESCE(TO_VARCHAR(fair_value),''),
+          COALESCE(valuation_method,''),
+          COALESCE(TO_VARCHAR(valuation_multiple),''),
+          COALESCE(TO_VARCHAR(last_modified_date),'')
+        ))) as record_hash
 
     from enhanced
 )

@@ -204,7 +204,7 @@ enhanced as (
 final as (
     select
         -- Generate deterministic hash ID from investor_code for compatibility
-        cast(FARM_FINGERPRINT(investor_code) as varchar) as id,
+        TO_VARCHAR(MD5(COALESCE(investor_code,''))) as id,
         *,
         
         -- Overall investor attractiveness score
@@ -231,7 +231,19 @@ final as (
         end as data_quality_rating,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(investor_code, investor_name, investor_type, standardized_country_code, kyc_status, aml_status, accredited_status, investment_capacity, risk_tolerance, liquidity_preference, last_modified_date)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(investor_code,''),
+          COALESCE(investor_name,''),
+          COALESCE(investor_type,''),
+          COALESCE(standardized_country_code,''),
+          COALESCE(kyc_status,''),
+          COALESCE(aml_status,''),
+          COALESCE(accredited_status,''),
+          COALESCE(investment_capacity,''),
+          COALESCE(risk_tolerance,''),
+          COALESCE(liquidity_preference,''),
+          COALESCE(TO_VARCHAR(last_modified_date),'')
+        ))) as record_hash
 
     from enhanced
 )

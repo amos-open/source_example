@@ -219,7 +219,17 @@ final as (
         end as overall_data_quality,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(company_id, company_name, legal_name, industry_primary, country_code, founded_year, employee_count, revenue_range_text, last_modified_date)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(company_id,''),
+          COALESCE(company_name,''),
+          COALESCE(legal_name,''),
+          COALESCE(industry_primary,''),
+          COALESCE(country_code,''),
+          COALESCE(TO_VARCHAR(founded_year),''),
+          COALESCE(TO_VARCHAR(employee_count),''),
+          COALESCE(revenue_range_text,''),
+          COALESCE(TO_VARCHAR(last_modified_date),'')
+        ))) as record_hash
 
     from enhanced
 )

@@ -205,7 +205,7 @@ enhanced as (
         
         case 
             when valuation_date is not null and last_financing_date is not null
-            then DATE_DIFF(valuation_date, last_financing_date, MONTH)
+            then DATEDIFF('month', last_financing_date, valuation_date)
             else null
         end as months_since_last_financing,
         
@@ -304,7 +304,19 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(valuation_id, company_id, investment_id, valuation_date, enterprise_value, equity_value, valuation_method, revenue_multiple, ebitda_multiple, confidence_level, last_modified_date)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(valuation_id,''),
+          COALESCE(company_id,''),
+          COALESCE(investment_id,''),
+          COALESCE(TO_VARCHAR(valuation_date),''),
+          COALESCE(TO_VARCHAR(enterprise_value),''),
+          COALESCE(TO_VARCHAR(equity_value),''),
+          COALESCE(valuation_method,''),
+          COALESCE(TO_VARCHAR(revenue_multiple),''),
+          COALESCE(TO_VARCHAR(ebitda_multiple),''),
+          COALESCE(confidence_level,''),
+          COALESCE(TO_VARCHAR(last_modified_date),'')
+        ))) as record_hash
 
     from enhanced
 )

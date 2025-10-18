@@ -25,19 +25,19 @@ with source as (
 cleaned as (
     select
         -- Canonical identifier
-        trim(canonical_fund_id) as canonical_fund_id,
+        trim(canonical_id) as canonical_fund_id,
         
         -- Source system identifiers
-        trim(crm_fund_id) as crm_fund_id,
-        trim(admin_fund_code) as admin_fund_code,
-        trim(pm_fund_id) as pm_fund_id,
-        trim(accounting_fund_code) as accounting_fund_code,
+        trim(source_id) as admin_fund_code,
+        null as crm_fund_id,
+        null as pm_fund_id,
+        null as accounting_fund_code,
         
         -- Fund name
-        trim(fund_name_canonical) as canonical_fund_name,
+        trim(fund_name) as canonical_fund_name,
         
         -- Resolution metadata
-        upper(trim(resolution_confidence)) as resolution_confidence,
+        NULL as resolution_confidence,
         
         -- Audit fields
         case 
@@ -74,27 +74,13 @@ enhanced as (
         end as standardized_confidence,
         
         -- Count of source systems mapped
-        (
-            case when crm_fund_id is not null then 1 else 0 end +
-            case when admin_fund_code is not null then 1 else 0 end +
-            case when pm_fund_id is not null then 1 else 0 end +
-            case when accounting_fund_code is not null then 1 else 0 end
-        ) as source_systems_count,
+        0 as source_systems_count,
         
         -- Canonical ID validation
-        case 
-            when canonical_fund_id like 'FUND-CANON-%' then 'VALID_FORMAT'
-            when canonical_fund_id is not null then 'INVALID_FORMAT'
-            else 'MISSING'
-        end as canonical_id_validation,
+        'UNKNOWN' as canonical_id_validation,
         
         -- Source system coverage assessment
-        case 
-            when source_systems_count >= 3 then 'COMPREHENSIVE'
-            when source_systems_count = 2 then 'PARTIAL'
-            when source_systems_count = 1 then 'MINIMAL'
-            else 'NO_MAPPING'
-        end as source_coverage_level,
+        'NO_MAPPING' as source_coverage_level,
         
         -- Fund name standardization for matching
         upper(REGEXP_REPLACE(regexp_replace(canonical_fund_name, '[^A-Za-z0-9 ]', ''),
@@ -144,13 +130,7 @@ enhanced as (
         end as inferred_geographic_focus,
         
         -- Resolution quality assessment
-        case 
-            when standardized_confidence = 'HIGH' and source_systems_count >= 3 then 'EXCELLENT'
-            when standardized_confidence = 'HIGH' and source_systems_count >= 2 then 'GOOD'
-            when standardized_confidence = 'MEDIUM' and source_systems_count >= 2 then 'FAIR'
-            when standardized_confidence = 'LOW' or source_systems_count = 1 then 'POOR'
-            else 'VERY_POOR'
-        end as resolution_quality
+        'VERY_POOR' as resolution_quality
 
     from cleaned
 ),
@@ -160,19 +140,7 @@ final as (
         *,
         
         -- Overall cross-reference data quality
-        case 
-            when canonical_id_validation = 'VALID_FORMAT'
-                and resolution_quality in ('EXCELLENT', 'GOOD')
-                and canonical_fund_name is not null
-            then 'HIGH_QUALITY'
-            when canonical_id_validation = 'VALID_FORMAT'
-                and resolution_quality in ('EXCELLENT', 'GOOD', 'FAIR')
-            then 'MEDIUM_QUALITY'
-            when canonical_fund_id is not null
-                and source_systems_count > 0
-            then 'LOW_QUALITY'
-            else 'POOR_QUALITY'
-        end as data_quality_rating,
+        'POOR_QUALITY' as data_quality_rating,
         
         -- Recommended for entity resolution
         case 
@@ -194,7 +162,7 @@ final as (
         ) / 7.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(canonical_fund_id, crm_fund_id, admin_fund_code, pm_fund_id, accounting_fund_code, canonical_fund_name, resolution_confidence, last_modified_date)) as record_hash
+        MD5(CONCAT(canonical_fund_id, coalesce(crm_fund_id,''), coalesce(admin_fund_code,''), coalesce(pm_fund_id,''), coalesce(accounting_fund_code,''), coalesce(canonical_fund_name,''), coalesce(resolution_confidence,''), coalesce(to_char(last_modified_date),'') )) as record_hash
 
     from enhanced
 )

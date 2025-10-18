@@ -14,6 +14,45 @@ docs-paths: ["docs"]
 target-path: "target"
 clean-targets: ["target", "dbt_packages"]
 
+# Compatibility UDFs for Snowflake (emulate BigQuery functions used in models)
+on-run-start:
+  - |
+    CREATE OR REPLACE TEMPORARY FUNCTION GENERATE_UUID()
+    RETURNS STRING
+    LANGUAGE SQL
+    AS $$
+      UUID_STRING()
+    $$;
+  - |
+    CREATE OR REPLACE TEMPORARY FUNCTION FARM_FINGERPRINT(input STRING)
+    RETURNS STRING
+    LANGUAGE SQL
+    AS $$
+      TO_VARCHAR(MD5(input))
+    $$;
+  - |
+    CREATE OR REPLACE TEMPORARY FUNCTION DATE_DIFF(date1 DATE, date2 DATE, unit STRING)
+    RETURNS NUMBER
+    LANGUAGE SQL
+    AS $$
+      CASE UPPER(unit)
+        WHEN 'DAY' THEN DATEDIFF('day', date2, date1)
+        WHEN 'DAYS' THEN DATEDIFF('day', date2, date1)
+        WHEN 'MONTH' THEN DATEDIFF('month', date2, date1)
+        WHEN 'MONTHS' THEN DATEDIFF('month', date2, date1)
+        WHEN 'YEAR' THEN DATEDIFF('year', date2, date1)
+        WHEN 'YEARS' THEN DATEDIFF('year', date2, date1)
+        ELSE DATEDIFF('day', date2, date1)
+      END
+    $$;
+  - |
+    CREATE OR REPLACE TEMPORARY FUNCTION TIMESTAMP(input STRING)
+    RETURNS TIMESTAMP_NTZ
+    LANGUAGE SQL
+    AS $$
+      TO_TIMESTAMP_NTZ(input)
+    $$;
+
 # Package variables for configuration
 vars:
   # Source system configuration
@@ -33,11 +72,11 @@ vars:
   large_table_threshold: 1000000
 
 # Dependencies
-require-dbt-version: [">=1.0.0", "<2.0.0"]
+require-dbt-version: [">=1.0.0", "<3.0.0"]
 
 # Seed configurations
 seeds:
-  +quote_columns: true
+  +quote_columns: false
   +full_refresh: true
   +database: "RAW"  # Load seeds into RAW database
   

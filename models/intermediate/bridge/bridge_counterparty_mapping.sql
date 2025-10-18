@@ -37,12 +37,12 @@ WITH staging_counterparties AS (
         'PROFESSIONAL_SERVICES' as counterparty_category,
         'ACTIVE' as relationship_status,
         'STRONG' as relationship_strength,
-        DATE('2024-01-15') as last_interaction_date,
+        TO_DATE('2024-01-15') as last_interaction_date,
         'HIGH_PRIORITY' as relationship_priority,
         'REGULAR_ENGAGEMENT' as engagement_strategy,
         'HIGH' as data_quality_rating,
-        TIMESTAMP('2023-01-01 00:00:00') as created_timestamp,
-        TIMESTAMP('2024-10-18 00:00:00') as updated_timestamp
+        TO_TIMESTAMP_NTZ('2023-01-01 00:00:00') as created_timestamp,
+        TO_TIMESTAMP_NTZ('2024-10-18 00:00:00') as updated_timestamp
     
     -- In real implementation, this would be:
     {# SELECT * FROM {{ ref('stg_acc_counterparties') }} #}
@@ -119,8 +119,8 @@ enhanced_mapping AS (
         -- Relationship freshness assessment
         CASE 
             WHEN last_interaction_date IS NULL THEN 'NO_INTERACTION'
-            WHEN DATE_DIFF(CURRENT_DATE(), last_interaction_date, MONTH) <= 3 THEN 'RECENT'
-            WHEN DATE_DIFF(CURRENT_DATE(), last_interaction_date, MONTH) <= 12 THEN 'MODERATE'
+            WHEN DATEDIFF('month', last_interaction_date, CURRENT_DATE()) <= 3 THEN 'RECENT'
+            WHEN DATEDIFF('month', last_interaction_date, CURRENT_DATE()) <= 12 THEN 'MODERATE'
             ELSE 'STALE'
         END as relationship_freshness,
         

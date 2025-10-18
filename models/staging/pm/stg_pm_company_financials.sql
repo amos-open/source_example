@@ -350,7 +350,7 @@ enhanced as (
 final as (
     select
         -- Generated ID for compatibility
-        cast(FARM_FINGERPRINT(CONCAT(company_id, reporting_year, reporting_quarter)) as varchar) as id,
+        TO_VARCHAR(MD5(CONCAT(COALESCE(company_id,''), COALESCE(TO_VARCHAR(reporting_year),''), COALESCE(TO_VARCHAR(reporting_quarter),'')))) as id,
         *,
         
         -- Overall financial health score (0-100)
@@ -410,7 +410,19 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(financial_id, company_id, reporting_year, reporting_quarter, revenue, gross_profit, ebitda, net_income, total_assets, cash_and_equivalents, last_modified_date)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(financial_id,''),
+          COALESCE(company_id,''),
+          COALESCE(TO_VARCHAR(reporting_year),''),
+          COALESCE(TO_VARCHAR(reporting_quarter),''),
+          COALESCE(TO_VARCHAR(revenue),''),
+          COALESCE(TO_VARCHAR(gross_profit),''),
+          COALESCE(TO_VARCHAR(ebitda),''),
+          COALESCE(TO_VARCHAR(net_income),''),
+          COALESCE(TO_VARCHAR(total_assets),''),
+          COALESCE(TO_VARCHAR(cash_and_equivalents),''),
+          COALESCE(TO_VARCHAR(last_modified_date),'')
+        ))) as record_hash
 
     from enhanced
 )

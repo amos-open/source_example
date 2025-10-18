@@ -169,10 +169,10 @@ enhanced as (
         -- Contact recency scoring
         case 
             when last_contact_date is null then 0
-            when DATE_DIFF(CURRENT_DATE(), last_contact_date, DAY) <= 30 then 5
-            when DATE_DIFF(CURRENT_DATE(), last_contact_date, DAY) <= 90 then 4
-            when DATE_DIFF(CURRENT_DATE(), last_contact_date, DAY) <= 180 then 3
-            when DATE_DIFF(CURRENT_DATE(), last_contact_date, DAY) <= 365 then 2
+            when DATEDIFF('day', last_contact_date, CURRENT_DATE()) <= 30 then 5
+            when DATEDIFF('day', last_contact_date, CURRENT_DATE()) <= 90 then 4
+            when DATEDIFF('day', last_contact_date, CURRENT_DATE()) <= 180 then 3
+            when DATEDIFF('day', last_contact_date, CURRENT_DATE()) <= 365 then 2
             else 1
         end as contact_recency_score,
         
@@ -229,7 +229,19 @@ final as (
         end as contact_status,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(contact_id, company_id, first_name, last_name, job_title, email_address, role_type, is_decision_maker, relationship_strength, last_contact_date, last_modified_date)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(contact_id,''),
+          COALESCE(company_id,''),
+          COALESCE(first_name,''),
+          COALESCE(last_name,''),
+          COALESCE(job_title,''),
+          COALESCE(email_address,''),
+          COALESCE(role_type,''),
+          COALESCE(TO_VARCHAR(is_decision_maker),''),
+          COALESCE(relationship_strength,''),
+          COALESCE(TO_VARCHAR(last_contact_date),''),
+          COALESCE(TO_VARCHAR(last_modified_date),'')
+        ))) as record_hash
 
     from enhanced
 )

@@ -105,7 +105,17 @@ cleaned as (
         CURRENT_TIMESTAMP() as loaded_at,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(opportunity_id, opportunity_name, company_id, stage, expected_close_date, amount, currency_code, probability, last_modified_date)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+            COALESCE(opportunity_id, ''),
+            COALESCE(opportunity_name, ''),
+            COALESCE(company_id, ''),
+            COALESCE(stage, ''),
+            COALESCE(TO_VARCHAR(expected_close_date), ''),
+            COALESCE(TO_VARCHAR(amount), ''),
+            COALESCE(currency_code, ''),
+            COALESCE(TO_VARCHAR(probability), ''),
+            COALESCE(TO_VARCHAR(last_modified_date), '')
+        ))) as record_hash
 
     from source
     where opportunity_id is not null  -- Filter out records without primary key
@@ -114,7 +124,7 @@ cleaned as (
 final as (
     select
         -- Generated ID for compatibility
-        cast(FARM_FINGERPRINT(opportunity_id) as varchar) as id,
+        TO_VARCHAR(MD5(COALESCE(opportunity_id, ''))) as id,
         *,
         
         -- Add derived fields
@@ -127,7 +137,7 @@ final as (
         -- Calculate days to expected close
         case 
             when expected_close_date is not null 
-            then DATE_DIFF(expected_close_date, current_date(), DAY)
+            then DATEDIFF('day', current_date(), expected_close_date)
             else null
         end as days_to_close,
         

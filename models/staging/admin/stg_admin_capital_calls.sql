@@ -155,19 +155,19 @@ enhanced as (
         -- Calculate timing metrics
         case 
             when call_date is not null and due_date is not null
-            then DATE_DIFF(due_date, call_date, DAY)
+            then DATEDIFF('day', call_date, due_date)
             else null
         end as payment_period_days,
         
         case 
             when due_date is not null and payment_date is not null
-            then DATE_DIFF(payment_date, due_date, DAY)
+            then DATEDIFF('day', due_date, payment_date)
             else null
         end as days_late_early,  -- Positive = late, negative = early
         
         case 
             when call_date is not null and payment_date is not null
-            then DATE_DIFF(payment_date, call_date, DAY)
+            then DATEDIFF('day', call_date, payment_date)
             else null
         end as total_payment_days,
         
@@ -266,7 +266,17 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(capital_call_id, fund_code, investor_code, call_date, call_amount, payment_status, payment_date, payment_amount, last_modified_date)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(capital_call_id,''),
+          COALESCE(fund_code,''),
+          COALESCE(investor_code,''),
+          COALESCE(TO_VARCHAR(call_date),''),
+          COALESCE(TO_VARCHAR(call_amount),''),
+          COALESCE(payment_status,''),
+          COALESCE(TO_VARCHAR(payment_date),''),
+          COALESCE(TO_VARCHAR(payment_amount),''),
+          COALESCE(TO_VARCHAR(last_modified_date),'')
+        ))) as record_hash
 
     from enhanced
 )

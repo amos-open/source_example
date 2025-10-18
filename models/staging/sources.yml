@@ -252,7 +252,7 @@ sources:
       - name: amos_xref_funds
         description: "Cross-reference mapping for funds across systems"
         columns:
-          - name: canonical_fund_id
+          - name: canonical_id
             description: "Canonical fund identifier"
             tests:
               - not_null
@@ -261,7 +261,7 @@ sources:
       - name: amos_xref_companies
         description: "Cross-reference mapping for companies across systems"
         columns:
-          - name: canonical_company_id
+          - name: canonical_id
             description: "Canonical company identifier"
             tests:
               - not_null
@@ -270,7 +270,7 @@ sources:
       - name: amos_xref_investors
         description: "Cross-reference mapping for investors across systems"
         columns:
-          - name: canonical_investor_id
+          - name: canonical_id
             description: "Canonical investor identifier"
             tests:
               - not_null

@@ -15,9 +15,9 @@ with source as (
 
 cleaned as (
     select
-        trim(canonical_investor_id) as canonical_investor_id,
-        trim(admin_investor_code) as admin_investor_code,
-        trim(crm_investor_id) as crm_investor_id,
+        trim(canonical_id) as canonical_investor_id,
+        trim(source_id) as admin_investor_code,
+        null as crm_investor_id,
         trim(investor_name) as canonical_investor_name,
         
         case when created_date is not null then CAST(created_date AS DATE) else null end as created_date,
@@ -28,7 +28,7 @@ cleaned as (
         CURRENT_TIMESTAMP() as loaded_at
 
     from source
-    where canonical_investor_id is not null
+    where canonical_id is not null
 ),
 
 final as (
@@ -45,7 +45,7 @@ final as (
             else 'INVALID_FORMAT'
         end as canonical_id_validation,
         
-        FARM_FINGERPRINT(CONCAT(canonical_investor_id, admin_investor_code, crm_investor_id, canonical_investor_name, last_modified_date)) as record_hash
+        MD5(CONCAT(canonical_investor_id, coalesce(admin_investor_code,''), coalesce(crm_investor_id,''), coalesce(canonical_investor_name,''), coalesce(to_char(last_modified_date),'') )) as record_hash
 
     from cleaned
 )

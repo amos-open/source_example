@@ -195,7 +195,7 @@ enhanced as (
 final as (
     select
         -- Generated ID for compatibility
-        cast(FARM_FINGERPRINT(industry_code) as varchar) as id,
+        TO_VARCHAR(MD5(COALESCE(industry_code,''))) as id,
         *,
         
         -- Overall industry data quality
@@ -237,7 +237,19 @@ final as (
         ) / 7.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(industry_code, industry_name, classification_system, parent_industry_code, industry_level, gics_sector, gics_industry_group, gics_industry, gics_sub_industry, is_active, last_modified_date)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(industry_code,''),
+          COALESCE(industry_name,''),
+          COALESCE(classification_system,''),
+          COALESCE(parent_industry_code,''),
+          COALESCE(TO_VARCHAR(industry_level),''),
+          COALESCE(gics_sector,''),
+          COALESCE(gics_industry_group,''),
+          COALESCE(gics_industry,''),
+          COALESCE(gics_sub_industry,''),
+          COALESCE(TO_VARCHAR(is_active),''),
+          COALESCE(TO_VARCHAR(last_modified_date),'')
+        ))) as record_hash
 
     from enhanced
 )

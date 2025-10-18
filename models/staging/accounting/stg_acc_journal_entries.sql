@@ -225,7 +225,17 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(journal_entry_id, fund_code, entry_date, account_code, debit_amount, credit_amount, entry_type, reference_number, last_modified_date)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(journal_entry_id,''),
+          COALESCE(fund_code,''),
+          COALESCE(TO_VARCHAR(entry_date),''),
+          COALESCE(account_code,''),
+          COALESCE(TO_VARCHAR(debit_amount),''),
+          COALESCE(TO_VARCHAR(credit_amount),''),
+          COALESCE(entry_type,''),
+          COALESCE(reference_number,''),
+          COALESCE(TO_VARCHAR(last_modified_date),'')
+        ))) as record_hash
 
     from enhanced
 )

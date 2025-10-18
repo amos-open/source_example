@@ -185,21 +185,21 @@ enhanced as (
         -- Investment period duration in years
         case 
             when investment_period_start is not null and investment_period_end is not null
-            then DATE_DIFF(investment_period_end, investment_period_start, YEAR)
+            then DATEDIFF('year', investment_period_start, investment_period_end)
             else null
         end as investment_period_years,
         
         -- Fund age in years from first close
         case 
             when first_close_date is not null
-            then DATE_DIFF(CURRENT_DATE(), first_close_date, YEAR)
+            then DATEDIFF('year', first_close_date, CURRENT_DATE())
             else null
         end as fund_age_years,
         
         -- Fundraising duration in days
         case 
             when first_close_date is not null and final_close_date is not null
-            then DATE_DIFF(final_close_date, first_close_date, DAY)
+            then DATEDIFF('day', first_close_date, final_close_date)
             else null
         end as fundraising_duration_days,
         
@@ -245,7 +245,19 @@ final as (
         end as data_quality_rating,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(fund_code, fund_name, vintage_year, target_size, final_size, base_currency_code, investment_strategy, management_fee_rate, carried_interest_rate, fund_status, last_modified_date)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(fund_code,''),
+          COALESCE(fund_name,''),
+          COALESCE(TO_VARCHAR(vintage_year),''),
+          COALESCE(TO_VARCHAR(target_size),''),
+          COALESCE(TO_VARCHAR(final_size),''),
+          COALESCE(base_currency_code,''),
+          COALESCE(investment_strategy,''),
+          COALESCE(TO_VARCHAR(management_fee_rate),''),
+          COALESCE(TO_VARCHAR(carried_interest_rate),''),
+          COALESCE(fund_status,''),
+          COALESCE(TO_VARCHAR(last_modified_date),'')
+        ))) as record_hash
 
     from enhanced
 )

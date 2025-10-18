@@ -242,20 +242,20 @@ enhanced as (
         -- Investment age calculation
         case 
             when investment_date is not null
-            then DATE_DIFF(CURRENT_DATE(), investment_date, MONTH)
+            then DATEDIFF('month', investment_date, CURRENT_DATE())
             else null
         end as investment_age_months,
         
         case 
             when investment_date is not null
-            then DATE_DIFF(CURRENT_DATE(), investment_date, YEAR)
+            then DATEDIFF('year', investment_date, CURRENT_DATE())
             else null
         end as investment_age_years,
         
         -- Target holding period
         case 
             when investment_date is not null and target_exit_date is not null
-            then DATE_DIFF(target_exit_date, investment_date, YEAR)
+            then DATEDIFF('year', investment_date, target_exit_date)
             else null
         end as target_holding_period_years,
         
@@ -312,7 +312,18 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(investment_id, company_id, fund_id, investment_date, total_invested_amount, ownership_percentage, investment_stage, sector, exit_strategy, last_modified_date)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(investment_id,''),
+          COALESCE(company_id,''),
+          COALESCE(fund_id,''),
+          COALESCE(TO_VARCHAR(investment_date),''),
+          COALESCE(TO_VARCHAR(total_invested_amount),''),
+          COALESCE(TO_VARCHAR(ownership_percentage),''),
+          COALESCE(investment_stage,''),
+          COALESCE(sector,''),
+          COALESCE(exit_strategy,''),
+          COALESCE(TO_VARCHAR(last_modified_date),'')
+        ))) as record_hash
 
     from enhanced
 )

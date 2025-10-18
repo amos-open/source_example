@@ -20,7 +20,7 @@ with source as (
 typed as (
   select
     -- Generate a stable ID per investor type name
-    cast(FARM_FINGERPRINT(investor_type_name) as varchar) as id,
+    TO_VARCHAR(MD5(COALESCE(investor_type_name,''))) as id,
     investor_type_name as name
   from source
 )

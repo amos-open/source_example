@@ -203,7 +203,7 @@ enhanced as (
         -- Reconciliation timing
         case 
             when created_date is not null and transaction_date is not null
-            then DATE_DIFF(created_date, transaction_date, DAY)
+            then DATEDIFF('day', transaction_date, created_date)
             else null
         end as days_to_record,
         
@@ -264,7 +264,17 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(transaction_id, fund_code, transaction_date, transaction_amount, transaction_type, counterparty_name, reconciliation_status, journal_entry_id, last_modified_date)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(transaction_id,''),
+          COALESCE(fund_code,''),
+          COALESCE(TO_VARCHAR(transaction_date),''),
+          COALESCE(TO_VARCHAR(transaction_amount),''),
+          COALESCE(transaction_type,''),
+          COALESCE(counterparty_name,''),
+          COALESCE(reconciliation_status,''),
+          COALESCE(journal_entry_id,''),
+          COALESCE(TO_VARCHAR(last_modified_date),'')
+        ))) as record_hash
 
     from enhanced
 )
