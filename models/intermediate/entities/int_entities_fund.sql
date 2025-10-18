@@ -257,7 +257,34 @@ enhanced_funds as (
 
 final as (
     select
-        *,
+        -- Canonical model format - exact column names and types expected by amos_core
+        cast(canonical_fund_id as varchar(36)) as id,
+        cast(fund_name as varchar(255)) as name,
+        cast(fund_type as varchar(64)) as type,
+        cast(vintage_year as integer) as vintage,
+        cast(management_fee_rate as decimal(7,4)) as management_fee,
+        cast(hurdle_rate as decimal(7,4)) as hurdle,
+        cast(carried_interest_rate as decimal(7,4)) as carried_interest,
+        cast(target_size as numeric(20,2)) as target_commitment,
+        cast(geography_focus as varchar(128)) as incorporated_in,
+        cast(base_currency_code as varchar(3)) as base_currency_code,
+        cast(created_date as text) as created_at,
+        cast(last_modified_date as text) as updated_at,
+        
+        -- Additional intermediate fields for analysis (not used by canonical model)
+        fund_legal_name,
+        admin_fund_code,
+        crm_fund_id,
+        investment_strategy,
+        sector_focus,
+        final_size,
+        investment_period_start,
+        investment_period_end,
+        fund_status,
+        first_close_date,
+        final_close_date,
+        overall_data_quality,
+        fund_attractiveness_score,
         
         -- Investment recommendation
         case 
@@ -284,6 +311,7 @@ final as (
         ) as record_hash
 
     from enhanced_funds
+    where canonical_fund_id is not null
 )
 
 select * from final

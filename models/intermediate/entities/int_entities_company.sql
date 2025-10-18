@@ -305,7 +305,29 @@ enhanced_companies as (
 -- Final quality assessment and scoring
 final as (
     select
-        *,
+        -- Canonical model format - exact column names and types expected by amos_core
+        cast(canonical_company_id as varchar(36)) as id,
+        cast(company_name as varchar(255)) as name,
+        cast(website_url as varchar(255)) as website,
+        cast(company_description as text) as description,
+        cast(base_currency_code as varchar(3)) as currency,
+        cast(industry_id as varchar(36)) as industry_id,
+        cast(created_date as timestamp) as created_at,
+        cast(last_modified_date as timestamp) as updated_at,
+        
+        -- Additional intermediate fields for analysis (not used by canonical model)
+        crm_company_id,
+        pm_company_id,
+        industry_primary,
+        industry_secondary,
+        country_code,
+        founded_year,
+        employee_count,
+        company_size_category,
+        latest_revenue,
+        latest_ebitda,
+        latest_enterprise_value,
+        investment_status,
         
         -- Overall data quality assessment
         case 
@@ -342,18 +364,6 @@ final as (
                  else 1 end
         ) as investment_attractiveness_score,
         
-        -- Portfolio monitoring priority
-        case 
-            when investment_status = 'PORTFOLIO_COMPANY' and active_investments > 0 then
-                case 
-                    when financial_data_age_months <= 3 and valuation_data_age_months <= 6 then 'LOW_PRIORITY'
-                    when financial_data_age_months <= 6 and valuation_data_age_months <= 12 then 'MEDIUM_PRIORITY'
-                    else 'HIGH_PRIORITY'
-                end
-            when investment_status = 'PORTFOLIO_COMPANY' then 'MEDIUM_PRIORITY'
-            else 'NOT_APPLICABLE'
-        end as monitoring_priority,
-        
         -- Investment recommendation
         case 
             when investment_attractiveness_score >= 10 and overall_data_quality in ('EXCELLENT', 'GOOD') then 'HIGHLY_RECOMMENDED'
@@ -378,6 +388,7 @@ final as (
         ) as record_hash
 
     from enhanced_companies
+    where canonical_company_id is not null
 )
 
 select * from final

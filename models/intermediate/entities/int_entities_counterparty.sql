@@ -328,7 +328,21 @@ enhanced_counterparties as (
 
 final as (
     select
-        *,
+        -- Canonical model format - exact column names and types expected by amos_core
+        cast(canonical_counterparty_id as varchar(36)) as id,
+        cast(counterparty_name as varchar(255)) as name,
+        cast(counterparty_type as varchar(64)) as type,
+        cast(country_code as char(2)) as country_code,
+        cast(created_date as timestamp) as created_at,
+        cast(last_modified_date as timestamp) as updated_at,
+        
+        -- Additional intermediate fields for analysis (not used by canonical model)
+        primary_contact_name,
+        primary_contact_email,
+        counterparty_category,
+        relationship_status,
+        relationship_strength,
+        last_interaction_date,
         
         -- Overall relationship value score
         (
@@ -385,6 +399,7 @@ final as (
         ) as record_hash
 
     from enhanced_counterparties
+    where canonical_counterparty_id is not null
 )
 
 select * from final

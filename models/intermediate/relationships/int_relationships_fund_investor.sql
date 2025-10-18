@@ -306,7 +306,27 @@ enhanced_relationships as (
 -- Final relationship preparation with comprehensive scoring
 final as (
     select
-        *,
+        -- Canonical model format - exact column names and types expected by amos_core
+        cast(relationship_id as varchar(36)) as commitment_id,
+        cast(relationship_id as varchar(36)) as id,
+        cast(canonical_fund_id as varchar(36)) as fund_id,
+        cast(source_investor_id as varchar(36)) as investor_id,
+        cast(relationship_start_date as timestamp) as created_at,
+        cast(latest_activity_date as timestamp) as updated_at,
+        
+        -- Additional intermediate fields for analysis (not used by canonical model)
+        relationship_type,
+        source_system,
+        fund_name,
+        investor_name,
+        investor_type,
+        commitment_amount,
+        total_capital_calls,
+        total_called_amount,
+        total_distributed_amount,
+        payment_behavior_category,
+        relationship_maturity,
+        activity_status,
         
         -- Overall relationship quality score (0-100)
         (
@@ -351,15 +371,6 @@ final as (
             else 'EXCLUDE'
         end as fundraising_priority,
         
-        -- Relationship management priority
-        case 
-            when investor_value_tier = 'CHALLENGING_INVESTOR' and commitment_size_category in ('MEGA_COMMITMENT', 'LARGE_COMMITMENT') then 'HIGH_ATTENTION'
-            when payment_behavior_category in ('LATE_PAYER', 'CHRONIC_LATE_PAYER') then 'HIGH_ATTENTION'
-            when investor_value_tier = 'PREMIUM_INVESTOR' then 'WHITE_GLOVE_SERVICE'
-            when investor_value_tier = 'HIGH_VALUE_INVESTOR' then 'PRIORITY_SERVICE'
-            else 'STANDARD_SERVICE'
-        end as service_level,
-        
         -- Re-up potential assessment
         case 
             when investor_value_tier in ('PREMIUM_INVESTOR', 'HIGH_VALUE_INVESTOR') 
@@ -399,6 +410,9 @@ final as (
         ) as record_hash
 
     from enhanced_relationships
+    where relationship_id is not null
+      and canonical_fund_id is not null
+      and source_investor_id is not null
 )
 
 select * from final

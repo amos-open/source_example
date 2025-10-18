@@ -207,7 +207,21 @@ enhanced_investors as (
 
 final as (
     select
-        *,
+        -- Canonical model format - exact column names and types expected by amos_core
+        cast(canonical_investor_id as varchar(36)) as id,
+        cast(investor_name as varchar(255)) as name,
+        cast(investor_type_id as varchar(36)) as investor_type_id,
+        cast(created_date as timestamp) as created_at,
+        cast(last_modified_date as timestamp) as updated_at,
+        
+        -- Additional intermediate fields for analysis (not used by canonical model)
+        investor_code,
+        standardized_investor_type,
+        standardized_country_code,
+        investment_capacity,
+        risk_tolerance,
+        compliance_status,
+        has_esg_requirements,
         
         -- Final investor classification for fundraising
         case 
@@ -242,6 +256,7 @@ final as (
         ) as record_hash
 
     from enhanced_investors
+    where canonical_investor_id is not null
 )
 
 select * from final
