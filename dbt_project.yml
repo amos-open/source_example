@@ -38,7 +38,7 @@ require-dbt-version: [">=1.0.0", "<2.0.0"]
 # Seed configurations
 seeds:
   +quote_columns: false
-  +database: "{{ var('raw_database', 'RAW') }}"
+  +database: "RAW"  # Load seeds into RAW database
   
   amos_source_example:
     # CRM Vendor seed data
@@ -383,8 +383,8 @@ seeds:
 # Model configurations
 models:
   amos_source_example:
-    +materialized: "{{ var('default_materialization', 'view') }}"
-    +enabled: "{{ var('active_source', 'amos_source_example') == 'amos_source_example' }}"
+    +materialized: "view"
+    +enabled: true
     
     # Staging layer configuration
     staging:
@@ -427,24 +427,18 @@ models:
       # Transaction preparation models
       transactions:
         +tags: ["transactions", "intermediate"]
-        +materialized: "{{ 'incremental' if var('enable_incremental_processing', true) else 'table' }}"
+        +materialized: "table"  # WORKAROUND: Hardcoded for dbt-fusion compatibility
       
       # Snapshot preparation models
       snapshots:
         +tags: ["snapshots", "intermediate"]
-        +materialized: "{{ 'incremental' if var('enable_incremental_processing', true) else 'table' }}"
+        +materialized: "table"  # WORKAROUND: Hardcoded for dbt-fusion compatibility
       
       # Relationship preparation models
       relationships:
         +tags: ["relationships", "intermediate"]
     
-    # Export layer configuration (final staging outputs for amos_core)
-    exports:
-      +schema: "{{ target.schema }}_export_amos_source_example"
-      +materialized: table
-      +tags: ["exports", "amos_core_integration"]
-      +docs:
-        node_color: "#2196F3"
+    # Export layer configuration removed - folder doesn't exist
 
 # Test configurations
 tests:
