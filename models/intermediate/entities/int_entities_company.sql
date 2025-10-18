@@ -310,8 +310,8 @@ final as (
         cast(company_name as varchar(255)) as name,
         cast(website_url as varchar(255)) as website,
         cast(company_description as text) as description,
-        cast(base_currency_code as varchar(3)) as currency,
-        cast(industry_id as varchar(36)) as industry_id,
+        cast(coalesce(c.base_currency_code, 'USD') as varchar(3)) as currency,
+        cast(c.industry_id as varchar(36)) as industry_id,
         cast(created_date as timestamp) as created_at,
         cast(last_modified_date as timestamp) as updated_at,
         

@@ -27,7 +27,7 @@ with source as (
 cleaned as (
     select
         -- Primary identifiers
-        trim(investment_id) as investment_id,
+        trim(investment_code) as investment_id,
         trim(company_id) as company_id,
         trim(fund_id) as fund_id,
         

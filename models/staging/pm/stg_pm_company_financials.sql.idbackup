@@ -349,8 +349,6 @@ enhanced as (
 
 final as (
     select
-        -- Generated ID for compatibility
-        cast(hash(company_id, reporting_year, reporting_quarter) as varchar) as id,
         *,
         
         -- Overall financial health score (0-100)

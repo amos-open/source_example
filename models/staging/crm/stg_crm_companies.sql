@@ -93,6 +93,10 @@ cleaned as (
             else null
         end as data_quality_score,
         
+        -- Currency and industry mapping
+        upper(trim(base_currency_code)) as base_currency_code,
+        trim(industry_id) as industry_id,
+        
         -- Audit fields
         case 
             when created_date is not null 

@@ -194,8 +194,6 @@ enhanced as (
 
 final as (
     select
-        -- Generated ID for compatibility
-        cast(hash(industry_code) as varchar) as id,
         *,
         
         -- Overall industry data quality

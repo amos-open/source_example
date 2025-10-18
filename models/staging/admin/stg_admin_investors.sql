@@ -35,6 +35,7 @@ cleaned as (
         
         -- Investor classification
         trim(investor_type) as investor_type,
+        trim(investor_type_id) as investor_type_id,
         
         -- Geographic information
         upper(trim(country_code)) as country_code,
@@ -202,6 +203,8 @@ enhanced as (
 
 final as (
     select
+        -- Generate deterministic hash ID from investor_code for compatibility
+        cast(hash(investor_code) as varchar) as id,
         *,
         
         -- Overall investor attractiveness score

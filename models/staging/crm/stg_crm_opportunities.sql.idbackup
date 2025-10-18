@@ -123,8 +123,6 @@ cleaned as (
 
 final as (
     select
-        -- Generated ID for compatibility
-        cast(hash(opportunity_id) as varchar) as id,
         *,
         
         -- Add derived fields
