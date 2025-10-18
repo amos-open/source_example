@@ -1,7 +1,12 @@
-canonical_fund_id,crm_fund_id,admin_fund_code,pm_fund_id,accounting_fund_code,fund_name_canonical,resolution_confidence,created_date,last_modified_date
-FUND-CANON-001,CRM-FUND-001,FUND-001,PM-FUND-001,ACC-FUND-001,Growth Capital Fund III,High,2022-06-01,2024-01-15
-FUND-CANON-002,CRM-FUND-002,FUND-002,PM-FUND-002,ACC-FUND-002,European Buyout Fund II,High,2021-09-01,2024-01-20
-FUND-CANON-003,CRM-FUND-003,FUND-003,PM-FUND-003,ACC-FUND-003,Healthcare Innovation Fund I,High,2023-03-01,2024-01-25
-FUND-CANON-004,CRM-FUND-004,FUND-004,PM-FUND-004,ACC-FUND-004,Infrastructure Debt Fund,High,2020-12-01,2024-01-18
-FUND-CANON-005,CRM-FUND-005,FUND-005,PM-FUND-005,ACC-FUND-005,Distressed Opportunities Fund,Medium,2023-01-01,2024-01-22
-FUND-CANON-006,CRM-FUND-006,FUND-006,PM-FUND-006,ACC-FUND-006,Asia Pacific Growth Fund,High,2022-10-01,2024-01-28
+SOURCE_SYSTEM,ENTITY_TYPE,SOURCE_ID,CANONICAL_ID,FUND_NAME,FUND_LEGAL_NAME,VINTAGE_YEAR,BASE_CURRENCY_CODE,CREATED_DATE,LAST_MODIFIED_DATE
+ADMIN,FUND,FUND-001,8d12beb6-77e9-53ca-a731-5313b113854f,Growth Capital Fund III,Meridian Growth Capital Fund III LP,2022,USD,2022-03-01,2024-01-15
+ADMIN,FUND,FUND-002,9003ffcb-d149-5cd5-831b-da580f3b55e1,European Buyout Fund II,Atlas European Buyout Fund II SCSp,2021,EUR,2021-05-15,2024-01-20
+ADMIN,FUND,FUND-003,1d936802-36b0-56fc-8fc1-bd2eeac76fb5,Healthcare Innovation Fund I,Pinnacle Healthcare Innovation Fund I LP,2023,USD,2022-10-01,2024-01-25
+ADMIN,FUND,FUND-004,b6e6e7af-81a6-5983-afae-0578ee7b286b,Infrastructure Debt Fund,Cornerstone Infrastructure Debt Fund LP,2020,USD,2020-08-01,2024-01-18
+ADMIN,FUND,FUND-005,9374f4e8-e022-5dac-9d7f-180035c3c01a,Distressed Opportunities Fund,Phoenix Distressed Opportunities Fund LP,2023,USD,2022-08-15,2024-01-22
+ADMIN,FUND,FUND-006,a16ffc10-9d86-5af1-951d-90029028f2ef,Asia Pacific Growth Fund,Dragon Asia Pacific Growth Fund LP,2022,USD,2022-06-01,2024-01-28
+PM,FUND,FUND-001,8d12beb6-77e9-53ca-a731-5313b113854f,Growth Capital Fund III,,,,2022-08-01,2024-01-15
+PM,FUND,FUND-002,9003ffcb-d149-5cd5-831b-da580f3b55e1,European Buyout Fund II,,,,2022-09-10,2024-01-22
+PM,FUND,FUND-003,1d936802-36b0-56fc-8fc1-bd2eeac76fb5,Healthcare Innovation Fund I,,,,2023-04-05,2024-01-22
+PM,FUND,FUND-004,b6e6e7af-81a6-5983-afae-0578ee7b286b,Infrastructure Debt Fund,,,,2021-02-15,2024-01-18
+PM,FUND,FUND-006,a16ffc10-9d86-5af1-951d-90029028f2ef,Asia Pacific Growth Fund,,,,2022-11-15,2024-01-26

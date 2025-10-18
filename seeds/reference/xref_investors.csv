@@ -1,16 +1,40 @@
-canonical_investor_id,admin_investor_code,crm_contact_id,accounting_entity_id,investor_name_canonical,resolution_confidence,primary_source_system,created_date,last_modified_date
-INV-CANON-001,INV-001,,ACC-INV-001,State Teachers Pension,High,Admin,2020-01-15,2024-01-10
-INV-CANON-002,INV-002,,ACC-INV-002,University Endowment Fund,High,Admin,2019-03-20,2024-01-15
-INV-CANON-003,INV-003,,ACC-INV-003,Sovereign Wealth Fund,High,Admin,2018-06-10,2024-01-20
-INV-CANON-004,INV-004,,ACC-INV-004,Insurance Company,High,Admin,2020-09-05,2024-01-12
-INV-CANON-005,INV-005,,ACC-INV-005,Family Office,High,Admin,2021-02-18,2024-01-18
-INV-CANON-006,INV-006,,ACC-INV-006,Corporate Pension,High,Admin,2019-11-12,2024-01-22
-INV-CANON-007,INV-007,,ACC-INV-007,Fund of Funds,High,Admin,2020-04-25,2024-01-25
-INV-CANON-008,INV-008,,ACC-INV-008,High Net Worth Individual,High,Admin,2021-07-30,2024-01-08
-INV-CANON-009,INV-009,,ACC-INV-009,Development Finance Institution,High,Admin,2018-12-03,2024-01-28
-INV-CANON-010,INV-010,,ACC-INV-010,Asset Manager,High,Admin,2019-08-15,2024-01-14
-INV-CANON-011,INV-011,,ACC-INV-011,Bank Treasury,High,Admin,2020-05-20,2024-01-16
-INV-CANON-012,INV-012,,ACC-INV-012,Charitable Foundation,High,Admin,2021-01-10,2024-01-19
-INV-CANON-013,INV-013,,ACC-INV-013,Pension Consultant,High,Admin,2021-09-08,2024-01-21
-INV-CANON-014,INV-014,,ACC-INV-014,Emerging Manager Program,High,Admin,2022-03-15,2024-01-23
-INV-CANON-015,INV-015,,ACC-INV-015,International Investor,High,Admin,2019-10-22,2024-01-26
+SOURCE_SYSTEM,ENTITY_TYPE,SOURCE_ID,CANONICAL_ID,INVESTOR_NAME,INVESTOR_TYPE,EMAIL,PHONE,CREATED_DATE,LAST_MODIFIED_DATE
+CRM,INVESTOR,CONT-001,7f928a83-2c4b-5463-a4e9-82703ac652ef,James Mitchell,Executive,j.mitchell@techflowsolutions.com,+1-415-555-0123,2023-11-20,2024-01-15
+CRM,INVESTOR,CONT-002,7656c2d2-5de2-5503-8785-bdfb28168c53,Sarah Chen,Executive,s.chen@techflowsolutions.com,+1-415-555-0124,2023-11-22,2024-01-10
+CRM,INVESTOR,CONT-003,e39a12f4-833c-577d-9f0d-da08e00b591a,Robert Kumar,Executive,r.kumar@techflowsolutions.com,+1-415-555-0125,2023-11-25,2023-12-20
+CRM,INVESTOR,CONT-004,053f913c-19db-5a6f-ab85-051681d7b716,Dr. Emily Watson,Executive,e.watson@meddeviceinnovations.co.uk,+44-20-7555-0201,2023-10-05,2024-01-22
+CRM,INVESTOR,CONT-005,1ac6376e-2da0-5a37-b4b5-02216dec7401,Mark Thompson,Finance,m.thompson@meddeviceinnovations.co.uk,+44-20-7555-0202,2023-10-08,2024-01-18
+CRM,INVESTOR,CONT-006,ee296891-7fdc-55ee-ae1e-2b6ade0d3f07,Klaus Mueller,Executive,k.mueller@greenenergycorp.de,+49-30-555-0301,2024-01-10,2024-01-25
+CRM,INVESTOR,CONT-007,a1c6035e-1428-535f-8593-8b8a7f0d4e7f,Anna Schmidt,Operations,a.schmidt@greenenergycorp.de,+49-30-555-0302,2024-01-12,2024-01-20
+CRM,INVESTOR,CONT-008,733a562f-cafa-5a5e-820c-fd20c4ce3224,Michael Rodriguez,Executive,m.rodriguez@retailmaxholdings.com,+1-214-555-0401,2023-09-15,2024-01-20
+CRM,INVESTOR,CONT-009,34215f9d-ce89-52c0-8b22-f2d97b346874,Jennifer Lee,Executive,j.lee@retailmaxholdings.com,+1-214-555-0402,2023-09-18,2024-01-18
+CRM,INVESTOR,CONT-010,5542e8e9-b95d-57e1-97da-e535d6949980,David Tan,Executive,d.tan@fintechinnovations.sg,+65-6555-0501,2024-01-05,2024-01-28
+CRM,INVESTOR,CONT-011,786f586a-7271-5bc6-9f43-1303354ae808,Lisa Wong,Executive,l.wong@fintechinnovations.sg,+65-6555-0502,2024-01-08,2024-01-25
+CRM,INVESTOR,CONT-012,3a5d788f-8ca7-5457-b788-a16b1576a1f7,Andrew Johnson,Executive,a.johnson@industrialsolutions.co.uk,+44-161-555-0601,2023-12-01,2024-01-18
+CRM,INVESTOR,CONT-013,4807527b-60eb-5d94-b78e-b9b2a5a943a4,Rachel Brown,Finance,r.brown@industrialsolutions.co.uk,+44-161-555-0602,2023-12-05,2024-01-15
+CRM,INVESTOR,CONT-014,14c46495-ae1c-5c23-ad86-4366a951eacf,Thomas Anderson,Executive,t.anderson@edutechplatform.com,,2023-08-20,2024-01-30
+CRM,INVESTOR,CONT-015,438bf573-0ea7-5d4d-bc12-a994bbc35572,Patricia Williams,Executive,p.williams@logicorpintl.com,+1-312-555-0801,2023-07-10,2024-01-25
+CRM,INVESTOR,CONT-016,093b5229-45ae-5681-80dd-9306efe9bf55,Steven Davis,Executive,s.davis@logicorpintl.com,+1-312-555-0802,2023-07-15,2024-01-23
+CRM,INVESTOR,CONT-017,c62744e4-bfe5-5f4a-98dc-b9b380402805,Dr. Maria Garcia,Executive,m.garcia@biotechventures.com,+1-617-555-0901,2023-12-15,2024-01-22
+CRM,INVESTOR,CONT-018,42721c1c-b692-5047-83b6-35d7ce011a3d,John Miller,Executive,j.miller@energyservicesco.com,+1-713-555-1001,2023-11-30,2024-01-20
+CRM,INVESTOR,CONT-019,72503e1c-441c-5e5e-8590-a7d798952c17,Kevin Zhang,Executive,k.zhang@cloudsoftsystems.com,+1-206-555-1101,2023-10-25,2024-01-24
+CRM,INVESTOR,CONT-020,bce70dc9-0172-5ad2-a25b-67e07649a9be,Amanda Taylor,Finance,a.taylor@cloudsoftsystems.com,+1-206-555-1102,2023-10-28,2024-01-22
+CRM,INVESTOR,CONT-021,290a72c8-f990-5b6c-8c37-ed4b6c7441de,Pierre Dubois,Executive,p.dubois@europeanpharma.fr,+33-4-7555-1201,2023-09-05,2024-01-15
+CRM,INVESTOR,CONT-022,3d2edefe-5e4c-59e5-8d00-efc758867ffc,Susan Johnson,Executive,s.johnson@agritechsolutions.com,+1-515-555-1301,2023-11-10,2024-01-26
+CRM,INVESTOR,CONT-023,6e372eba-1aac-5dca-8917-a8af99e6c3ab,Hiroshi Tanaka,Executive,h.tanaka@autoparts-division.jp,+81-6-555-1401,2024-01-08,2024-01-29
+CRM,INVESTOR,CONT-024,cd352e30-982c-5e12-8bc2-cd3530555c5e,Richard Smith,Executive,r.smith@commercialredev.com,+1-212-555-1501,2023-12-20,2024-01-23
+ADMIN,INVESTOR,INV-001,ba700698-a6e0-5dbd-8057-46e3ceeb5442,State Teachers Pension,Public Pension,r.chen@strs.ca.gov,+1-916-555-0101,2020-01-15,2024-01-10
+ADMIN,INVESTOR,INV-002,7d120b3f-c8f1-5d5a-8697-96971da3070c,University Endowment Fund,Endowment,s.mitchell@harvard.edu,+1-617-555-0201,2019-03-20,2024-01-15
+ADMIN,INVESTOR,INV-003,9303e33b-65b6-5dfe-a6ff-351ec5cf12e5,Sovereign Wealth Fund,Sovereign Wealth,+65-6555-0301,Approved,2024-01-20,
+ADMIN,INVESTOR,INV-004,7d5ce34e-8306-52ac-befb-df5c80598928,Insurance Company,Insurance,+1-212-555-0401,Approved,2024-01-12,
+ADMIN,INVESTOR,INV-005,0eac522a-4439-58b7-9162-83c23a4c3391,Family Office,Family Office,+1-214-555-0501,Approved,2024-01-18,
+ADMIN,INVESTOR,INV-006,7eab5fee-1b64-53f7-9326-08da59218d1d,Corporate Pension,Corporate Pension,+1-313-555-0601,Approved,2024-01-22,
+ADMIN,INVESTOR,INV-007,c3a2f92e-5c04-5e58-8860-7428bb55afbd,Fund of Funds,Fund of Funds,+44-20-7555-0701,Approved,2024-01-25,
+ADMIN,INVESTOR,INV-008,31b8352b-8393-5433-82a5-17fc7e8dd073,High Net Worth Individual,Individual,+1-416-555-0801,Approved,2024-01-08,
+ADMIN,INVESTOR,INV-009,259f398f-5937-5f93-8acc-5d3715867efd,Development Finance Institution,DFI,+352-555-0901,Approved,2024-01-28,
+ADMIN,INVESTOR,INV-010,f22eff1c-6dbd-5de2-be27-9658d45b5848,Asset Manager,Asset Manager,+1-212-555-1001,Approved,2024-01-14,
+ADMIN,INVESTOR,INV-011,4405d527-e471-5b39-a826-26d6afacb3f0,Bank Treasury,Bank,+1-212-555-1101,Approved,2024-01-16,
+ADMIN,INVESTOR,INV-012,d76136a1-49d1-5455-9b82-a043de573484,Charitable Foundation,Foundation,+1-206-555-1201,Approved,2024-01-19,
+ADMIN,INVESTOR,INV-013,7e207e11-b077-5d84-8955-23e678a55dc9,Pension Consultant,Consultant,+1-312-555-1301,Approved,2024-01-21,
+ADMIN,INVESTOR,INV-014,625dd01b-0f17-5c4c-91d0-a2401f52e9f2,Emerging Manager Program,Public Pension,+1-916-555-1401,Approved,2024-01-23,
+ADMIN,INVESTOR,INV-015,1936251a-a3bb-5358-8f1c-2a6970a7b57d,International Investor,Sovereign Wealth,+971-2-555-1501,Approved,2024-01-26,
