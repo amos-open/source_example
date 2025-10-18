@@ -2,36 +2,40 @@
   Integration tests to validate compatibility with amos_core canonical models
   
   These tests verify that the intermediate models in amos_source_example
-  produce data that matches the exact schema contracts expected by amos_core.
+  produce data that matches the exact schema contracts expected by amos_core,
+  including enhanced canonical identifier support and updated business rules.
   
   Test Categories:
-  1. Schema compatibility - column names and data types
-  2. Data contract validation - required fields and constraints
-  3. Foreign key relationships - reference data integrity
-  4. Business rule validation - data quality and format checks
+  1. Schema compatibility - column names and data types with canonical IDs
+  2. Data contract validation - required fields and enhanced constraints
+  3. Foreign key relationships - reference data integrity with canonical mappings
+  4. Business rule validation - enhanced data quality and format checks
+  5. Canonical identifier validation - UUID format and cross-reference consistency
 */
 
--- Test 1: Company entity schema compatibility
-{{ config(tags=['integration', 'amos_core_compatibility']) }}
+-- Test 1: Company entity schema compatibility with canonical identifiers
+{{ config(tags=['integration', 'amos_core_compatibility', 'enhanced']) }}
 
 WITH company_schema_test AS (
   SELECT
-    -- Test that all required columns exist with correct data types
+    -- Test that all required columns exist with correct data types including canonical IDs
     CASE 
       WHEN COUNT(*) = 0 THEN 'PASS'
       ELSE 'FAIL: Missing or incorrect columns in int_entities_company'
     END as test_result,
     
-    -- List any missing columns
+    -- List any missing columns including canonical identifier fields
     ARRAY_TO_STRING(ARRAY[
-      CASE WHEN id IS NULL THEN 'id (uuid)' END,
+      CASE WHEN id IS NULL THEN 'id (uuid - canonical)' END,
       CASE WHEN name IS NULL THEN 'name (varchar(255))' END,
       CASE WHEN website IS NULL THEN 'website (varchar(255))' END,
       CASE WHEN description IS NULL THEN 'description (text)' END,
       CASE WHEN currency IS NULL THEN 'currency (varchar(3))' END,
       CASE WHEN industry_id IS NULL THEN 'industry_id (uuid)' END,
       CASE WHEN created_at IS NULL THEN 'created_at (timestamp)' END,
-      CASE WHEN updated_at IS NULL THEN 'updated_at (timestamp)' END
+      CASE WHEN updated_at IS NULL THEN 'updated_at (timestamp)' END,
+      CASE WHEN crm_company_id IS NULL THEN 'crm_company_id (varchar(50) - source)' END,
+      CASE WHEN pm_company_id IS NULL THEN 'pm_company_id (varchar(50) - source)' END
     ], ', ') as missing_columns
     
   FROM (
@@ -43,7 +47,9 @@ WITH company_schema_test AS (
       TRY_CAST(currency AS VARCHAR(3)) as currency,
       TRY_CAST(industry_id AS VARCHAR(36)) as industry_id,
       TRY_CAST(created_at AS TIMESTAMP) as created_at,
-      TRY_CAST(updated_at AS TIMESTAMP) as updated_at
+      TRY_CAST(updated_at AS TIMESTAMP) as updated_at,
+      TRY_CAST(crm_company_id AS VARCHAR(50)) as crm_company_id,
+      TRY_CAST(pm_company_id AS VARCHAR(50)) as pm_company_id
     FROM {{ ref('int_entities_company') }}
     LIMIT 1
   ) t
@@ -155,3 +161,85 @@ FROM (
   LIMIT 1
 ) t
 WHERE id IS NULL OR name IS NULL OR created_at IS NULL OR updated_at IS NULL
+UNIO
+N ALL
+
+-- Test 5: Canonical identifier format validation
+SELECT
+  CASE 
+    WHEN invalid_canonical_ids = 0 THEN 'PASS'
+    ELSE CONCAT('FAIL: ', invalid_canonical_ids, ' records with invalid canonical ID format')
+  END as test_result,
+  
+  CONCAT('Invalid canonical IDs found: ', invalid_canonical_ids, ' out of ', total_records) as missing_columns
+
+FROM (
+  SELECT 
+    COUNT(*) as total_records,
+    SUM(CASE 
+      WHEN id IS NOT NULL 
+        AND NOT REGEXP_LIKE(id, '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
+      THEN 1 ELSE 0 
+    END) as invalid_canonical_ids
+  FROM (
+    SELECT id FROM {{ ref('int_entities_company') }}
+    UNION ALL
+    SELECT id FROM {{ ref('int_entities_fund') }}
+    UNION ALL
+    SELECT id FROM {{ ref('int_entities_investor') }}
+    UNION ALL
+    SELECT id FROM {{ ref('int_entities_counterparty') }}
+  )
+) canonical_validation
+WHERE invalid_canonical_ids > 0
+
+UNION ALL
+
+-- Test 6: Cross-reference mapping validation
+SELECT
+  CASE 
+    WHEN unmapped_entities = 0 THEN 'PASS'
+    ELSE CONCAT('FAIL: ', unmapped_entities, ' entities without cross-reference mapping')
+  END as test_result,
+  
+  CONCAT('Entities without xref mapping: ', unmapped_entities, ' out of ', total_entities) as missing_columns
+
+FROM (
+  SELECT 
+    COUNT(*) as total_entities,
+    SUM(CASE 
+      WHEN x.canonical_company_id IS NULL 
+      THEN 1 ELSE 0 
+    END) as unmapped_entities
+  FROM {{ ref('int_entities_company') }} c
+  LEFT JOIN {{ ref('stg_ref_xref_companies') }} x ON c.id = x.canonical_company_id
+) xref_validation
+WHERE unmapped_entities > 0
+
+UNION ALL
+
+-- Test 7: Enhanced business rule validation for canonical identifiers
+SELECT
+  CASE 
+    WHEN business_rule_violations = 0 THEN 'PASS'
+    ELSE CONCAT('FAIL: ', business_rule_violations, ' business rule violations')
+  END as test_result,
+  
+  CONCAT('Business rule violations: ', business_rule_violations, ' out of ', total_records) as missing_columns
+
+FROM (
+  SELECT 
+    COUNT(*) as total_records,
+    SUM(CASE 
+      -- Enhanced currency validation (must be exactly 3 characters and uppercase)
+      WHEN currency IS NOT NULL AND (LENGTH(currency) != 3 OR currency != UPPER(currency)) THEN 1
+      -- Enhanced UUID validation for industry_id
+      WHEN industry_id IS NOT NULL 
+        AND NOT REGEXP_LIKE(industry_id, '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$') THEN 1
+      -- Source system ID validation (must have at least one source ID)
+      WHEN crm_company_id IS NULL AND pm_company_id IS NULL THEN 1
+      ELSE 0 
+    END) as business_rule_violations
+  FROM {{ ref('int_entities_company') }}
+) business_validation
+WHERE business_rule_violations > 0
