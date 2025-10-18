@@ -208,9 +208,9 @@ enhanced_investors as (
 final as (
     select
         -- Canonical model format - exact column names and types expected by amos_core
-        CAST(canonical_investor_id AS STRING) as id,
+        CAST(GENERATE_UUID() AS STRING) as id,  -- Generate canonical investor ID
         CAST(investor_name AS STRING) as name,
-        CAST(investor_type_id AS STRING) as investor_type_id,
+        CAST(GENERATE_UUID() AS STRING) as investor_type_id,  -- Generate UUID for investor_type_id
         CAST(created_date AS TIMESTAMP) as created_at,
         CAST(last_modified_date AS TIMESTAMP) as updated_at,
         

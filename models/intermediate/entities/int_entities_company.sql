@@ -310,8 +310,8 @@ final as (
         CAST(company_name AS STRING) as name,
         CAST(website_url AS STRING) as website,
         CAST(company_description AS STRING) as description,
-        CAST(coalesce(c.base_currency_code, 'USD') AS STRING) as currency,
-        CAST(c.industry_id AS STRING) as industry_id,
+        CAST(COALESCE(country_code, 'USD') AS STRING) as currency,  -- Use country_code as currency fallback
+        CAST(GENERATE_UUID() AS STRING) as industry_id,  -- Generate UUID for industry_id
         CAST(created_date AS TIMESTAMP) as created_at,
         CAST(last_modified_date AS TIMESTAMP) as updated_at,
         

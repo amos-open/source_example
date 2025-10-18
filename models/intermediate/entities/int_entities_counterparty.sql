@@ -332,7 +332,7 @@ final as (
         CAST(canonical_counterparty_id AS STRING) as id,
         CAST(counterparty_name AS STRING) as name,
         CAST(counterparty_type AS STRING) as type,
-        CAST(country_code AS STRING) as country_code,
+        CAST(SUBSTR(country_code, 1, 2) AS STRING) as country_code,  -- Ensure 2-character country code
         CAST(created_date AS TIMESTAMP) as created_at,
         CAST(last_modified_date AS TIMESTAMP) as updated_at,
         
