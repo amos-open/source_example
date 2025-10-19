@@ -40,12 +40,12 @@ fx_rates as (
 -- Get latest exchange rates for currency conversion
 latest_fx_rates as (
     select
-        from_currency,
-        to_currency,
+        base_currency_code as from_currency,
+        quote_currency_code as to_currency,
         exchange_rate,
         rate_date,
         row_number() over (
-            partition by from_currency, to_currency 
+            partition by base_currency_code, quote_currency_code 
             order by rate_date desc
         ) as rn
     from fx_rates
@@ -112,7 +112,7 @@ yoy_growth_metrics as (
         
         case 
             when prior_year.employees_count is not null and prior_year.employees_count > 0 and current_year.employees_count is not null
-            then ((current_year.employees_count - prior_year.employees_count) / CAST(prior_year.employees_count AS FLOAT64)) * 100
+            then ((current_year.employees_count - prior_year.employees_count) / CAST(prior_year.employees_count AS FLOAT)) * 100
             else null
         end as employee_growth_yoy_percent
 
@@ -393,7 +393,7 @@ enhanced_snapshots as (
         -- Snapshot recency assessment
         case 
             when snapshot_date is not null then
-                DATE_DIFF(current_date(), snapshot_date, DAY)
+                DATEDIFF(DAY, snapshot_date, current_date())
             else null
         end as days_since_snapshot,
         
@@ -485,7 +485,7 @@ final as (
         end as value_creation_opportunity,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(snapshot_id, canonical_company_id, snapshot_date, revenue_usd, ebitda_usd, net_income_usd, total_assets_usd, employees_count, revenue_growth_yoy_percent, ebitda_growth_yoy_percent, last_modified_date)) as record_hash
+        HASH(snapshot_id, canonical_company_id, snapshot_date, revenue_usd, ebitda_usd, net_income_usd, total_assets_usd, employees_count, revenue_growth_yoy_percent, ebitda_growth_yoy_percent, last_modified_date) as record_hash
 
     from enhanced_snapshots
 )

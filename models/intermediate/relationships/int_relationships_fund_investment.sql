@@ -85,10 +85,14 @@ fund_investment_relationships as (
         pi.target_exit_date,
         
         -- Investment amounts and structure
-        pi.initial_amount_usd,
-        pi.total_amount_usd,
-        pi.follow_on_amount_usd,
-        pi.follow_on_ratio,
+        pi.initial_investment_amount as initial_amount_usd,
+        pi.total_invested_amount as total_amount_usd,
+        (pi.total_invested_amount - pi.initial_investment_amount) as follow_on_amount_usd,
+        case 
+            when pi.initial_investment_amount > 0 
+            then (pi.total_invested_amount - pi.initial_investment_amount) / pi.initial_investment_amount
+            else null
+        end as follow_on_ratio,
         
         -- Investment classification
         pi.standardized_investment_type as investment_type,
@@ -101,14 +105,23 @@ fund_investment_relationships as (
         pi.ownership_category,
         pi.board_seats,
         pi.governance_influence,
-        pi.control_classification,
+        case 
+            when pi.ownership_percentage >= 50 then 'MAJORITY'
+            when pi.ownership_percentage >= 25 then 'SIGNIFICANT'
+            when pi.ownership_percentage >= 10 then 'MINORITY'
+            else 'PASSIVE'
+        end as control_classification,
         
         -- Legal terms and protection
         pi.liquidation_preference_type,
         pi.standardized_anti_dilution as anti_dilution_protection,
         pi.has_drag_along_rights,
         pi.has_tag_along_rights,
-        pi.protection_level,
+        case 
+            when pi.has_drag_along_rights and pi.has_tag_along_rights and pi.standardized_anti_dilution is not null then 'HIGH'
+            when pi.has_drag_along_rights or pi.has_tag_along_rights or pi.standardized_anti_dilution is not null then 'MEDIUM'
+            else 'LOW'
+        end as protection_level,
         
         -- Strategic information
         pi.investment_thesis,
@@ -122,9 +135,13 @@ fund_investment_relationships as (
         pi.investment_size_category,
         pi.investment_profile,
         pi.risk_assessment,
-        pi.investment_maturity,
-        pi.exit_timeline,
-        pi.lifecycle_status,
+        case 
+            when pi.investment_age_years < 2 then 'EARLY_STAGE'
+            when pi.investment_age_years < 5 then 'GROWTH_STAGE'
+            else 'MATURE'
+        end as investment_maturity,
+        null as exit_timeline,
+        null as lifecycle_status,
         
         -- Current valuation data (from NAV)
         cnd.cost_basis as current_cost_basis,
@@ -271,7 +288,7 @@ enhanced_relationships as (
         -- Data freshness assessment
         case 
             when latest_valuation_date is not null then
-                DATE_DIFF(current_date(), latest_valuation_date, DAY)
+                DATEDIFF(DAY, latest_valuation_date, current_date())
             else null
         end as days_since_valuation,
         
@@ -359,7 +376,7 @@ final as (
         end as data_quality_rating,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(relationship_id, canonical_fund_id, canonical_company_id, investment_date, total_amount_usd, ownership_percentage, current_fair_value, current_return_multiple, investment_stage, sector, last_modified_date)) as record_hash
+        HASH(relationship_id, canonical_fund_id, canonical_company_id, investment_date, total_amount_usd, ownership_percentage, current_fair_value, current_return_multiple, investment_stage, sector, last_modified_date) as record_hash
 
     from enhanced_relationships
 )

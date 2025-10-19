@@ -46,12 +46,12 @@ fx_rates as (
 -- Get latest exchange rates for currency conversion
 latest_fx_rates as (
     select
-        from_currency,
-        to_currency,
+        base_currency_code as from_currency,
+        quote_currency_code as to_currency,
         exchange_rate,
         rate_date,
         row_number() over (
-            partition by from_currency, to_currency 
+            partition by base_currency_code, quote_currency_code 
             order by rate_date desc
         ) as rn
     from fx_rates
@@ -135,7 +135,7 @@ investment_transactions as (
 -- Apply currency conversion to USD base currency
 currency_converted_transactions as (
     select
-        *,
+        it.*,
         
         -- Convert initial investment amount to USD
         case 
@@ -275,9 +275,9 @@ enhanced_transactions as (
         case 
             when target_exit_date is not null then
                 case 
-                    when DATE_DIFF(target_exit_date, current_date(), YEAR) <= 1 then 'NEAR_TERM_EXIT'
-                    when DATE_DIFF(target_exit_date, current_date(), YEAR) <= 3 then 'MEDIUM_TERM_EXIT'
-                    when DATE_DIFF(target_exit_date, current_date(), YEAR) <= 5 then 'LONG_TERM_EXIT'
+                    when DATEDIFF(YEAR, current_date(), target_exit_date) <= 1 then 'NEAR_TERM_EXIT'
+                    when DATEDIFF(YEAR, current_date(), target_exit_date) <= 3 then 'MEDIUM_TERM_EXIT'
+                    when DATEDIFF(YEAR, current_date(), target_exit_date) <= 5 then 'LONG_TERM_EXIT'
                     else 'EXTENDED_HOLD'
                 end
             else 'NO_TARGET_EXIT'
@@ -286,7 +286,7 @@ enhanced_transactions as (
         -- Days since investment
         case 
             when transaction_date is not null then
-                DATE_DIFF(current_date(), transaction_date, DAY)
+                DATEDIFF(DAY, transaction_date, current_date())
             else null
         end as days_since_investment,
         
@@ -370,7 +370,7 @@ final as (
         end as lifecycle_status,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(transaction_id, canonical_company_id, canonical_fund_id, transaction_date, total_amount_usd, investment_type, investment_stage, ownership_percentage, exit_strategy, last_modified_date)) as record_hash
+        HASH(transaction_id, canonical_company_id, canonical_fund_id, transaction_date, total_amount_usd, investment_type, investment_stage, ownership_percentage, exit_strategy, last_modified_date) as record_hash
 
     from enhanced_transactions
 )

@@ -40,12 +40,12 @@ fx_rates as (
 -- Get latest exchange rates for currency conversion
 latest_fx_rates as (
     select
-        from_currency,
-        to_currency,
+        base_currency_code as from_currency,
+        quote_currency_code as to_currency,
         exchange_rate,
         rate_date,
         row_number() over (
-            partition by from_currency, to_currency 
+            partition by base_currency_code, quote_currency_code 
             order by rate_date desc
         ) as rn
     from fx_rates
@@ -305,7 +305,7 @@ enhanced_snapshots as (
         -- Snapshot recency assessment
         case 
             when snapshot_date is not null then
-                DATE_DIFF(current_date(), snapshot_date, DAY)
+                DATEDIFF(DAY, snapshot_date, current_date())
             else null
         end as days_since_snapshot,
         
@@ -387,7 +387,7 @@ final as (
         end as monitoring_priority,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(snapshot_id, canonical_fund_id, snapshot_date, total_nav_usd, committed_capital_usd, called_capital_usd, distributed_capital_usd, tvpi_ratio, irr_net, number_of_investments, last_modified_date)) as record_hash
+        HASH(snapshot_id, canonical_fund_id, snapshot_date, total_nav_usd, committed_capital_usd, called_capital_usd, distributed_capital_usd, tvpi_ratio, irr_net, number_of_investments, last_modified_date) as record_hash
 
     from enhanced_snapshots
 )

@@ -263,22 +263,20 @@ bridge_transformed as (
 final as (
     select
         -- Canonical model format using bridge transformation
-        {{ alias_intermediate_columns('fund') }},
+        id,
+        name,
+        base_currency_code,
         
         -- Additional intermediate fields for analysis (not used by canonical model)
         fund_legal_name,
         admin_fund_code,
-        crm_fund_id,
+
         investment_strategy,
         sector_focus,
         final_size,
-        investment_period_start,
-        investment_period_end,
         fund_status,
-        first_close_date,
-        final_close_date,
         overall_data_quality,
-        fund_attractiveness_score,
+        investment_attractiveness_score as fund_attractiveness_score,
         
         -- Investment recommendation
         case 
@@ -288,8 +286,19 @@ final as (
             else 'NOT_RECOMMENDED'
         end as investment_recommendation,
         
-        -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(id, name, vintage, target_commitment, final_size, base_currency_code, investment_strategy, incorporated_in, management_fee, carried_interest, fund_status, updated_at)) as record_hash
+        -- Record hash for change detection (using vintage instead of vintage_year)
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(id,''),
+          COALESCE(name,''),
+          COALESCE(TO_VARCHAR(vintage),''),
+          COALESCE(TO_VARCHAR(target_commitment),''),
+          COALESCE(TO_VARCHAR(final_size),''),
+          COALESCE(base_currency_code,''),
+          COALESCE(investment_strategy,''),
+          COALESCE(sector_focus,''),
+          COALESCE(fund_status,''),
+          COALESCE(TO_VARCHAR(updated_at),'')
+        ))) as record_hash
 
     from bridge_transformed
     where id is not null

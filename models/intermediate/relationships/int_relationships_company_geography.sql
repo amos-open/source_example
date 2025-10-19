@@ -90,9 +90,12 @@ pm_investment_geography as (
             when upper(pi.geography) like '%SINGAPORE%' then 'SG'
             when upper(pi.geography) like '%AUSTRALIA%' then 'AU'
             else null
-        end as country_code,
+        end as primary_country_code,
         
-        pi.standardized_geography as geographic_region,
+        null as state_province,
+        null as city,
+        
+        pi.standardized_geography as primary_geographic_region,
         
         -- For PM data, assume 100% allocation to stated geography
         100.0 as allocation_percentage,
@@ -117,7 +120,7 @@ company_geography_relationships as (
     select
         -- Generate relationship identifier
         'REL-CG-' || coalesce(cx.canonical_company_id, 'COMP-UNKNOWN-' || acg.source_company_id) || '-' || 
-        coalesce(acg.country_code, acg.geographic_region) || '-' || acg.geography_type as relationship_id,
+        coalesce(acg.primary_country_code, acg.primary_geographic_region) || '-' || acg.geography_type as relationship_id,
         'COMPANY_GEOGRAPHY' as relationship_type,
         acg.source_system,
         
@@ -128,8 +131,8 @@ company_geography_relationships as (
         cx.canonical_company_name,
         
         -- Geographic identifiers
-        acg.country_code,
-        acg.geographic_region,
+        acg.primary_country_code as country_code,
+        acg.primary_geographic_region as geographic_region,
         rc.country_name,
         rc.region as country_region,
         rc.sub_region as country_sub_region,
@@ -140,20 +143,24 @@ company_geography_relationships as (
         acg.geography_type,
         
         -- Additional geographic context
-        acg.state_province,
-        acg.city,
+        max(acg.state_province) as state_province,
+        max(acg.city) as city,
         
         CURRENT_TIMESTAMP() as processed_at
 
     from all_company_geography acg
     left join company_xref cx on acg.source_company_id = cx.crm_company_id or acg.source_company_id = cx.pm_company_id
-    left join ref_countries rc on acg.country_code = rc.country_code
+    left join ref_countries rc on acg.primary_country_code = rc.country_code
+    group by 
+        acg.source_company_id, acg.company_name, acg.primary_country_code, acg.primary_geographic_region,
+        acg.geography_type, acg.allocation_percentage, acg.is_primary_geography, acg.source_system,
+        cx.canonical_company_id, cx.canonical_company_name, rc.country_name, rc.region, rc.sub_region
 ),
 
 -- Deduplicate and consolidate geographic relationships
 consolidated_relationships as (
     select
-        relationship_id,
+        min(relationship_id) as relationship_id,
         relationship_type,
         canonical_company_id,
         source_company_id,
@@ -171,31 +178,24 @@ consolidated_relationships as (
         sum(allocation_percentage) as total_allocation_percentage,
         
         -- Determine primary geography (prefer CRM data)
-        bool_or(is_primary_geography) as is_primary_geography,
+        max(case when is_primary_geography then 1 else 0 end) = 1 as is_primary_geography,
         
         -- Consolidate geography types
-        string_agg(distinct geography_type, ', ') as geography_types,
+        listagg(distinct geography_type, ', ') as geography_types,
         
         -- Source system tracking
-        string_agg(distinct source_system, ', ') as source_systems,
+        listagg(distinct source_system, ', ') as source_systems,
         count(*) as source_record_count,
         
-        -- Geographic details (take first non-null values)
-        first_value(state_province ignore nulls) over (
-            partition by canonical_company_id, coalesce(country_code, geographic_region)
-            order by case when source_system = 'CRM_VENDOR' then 1 else 2 end
-        ) as state_province,
-        
-        first_value(city ignore nulls) over (
-            partition by canonical_company_id, coalesce(country_code, geographic_region)
-            order by case when source_system = 'CRM_VENDOR' then 1 else 2 end
-        ) as city,
+        -- Geographic details (already aggregated in company_geography_relationships)
+        state_province,
+        city,
         
         processed_at
 
     from company_geography_relationships
     group by 
-        relationship_id, relationship_type, canonical_company_id, source_company_id,
+        relationship_type, canonical_company_id, source_company_id,
         company_name, canonical_company_name, country_code, geographic_region,
         country_name, country_region, country_sub_region, processed_at
 ),
@@ -268,8 +268,8 @@ enhanced_relationships as (
         
         -- Data source reliability
         case 
-            when source_record_count >= 2 and 'CRM_VENDOR' = any(string_to_array(source_systems, ', ')) then 'HIGH_RELIABILITY'
-            when 'CRM_VENDOR' = any(string_to_array(source_systems, ', ')) then 'MEDIUM_RELIABILITY'
+            when source_record_count >= 2 and ARRAY_CONTAINS('CRM_VENDOR'::variant, split(source_systems, ', ')) then 'HIGH_RELIABILITY'
+            when ARRAY_CONTAINS('CRM_VENDOR'::variant, split(source_systems, ', ')) then 'MEDIUM_RELIABILITY'
             when source_record_count >= 2 then 'MEDIUM_RELIABILITY'
             else 'LOW_RELIABILITY'
         end as data_reliability

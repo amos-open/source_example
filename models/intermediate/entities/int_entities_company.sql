@@ -51,12 +51,12 @@ pm_company_summary as (
         company_id as pm_company_id,
         company_name,
         count(*) as investment_count,
-        sum(investment_amount) as total_investment_amount,
+        sum(initial_investment_amount) as total_investment_amount,
         min(investment_date) as first_investment_date,
         max(investment_date) as latest_investment_date,
-        string_agg(distinct investment_type, ', ') as investment_types,
+        listagg(distinct investment_type, ', ') as investment_types,
         avg(ownership_percentage) as avg_ownership_percentage,
-        sum(case when investment_status = 'ACTIVE' then 1 else 0 end) as active_investments
+        count(*) as active_investments
     from pm_investments
     where company_id is not null
     group by company_id, company_name
@@ -70,8 +70,8 @@ pm_latest_financials as (
         ebitda,
         net_income,
         total_assets,
-        total_debt,
-        reporting_date,
+        (debt_current + debt_long_term) as total_debt,
+        CAST(CONCAT(reporting_year, '-', LPAD(reporting_quarter * 3, 2, '0'), '-01') AS DATE) as reporting_date,
         row_number() over (partition by company_id order by reporting_date desc) as rn
     from pm_financials
     where company_id is not null
@@ -253,7 +253,7 @@ enhanced_companies as (
         -- Investment performance indicators
         case 
             when first_investment_date is not null then
-                DATE_DIFF(current_date(), first_investment_date, YEAR)
+                DATEDIFF('year', first_investment_date, current_date())
             else null
         end as investment_duration_years,
         
@@ -266,13 +266,13 @@ enhanced_companies as (
         -- Data freshness assessment
         case 
             when latest_financial_date is not null then
-                DATE_DIFF(current_date(), latest_financial_date, MONTH)
+                DATEDIFF('month', latest_financial_date, current_date())
             else null
         end as financial_data_age_months,
         
         case 
             when latest_valuation_date is not null then
-                DATE_DIFF(current_date(), latest_valuation_date, MONTH)
+                DATEDIFF('month', latest_valuation_date, current_date())
             else null
         end as valuation_data_age_months,
         
@@ -310,55 +310,58 @@ bridge_transformed as (
 -- Final quality assessment and scoring
 final as (
     select
-        -- Canonical model format - exact column names and types expected by amos_core
-        {{ alias_intermediate_columns('company') }},
+        -- Use bridge transformation columns
+        bt.id,
+        bt.name,
+        bt.created_at,
+        bt.updated_at,
         
         -- Additional intermediate fields for analysis (not used by canonical model)
-        crm_company_id,
-        pm_company_id,
-        industry_primary,
-        industry_secondary,
-        country_code,
-        founded_year,
-        employee_count,
-        company_size_category,
-        latest_revenue,
-        latest_ebitda,
-        latest_enterprise_value,
-        investment_status,
+        ec.crm_company_id,
+        ec.pm_company_id,
+        ec.industry_primary,
+        ec.industry_secondary,
+        ec.country_code,
+        ec.founded_year,
+        ec.employee_count,
+        ec.company_size_category,
+        ec.latest_revenue,
+        ec.latest_ebitda,
+        ec.latest_enterprise_value,
+        ec.investment_status,
         
         -- Overall data quality assessment
         case 
-            when resolution_confidence = 'HIGH' 
-                and crm_data_quality = 'HIGH'
-                and overall_completeness_score >= 90 
+            when ec.resolution_confidence = 'HIGH' 
+                and ec.crm_data_quality = 'HIGH'
+                and ec.overall_completeness_score >= 90 
             then 'EXCELLENT'
-            when resolution_confidence in ('HIGH', 'MEDIUM')
-                and crm_data_quality in ('HIGH', 'MEDIUM')
-                and overall_completeness_score >= 70
+            when ec.resolution_confidence in ('HIGH', 'MEDIUM')
+                and ec.crm_data_quality in ('HIGH', 'MEDIUM')
+                and ec.overall_completeness_score >= 70
             then 'GOOD'
-            when overall_completeness_score >= 50
+            when ec.overall_completeness_score >= 50
             then 'FAIR'
             else 'POOR'
         end as overall_data_quality,
         
         -- Investment attractiveness score
         (
-            case when company_size_category = 'ENTERPRISE' then 3
-                 when company_size_category = 'LARGE' then 2
-                 when company_size_category = 'MEDIUM' then 1
+            case when ec.company_size_category = 'ENTERPRISE' then 3
+                 when ec.company_size_category = 'LARGE' then 2
+                 when ec.company_size_category = 'MEDIUM' then 1
                  else 0 end +
-            case when ebitda_margin_percentage >= 20 then 3
-                 when ebitda_margin_percentage >= 10 then 2
-                 when ebitda_margin_percentage >= 0 then 1
+            case when ec.ebitda_margin_percentage >= 20 then 3
+                 when ec.ebitda_margin_percentage >= 10 then 2
+                 when ec.ebitda_margin_percentage >= 0 then 1
                  else 0 end +
-            case when debt_to_assets_ratio <= 30 then 2
-                 when debt_to_assets_ratio <= 50 then 1
+            case when ec.debt_to_assets_ratio <= 30 then 2
+                 when ec.debt_to_assets_ratio <= 50 then 1
                  else 0 end +
-            case when company_lifecycle_stage in ('GROWTH', 'MATURE') then 2
-                 when company_lifecycle_stage = 'STARTUP' then 1
+            case when ec.company_lifecycle_stage in ('GROWTH', 'MATURE') then 2
+                 when ec.company_lifecycle_stage = 'STARTUP' then 1
                  else 0 end +
-            case when industry_sector in ('TECHNOLOGY', 'HEALTHCARE', 'FINANCIAL_SERVICES') then 2
+            case when ec.industry_sector in ('TECHNOLOGY', 'HEALTHCARE', 'FINANCIAL_SERVICES') then 2
                  else 1 end
         ) as investment_attractiveness_score,
         
@@ -371,10 +374,23 @@ final as (
         end as investment_recommendation,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(id, name, industry_primary, country_code, founded_year, employee_count, revenue_midpoint_millions, latest_revenue, latest_ebitda, latest_enterprise_value, updated_at)) as record_hash
+        TO_VARCHAR(MD5(CONCAT(
+          COALESCE(bt.id,''),
+          COALESCE(bt.name,''),
+          COALESCE(ec.industry_primary,''),
+          COALESCE(ec.country_code,''),
+          COALESCE(TO_VARCHAR(ec.founded_year),''),
+          COALESCE(TO_VARCHAR(ec.employee_count),''),
+          COALESCE(TO_VARCHAR(ec.revenue_midpoint_millions),''),
+          COALESCE(TO_VARCHAR(ec.latest_revenue),''),
+          COALESCE(TO_VARCHAR(ec.latest_ebitda),''),
+          COALESCE(TO_VARCHAR(ec.latest_enterprise_value),''),
+          COALESCE(TO_VARCHAR(bt.updated_at),'')
+        ))) as record_hash
 
-    from bridge_transformed
-    where id is not null
+    from bridge_transformed bt
+    left join enhanced_companies ec on bt.id = ec.canonical_company_id
+    where bt.id is not null
 )
 
 select * from final

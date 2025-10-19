@@ -317,7 +317,7 @@ final as (
         ) / 8.0 * 100 as completeness_score,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(nav_id, fund_code, valuation_date, total_nav, called_capital, distributed_capital, remaining_value, tvpi_ratio, irr_net, last_modified_date)) as record_hash
+        HASH(nav_id, fund_code, valuation_date, total_nav, called_capital, distributed_capital, remaining_value, tvpi_ratio, irr_net, last_modified_date) as record_hash
 
     from enhanced
 )

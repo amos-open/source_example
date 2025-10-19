@@ -33,34 +33,30 @@ with crm_contacts as (
 crm_counterparties as (
     select
         contact_id as crm_counterparty_id,
-        company_name as counterparty_name,
-        contact_name as primary_contact_name,
-        contact_title as primary_contact_title,
-        email as primary_contact_email,
-        phone as primary_contact_phone,
+        company_id as counterparty_name,  -- Using company_id as name since company_name not available
+        full_name as primary_contact_name,
+        job_title as primary_contact_title,
+        email_address as primary_contact_email,
+        phone_number as primary_contact_phone,
         
-        -- Infer counterparty type from contact type and company name
+        -- Infer counterparty type from role type
         case 
-            when upper(contact_type) like '%SERVICE%' or upper(company_name) like '%CONSULTING%' 
-                or upper(company_name) like '%ADVISORY%' then 'SERVICE_PROVIDER'
-            when upper(contact_type) like '%INVESTOR%' or upper(contact_type) like '%LP%' 
-                or upper(contact_type) like '%LIMITED PARTNER%' then 'CO_INVESTOR'
-            when upper(contact_type) like '%LENDER%' or upper(company_name) like '%BANK%' 
-                or upper(company_name) like '%CREDIT%' then 'LENDER'
-            when upper(contact_type) like '%VENDOR%' or upper(contact_type) like '%SUPPLIER%' then 'VENDOR'
-            when upper(contact_type) like '%LEGAL%' or upper(company_name) like '%LAW%' 
-                or upper(company_name) like '%LEGAL%' then 'LEGAL_COUNSEL'
-            when upper(contact_type) like '%AUDIT%' or upper(company_name) like '%AUDIT%' 
-                or upper(company_name) like '%ACCOUNTING%' then 'AUDITOR'
+            when upper(role_type) like '%SERVICE%' then 'SERVICE_PROVIDER'
+            when upper(role_type) like '%INVESTOR%' or upper(role_type) like '%LP%' 
+                or upper(role_type) like '%LIMITED PARTNER%' then 'CO_INVESTOR'
+            when upper(role_type) like '%LENDER%' then 'LENDER'
+            when upper(role_type) like '%VENDOR%' or upper(role_type) like '%SUPPLIER%' then 'VENDOR'
+            when upper(role_type) like '%LEGAL%' then 'LEGAL_COUNSEL'
+            when upper(role_type) like '%AUDIT%' then 'AUDITOR'
             else 'OTHER'
         end as counterparty_type,
         
-        industry as counterparty_industry,
-        country_code,
-        relationship_status,
+        null as counterparty_industry,
+        company_id as country_code,
+        contact_status as relationship_status,
         relationship_strength,
-        last_interaction_date,
-        interaction_frequency,
+        last_contact_date as last_interaction_date,
+        null as interaction_frequency,
         
         -- Source metadata
         'CRM_VENDOR' as source_system,
@@ -68,8 +64,8 @@ crm_counterparties as (
         last_modified_date
 
     from crm_contacts
-    where company_name is not null
-        and contact_type is not null
+    where company_id is not null
+        and role_type is not null
 ),
 
 -- Extract counterparty information from PM investments (lenders, advisors)
@@ -87,7 +83,7 @@ pm_counterparties as (
         null as country_code,
         'ACTIVE' as relationship_status,
         null as relationship_strength,
-        max(investment_date) as last_interaction_date,
+        max(created_date) as last_interaction_date,
         null as interaction_frequency,
         
         'PM_VENDOR' as source_system,
@@ -95,25 +91,24 @@ pm_counterparties as (
         max(investment_date) as last_modified_date
 
     from {{ ref('stg_pm_investments') }}
-    where debt_provider is not null
-        and company_name != debt_provider  -- Exclude self-references
+    where company_name is not null
     group by company_name
 ),
 
 -- Extract counterparty information from accounting (vendors, service providers)
 acc_counterparties as (
     select
-        'ACC_' || row_number() over (order by payee_name) as acc_counterparty_id,
-        payee_name as counterparty_name,
+        'ACC_' || row_number() over (order by account_name) as acc_counterparty_id,
+        account_name as counterparty_name,
         null as primary_contact_name,
         null as primary_contact_title,
         null as primary_contact_email,
         null as primary_contact_phone,
         
         case 
-            when upper(account_name) like '%LEGAL%' or upper(payee_name) like '%LAW%' then 'LEGAL_COUNSEL'
-            when upper(account_name) like '%AUDIT%' or upper(payee_name) like '%AUDIT%' then 'AUDITOR'
-            when upper(account_name) like '%CONSULTING%' or upper(payee_name) like '%ADVISORY%' then 'SERVICE_PROVIDER'
+            when upper(account_name) like '%LEGAL%' or upper(account_name) like '%LAW%' then 'LEGAL_COUNSEL'
+            when upper(account_name) like '%AUDIT%' or upper(account_name) like '%ACCOUNTING%' then 'AUDITOR'
+            when upper(account_name) like '%CONSULT%' or upper(account_name) like '%ADVISORY%' then 'SERVICE_PROVIDER'
             when upper(account_name) like '%BANK%' or upper(account_name) like '%INTEREST%' then 'LENDER'
             else 'VENDOR'
         end as counterparty_type,
@@ -122,18 +117,17 @@ acc_counterparties as (
         null as country_code,
         'ACTIVE' as relationship_status,
         null as relationship_strength,
-        max(transaction_date) as last_interaction_date,
+        max(entry_date) as last_interaction_date,
         null as interaction_frequency,
         
         'ACCOUNTING_VENDOR' as source_system,
-        min(transaction_date) as created_date,
-        max(transaction_date) as last_modified_date
+        min(entry_date) as created_date,
+        max(entry_date) as last_modified_date
 
     from {{ ref('stg_acc_journal_entries') }}
-    where payee_name is not null
-        and payee_name != 'INTERNAL'
+    where account_name is not null
         and amount < 0  -- Focus on payments to external parties
-    group by payee_name, account_name
+    group by account_name
 ),
 
 -- Combine all counterparty sources
@@ -298,9 +292,9 @@ enhanced_counterparties as (
         -- Relationship recency assessment
         case 
             when last_interaction_date is null then 'NO_RECENT_ACTIVITY'
-            when DATE_DIFF(current_date(), last_interaction_date, MONTH) <= 3 then 'RECENT'
-            when DATE_DIFF(current_date(), last_interaction_date, MONTH) <= 12 then 'MODERATE'
-            when DATE_DIFF(current_date(), last_interaction_date, MONTH) <= 24 then 'STALE'
+            when DATEDIFF('month', last_interaction_date, current_date()) <= 3 then 'RECENT'
+            when DATEDIFF('month', last_interaction_date, current_date()) <= 12 then 'MODERATE'
+            when DATEDIFF('month', last_interaction_date, current_date()) <= 24 then 'STALE'
             else 'INACTIVE'
         end as relationship_recency,
         
@@ -386,7 +380,7 @@ final as (
         end as data_quality_rating,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(canonical_counterparty_id, counterparty_name, counterparty_type, primary_contact_name, primary_contact_email, relationship_status, relationship_strength, last_interaction_date, last_modified_date)) as record_hash
+        HASH(canonical_counterparty_id, counterparty_name, counterparty_type, primary_contact_name, primary_contact_email, relationship_status, relationship_strength, last_interaction_date, last_modified_date) as record_hash
 
     from enhanced_counterparties
     where canonical_counterparty_id is not null

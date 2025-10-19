@@ -163,12 +163,13 @@ company_industry_relationships as (
         -- Industry identifiers and details
         aci.industry_name,
         aci.industry_sector,
+        aci.industry_sector,
         ri.industry_code,
-        ri.industry_group,
-        ri.industry_description,
+        ri.gics_industry_group as industry_group,
+        null as industry_description,
         ri.gics_sector,
         ri.gics_industry_group,
-        ri.naics_code,
+        null as naics_code,
         
         -- Industry relationship details
         aci.allocation_percentage,
@@ -180,17 +181,14 @@ company_industry_relationships as (
 
     from all_company_industry aci
     left join company_xref cx on aci.source_company_id = cx.crm_company_id or aci.source_company_id = cx.pm_company_id
-    left join ref_industries ri on upper(aci.industry_sector) = upper(ri.sector_name)
+    left join ref_industries ri on upper(aci.industry_sector) = upper(ri.industry_name)
 ),
 
 -- Deduplicate and consolidate industry relationships
 consolidated_relationships as (
     select
-        -- Use the first relationship_id for the group
-        first_value(relationship_id) over (
-            partition by canonical_company_id, industry_sector, industry_classification
-            order by case when source_system = 'CRM_VENDOR' then 1 else 2 end
-        ) as relationship_id,
+        -- Use the minimum relationship_id for the group
+        min(relationship_id) as relationship_id,
         
         relationship_type,
         canonical_company_id,
@@ -202,11 +200,8 @@ consolidated_relationships as (
         industry_sector,
         industry_classification,
         
-        -- Consolidate industry names (prefer CRM data)
-        first_value(industry_name) over (
-            partition by canonical_company_id, industry_sector, industry_classification
-            order by case when source_system = 'CRM_VENDOR' then 1 else 2 end
-        ) as industry_name,
+        -- Consolidate industry names (use first non-null)
+        max(industry_name) as industry_name,
         
         -- Reference data (take first non-null values)
         first_value(industry_code ignore nulls) over (
@@ -243,13 +238,13 @@ consolidated_relationships as (
         avg(allocation_percentage) as avg_allocation_percentage,
         
         -- Determine primary industry (prefer CRM data)
-        bool_or(is_primary_industry) as is_primary_industry,
+        max(case when is_primary_industry then 1 else 0 end) = 1 as is_primary_industry,
         
         -- Industry rank (minimum rank wins)
         min(industry_rank) as industry_rank,
         
         -- Source system tracking
-        string_agg(distinct source_system, ', ') as source_systems,
+        listagg(distinct source_system, ', ') as source_systems,
         count(*) as source_record_count,
         
         processed_at
@@ -257,7 +252,7 @@ consolidated_relationships as (
     from company_industry_relationships
     group by 
         canonical_company_id, source_company_id, company_name, canonical_company_name,
-        industry_sector, industry_classification, relationship_type, processed_at
+        industry_classification, relationship_type, processed_at, industry_name
 ),
 
 -- Remove duplicates by selecting one record per group
@@ -371,8 +366,8 @@ enhanced_relationships as (
         
         -- Data source reliability
         case 
-            when source_record_count >= 2 and 'CRM_VENDOR' = any(string_to_array(source_systems, ', ')) then 'HIGH_RELIABILITY'
-            when 'CRM_VENDOR' = any(string_to_array(source_systems, ', ')) then 'MEDIUM_RELIABILITY'
+            when source_record_count >= 2 and ARRAY_CONTAINS('CRM_VENDOR'::variant, split(source_systems, ', ')) then 'HIGH_RELIABILITY'
+            when ARRAY_CONTAINS('CRM_VENDOR'::variant, split(source_systems, ', ')) then 'MEDIUM_RELIABILITY'
             when source_record_count >= 2 then 'MEDIUM_RELIABILITY'
             else 'LOW_RELIABILITY'
         end as data_reliability

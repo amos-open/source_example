@@ -20,9 +20,16 @@
     -- Primary identifiers with cross-reference lookup
     x.canonical_company_id as id,
     c.company_id as crm_company_id,
+    pm.pm_company_id,
     
     -- Company names (prioritize CRM, fallback to PM)
     COALESCE(c.company_name, pm.company_name) as name,
+    
+    -- PM investment summary fields
+    pm.investment_count,
+    pm.total_investment_amount,
+    pm.first_investment_date,
+    pm.latest_investment_date,
     c.legal_name as company_legal_name,
     
     -- Industry and classification
@@ -72,7 +79,7 @@
     
     -- Primary identifiers
     x.canonical_fund_id as id,
-    f.fund_id as admin_fund_code,
+    f.fund_code as admin_fund_code,
     
     -- Fund identification
     f.fund_name as name,
@@ -88,8 +95,7 @@
     f.final_size,
     
     -- Geographic and regulatory
-    f.jurisdiction as incorporated_in,
-    f.base_currency as base_currency_code,
+    f.base_currency_code,
     
     -- Strategy and focus
     f.investment_strategy,
@@ -97,8 +103,8 @@
     f.fund_status,
     
     -- Audit fields
-    CAST(f.created_timestamp AS TIMESTAMP) as created_at,
-    CAST(f.updated_timestamp AS TIMESTAMP) as updated_at,
+    CAST(f.created_date AS TIMESTAMP) as created_at,
+    CAST(f.last_modified_date AS TIMESTAMP) as updated_at,
     
     -- Cross-reference data
     x.data_quality_rating as overall_data_quality
@@ -110,7 +116,7 @@
     
     -- Primary identifiers
     x.canonical_investor_id as id,
-    i.investor_id as investor_code,
+    i.investor_code as admin_investor_code,
     
     -- Investor identification
     i.investor_name as name,
@@ -120,21 +126,14 @@
     i.standardized_country_code,
     
     -- Investment characteristics
-    i.investment_capacity,
-    i.risk_tolerance,
-    i.compliance_status,
-    i.has_esg_requirements,
-    
-    -- Classification and strategy
-    i.final_investor_classification,
-    i.engagement_strategy,
+    i.investor_size_category,
     
     -- Audit fields
-    CAST(i.created_timestamp AS TIMESTAMP) as created_at,
-    CAST(i.updated_timestamp AS TIMESTAMP) as updated_at,
+    CAST(i.created_date AS TIMESTAMP) as created_at,
+    CAST(i.last_modified_date AS TIMESTAMP) as updated_at,
     
     -- Generated foreign keys
-    CAST(GENERATE_UUID() AS STRING) as investor_type_id
+    null as investor_type_id
 {% endmacro %}
 
 {% macro bridge_counterparty_staging_to_intermediate() %}

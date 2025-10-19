@@ -105,8 +105,10 @@ cleaned as (
         end as board_seats,
         
         case 
-            when liquidation_preference is not null and liquidation_preference > 0
-            then CAST(liquidation_preference AS NUMERIC(8,4))
+            when liquidation_preference is not null 
+                and trim(liquidation_preference) != ''
+                and REGEXP_REPLACE(liquidation_preference, '[^0-9.]', '') != ''
+            then CAST(REGEXP_REPLACE(liquidation_preference, '[^0-9.]', '') AS NUMERIC(8,4))
             else null
         end as liquidation_preference,
         

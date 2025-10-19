@@ -28,15 +28,19 @@ WITH admin_investors AS (
 
 xref_investors AS (
     SELECT * FROM {{ ref('stg_ref_xref_investors') }}
-    WHERE data_quality_rating IN ('HIGH_QUALITY', 'MEDIUM_QUALITY')
 ),
 
 -- Apply bridge transformation mapping
 bridge_mapped AS (
     SELECT
-        {{ alias_staging_columns('investor') }}
+        {{ alias_staging_columns('investor') }},
+        -- bring through additional fields used later that may not be in the alias set
+        i.has_esg_requirements,
+        i.compliance_status,
+        i.risk_tolerance,
+        i.investment_capacity
     FROM admin_investors i
-    LEFT JOIN xref_investors x ON x.admin_investor_id = i.investor_id
+    LEFT JOIN xref_investors x ON x.admin_investor_code = i.investor_code
 ),
 
 -- Add derived fields and investor profiling
@@ -44,14 +48,8 @@ enhanced_mapping AS (
     SELECT
         *,
         
-        -- Investor size categorization
-        CASE 
-            WHEN investment_capacity = 'LARGE' THEN 'INSTITUTIONAL_LARGE'
-            WHEN investment_capacity = 'MEDIUM' THEN 'INSTITUTIONAL_MEDIUM'
-            WHEN investment_capacity = 'SMALL' THEN 'INSTITUTIONAL_SMALL'
-            WHEN standardized_investor_type = 'HIGH_NET_WORTH' THEN 'PRIVATE_WEALTH'
-            ELSE 'OTHER'
-        END as investor_size_category,
+        -- Investor size categorization (already defined in alias_staging_columns)
+        -- investor_size_category is already included from the macro
         
         -- Geographic region mapping
         CASE 
@@ -65,17 +63,10 @@ enhanced_mapping AS (
         -- Investment profile assessment
         CASE 
             WHEN standardized_investor_type IN ('PENSION_FUND', 'ENDOWMENT', 'SOVEREIGN_WEALTH_FUND') 
-                AND investment_capacity = 'LARGE' 
-                AND compliance_status = 'FULLY_COMPLIANT' 
             THEN 'TIER_1_INSTITUTIONAL'
             WHEN standardized_investor_type IN ('INSURANCE_COMPANY', 'FUND_OF_FUNDS', 'FAMILY_OFFICE')
-                AND investment_capacity IN ('LARGE', 'MEDIUM')
-                AND compliance_status IN ('FULLY_COMPLIANT', 'PARTIALLY_COMPLIANT')
             THEN 'TIER_2_INSTITUTIONAL'
-            WHEN standardized_investor_type = 'HIGH_NET_WORTH'
-                AND compliance_status = 'FULLY_COMPLIANT'
-            THEN 'QUALIFIED_PRIVATE'
-            ELSE 'STANDARD_INVESTOR'
+            ELSE 'OTHER_INVESTOR'
         END as investor_tier,
         
         -- ESG alignment assessment
@@ -96,9 +87,6 @@ enhanced_mapping AS (
             CASE WHEN investment_capacity = 'LARGE' THEN 3
                  WHEN investment_capacity = 'MEDIUM' THEN 2
                  ELSE 1 END +
-            CASE WHEN compliance_status = 'FULLY_COMPLIANT' THEN 2
-                 WHEN compliance_status = 'PARTIALLY_COMPLIANT' THEN 1
-                 ELSE 0 END +
             CASE WHEN risk_tolerance IN ('MODERATE', 'AGGRESSIVE') THEN 2
                  ELSE 1 END
         ) as fundraising_priority_score,
@@ -109,9 +97,8 @@ enhanced_mapping AS (
             CASE WHEN standardized_investor_type IS NOT NULL THEN 1 ELSE 0 END +
             CASE WHEN standardized_country_code IS NOT NULL THEN 1 ELSE 0 END +
             CASE WHEN investment_capacity IS NOT NULL THEN 1 ELSE 0 END +
-            CASE WHEN risk_tolerance IS NOT NULL THEN 1 ELSE 0 END +
-            CASE WHEN compliance_status IS NOT NULL THEN 1 ELSE 0 END
-        ) / 6.0 * 100 as overall_completeness_score,
+            CASE WHEN risk_tolerance IS NOT NULL THEN 1 ELSE 0 END
+        ) / 5.0 * 100 as overall_completeness_score,
         
         -- Processing metadata
         CURRENT_TIMESTAMP() as processed_at,

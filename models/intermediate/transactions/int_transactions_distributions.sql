@@ -40,12 +40,12 @@ fx_rates as (
 -- Get latest exchange rates for currency conversion
 latest_fx_rates as (
     select
-        from_currency,
-        to_currency,
+        base_currency_code as from_currency,
+        quote_currency_code as to_currency,
         exchange_rate,
         rate_date,
         row_number() over (
-            partition by from_currency, to_currency 
+            partition by base_currency_code, quote_currency_code 
             order by rate_date desc
         ) as rn
     from fx_rates
@@ -237,7 +237,7 @@ enhanced_transactions as (
         -- Days since transaction
         case 
             when transaction_date is not null then
-                DATE_DIFF(current_date(), transaction_date, DAY)
+                DATEDIFF(DAY, transaction_date, current_date())
             else null
         end as days_since_transaction,
         
@@ -332,7 +332,7 @@ final as (
         end as return_indicator,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(transaction_id, canonical_fund_id, source_investor_id, transaction_date, gross_amount_usd, distribution_type, payment_status, settlement_date, net_amount_usd, last_modified_date)) as record_hash
+        HASH(transaction_id, canonical_fund_id, source_investor_id, transaction_date, gross_amount_usd, distribution_type, payment_status, settlement_date, net_amount_usd, last_modified_date) as record_hash
 
     from enhanced_transactions
 )

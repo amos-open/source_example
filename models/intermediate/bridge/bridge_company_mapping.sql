@@ -31,7 +31,7 @@ pm_company_summary AS (
         company_id as pm_company_id,
         company_name,
         count(*) as investment_count,
-        sum(investment_amount) as total_investment_amount,
+        sum(initial_investment_amount) as total_investment_amount,
         min(investment_date) as first_investment_date,
         max(investment_date) as latest_investment_date
     FROM {{ ref('stg_pm_investments') }}

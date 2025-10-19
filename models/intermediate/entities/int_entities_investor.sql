@@ -213,23 +213,27 @@ bridge_transformed as (
 final as (
     select
         -- Canonical model format using bridge transformation
-        {{ alias_intermediate_columns('investor') }},
+        bt.id,
+        bt.name,
+        bt.investor_type_id,
+        bt.created_at,
+        bt.updated_at,
         
         -- Additional intermediate fields for analysis (not used by canonical model)
-        investor_code,
-        standardized_investor_type,
-        standardized_country_code,
-        investment_capacity,
-        risk_tolerance,
-        compliance_status,
-        has_esg_requirements,
+        bt.admin_investor_code as investor_code,
+        bt.standardized_investor_type,
+        bt.standardized_country_code,
+        null as investment_capacity,
+        null as risk_tolerance,
+        bt.compliance_status,
+        bt.has_esg_requirements,
         
-        -- Final investor classification for fundraising
+        -- Final investor classification for fundraising (using fundraising_priority_score instead of overall_investor_score)
         case 
-            when overall_investor_score >= 2.8 and fundraising_priority = 'PRIORITY_1' then 'TARGET_INVESTOR'
-            when overall_investor_score >= 2.3 and fundraising_priority in ('PRIORITY_1', 'PRIORITY_2') then 'QUALIFIED_INVESTOR'
-            when overall_investor_score >= 1.8 and fundraising_priority in ('PRIORITY_1', 'PRIORITY_2', 'PRIORITY_3') then 'POTENTIAL_INVESTOR'
-            when compliance_status != 'NON_COMPLIANT' then 'PROSPECT_INVESTOR'
+            when bt.fundraising_priority_score >= 7 then 'TARGET_INVESTOR'
+            when bt.fundraising_priority_score >= 5 then 'QUALIFIED_INVESTOR'
+            when bt.fundraising_priority_score >= 3 then 'POTENTIAL_INVESTOR'
+            when bt.compliance_status != 'NON_COMPLIANT' then 'PROSPECT_INVESTOR'
             else 'EXCLUDED_INVESTOR'
         end as final_investor_classification,
         
@@ -243,10 +247,10 @@ final as (
         end as engagement_strategy,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(investor_code, name, standardized_investor_type, standardized_country_code, investment_capacity, risk_tolerance, compliance_status, has_esg_requirements, updated_at)) as record_hash
+        HASH(bt.admin_investor_code, bt.name, bt.standardized_investor_type, bt.standardized_country_code, bt.compliance_status, bt.has_esg_requirements, bt.updated_at) as record_hash
 
-    from bridge_transformed
-    where id is not null
+    from bridge_transformed bt
+    where bt.id is not null
 )
 
 select * from final

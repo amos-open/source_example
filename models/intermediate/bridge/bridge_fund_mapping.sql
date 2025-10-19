@@ -36,7 +36,7 @@ bridge_mapped AS (
     SELECT
         {{ alias_staging_columns('fund') }}
     FROM admin_funds f
-    LEFT JOIN xref_funds x ON x.admin_fund_id = f.fund_id
+    LEFT JOIN xref_funds x ON x.admin_fund_code = f.fund_code
 ),
 
 -- Add derived fields and validation
@@ -79,9 +79,8 @@ enhanced_mapping AS (
             CASE WHEN vintage IS NOT NULL THEN 1 ELSE 0 END +
             CASE WHEN base_currency_code IS NOT NULL THEN 1 ELSE 0 END +
             CASE WHEN target_commitment IS NOT NULL THEN 1 ELSE 0 END +
-            CASE WHEN management_fee IS NOT NULL THEN 1 ELSE 0 END +
-            CASE WHEN incorporated_in IS NOT NULL THEN 1 ELSE 0 END
-        ) / 7.0 * 100 as overall_completeness_score,
+            CASE WHEN management_fee IS NOT NULL THEN 1 ELSE 0 END
+        ) / 6.0 * 100 as overall_completeness_score,
         
         -- Investment attractiveness scoring
         (
