@@ -326,8 +326,11 @@ bridge_transformed as (
 
 final as (
     select
-        -- Canonical model format using bridge transformation
-        {{ alias_intermediate_columns('counterparty') }},
+        -- Canonical model format
+        canonical_counterparty_id as id,
+        counterparty_name as name,
+        CAST(created_date AS TIMESTAMP_NTZ) as created_at,
+        CAST(last_modified_date AS TIMESTAMP_NTZ) as updated_at,
         
         -- Additional intermediate fields for analysis (not used by canonical model)
         primary_contact_name,

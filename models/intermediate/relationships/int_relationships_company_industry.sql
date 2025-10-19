@@ -197,7 +197,7 @@ consolidated_relationships as (
         canonical_company_name,
         
         -- Industry identifiers
-        industry_sector,
+        max(industry_sector) as industry_sector,
         industry_classification,
         
         -- Consolidate industry names (use first non-null)
@@ -252,7 +252,7 @@ consolidated_relationships as (
     from company_industry_relationships
     group by 
         canonical_company_id, source_company_id, company_name, canonical_company_name,
-        industry_classification, relationship_type, processed_at, industry_name
+        industry_classification, relationship_type, processed_at
 ),
 
 -- Remove duplicates by selecting one record per group
