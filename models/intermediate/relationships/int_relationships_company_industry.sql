@@ -252,7 +252,7 @@ consolidated_relationships as (
     from company_industry_relationships
     group by 
         canonical_company_id, source_company_id, company_name, canonical_company_name,
-        industry_classification, relationship_type, processed_at, industry_name, industry_sector
+        industry_classification, relationship_type, processed_at, industry_name
 ),
 
 -- Remove duplicates by selecting one record per group

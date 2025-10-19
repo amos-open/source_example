@@ -342,7 +342,7 @@ final as (
         end as monitoring_priority,
         
         -- Record hash for change detection
-        FARM_FINGERPRINT(CONCAT(relationship_id, canonical_company_id, country_code, geographic_region, normalized_allocation_percentage, is_primary_geography, geography_types, source_systems)) as record_hash
+        HASH(relationship_id, COALESCE(canonical_company_id, ''), COALESCE(country_code, ''), COALESCE(geographic_region, ''), normalized_allocation_percentage, is_primary_geography, COALESCE(geography_types, ''), COALESCE(source_systems, '')) as record_hash
 
     from enhanced_relationships
 )

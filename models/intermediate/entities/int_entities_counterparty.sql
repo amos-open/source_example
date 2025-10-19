@@ -219,7 +219,7 @@ consolidated_counterparties as (
         ) as interaction_frequency,
         
         -- Source system tracking
-        string_agg(distinct source_system, ', ') over (
+        listagg(distinct source_system, ', ') within group (order by source_system) over (
             partition by upper(REGEXP_REPLACE(counterparty_name, '[^A-Za-z0-9]', ''))
         ) as source_systems,
         
