@@ -187,9 +187,9 @@ consolidated_relationships as (
         listagg(distinct source_system, ', ') as source_systems,
         count(*) as source_record_count,
         
-        -- Geographic details (already aggregated in company_geography_relationships)
-        state_province,
-        city,
+        -- Geographic details (aggregate from company_geography_relationships)
+        max(state_province) as state_province,
+        max(city) as city,
         
         processed_at
 

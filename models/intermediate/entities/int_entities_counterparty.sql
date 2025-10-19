@@ -126,8 +126,7 @@ acc_counterparties as (
 
     from {{ ref('stg_acc_journal_entries') }}
     where account_name is not null
-        and amount < 0  -- Focus on payments to external parties
-    group by account_name
+    group by account_name, counterparty_type
 ),
 
 -- Combine all counterparty sources
