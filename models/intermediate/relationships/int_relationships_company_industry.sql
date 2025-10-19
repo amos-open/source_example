@@ -161,8 +161,8 @@ company_industry_relationships as (
         cx.canonical_company_name,
         
         -- Industry identifiers and details
-        aci.industry_name,
-        aci.industry_sector,
+        -- Some upstream datasets lack a granular industry name; fall back to sector
+        coalesce(aci.industry_name, aci.industry_sector) as industry_name,
         aci.industry_sector,
         ri.industry_code,
         ri.gics_industry_group as industry_group,
@@ -197,11 +197,14 @@ consolidated_relationships as (
         canonical_company_name,
         
         -- Industry identifiers
-        max(industry_sector) as industry_sector,
+        industry_sector,
         industry_classification,
         
-        -- Consolidate industry names (use first non-null)
-        max(industry_name) as industry_name,
+        -- Consolidate industry names (prefer CRM data)
+        first_value(industry_name) over (
+            partition by canonical_company_id, industry_sector, industry_classification
+            order by case when source_system = 'CRM_VENDOR' then 1 else 2 end
+        ) as industry_name,
         
         -- Reference data (take first non-null values)
         first_value(industry_code ignore nulls) over (
@@ -252,7 +255,7 @@ consolidated_relationships as (
     from company_industry_relationships
     group by 
         canonical_company_id, source_company_id, company_name, canonical_company_name,
-        industry_classification, relationship_type, processed_at
+        industry_sector, industry_classification, relationship_type, processed_at
 ),
 
 -- Remove duplicates by selecting one record per group
